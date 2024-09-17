@@ -1,0 +1,27 @@
+<main class={if(assigns[:current_user], do: "mt-20", else: "")}>
+  <%= if @current_user do %>
+    <div class="grid justify-center w-full">
+      <span>
+        <.link
+          href={~p"/users/log_out"}
+          method="delete"
+          class="font-semibold text-brand hover:underline"
+        >
+          <%= gettext("Log out") %>
+        </.link>
+      </span>
+    </div>
+  <% else %>
+    <div class="grid justify-center w-full">
+      <span>
+        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          <%= gettext("Log in") %>
+        </.link>
+        |
+        <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
+          <%= gettext("Register") %>
+        </.link>
+      </span>
+    </div>
+  <% end %>
+</main>

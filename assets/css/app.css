@@ -1,0 +1,25 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+
+.flash-shake {
+  animation: flash-shake 0.2s;
+  animation-iteration-count: 10;
+}
+
+@keyframes flash-shake {
+  0%, 100% {
+    transform: translateX(-50%);
+  }
+  25% {
+    transform: translateX(calc(-50% - 5px));
+  }
+  50% {
+    transform: translateX(calc(-50% + 5px));
+  }
+  75% {
+    transform: translateX(calc(-50% - 5px));
+  }
+}

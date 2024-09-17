@@ -1,0 +1,4 @@
+<main class={if(@current_user, do: "mt-20", else: "")}>
+  <.flash_group flash={@flash} />
+  <%= @inner_content %>
+</main>
