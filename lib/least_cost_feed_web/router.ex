@@ -72,10 +72,16 @@ defmodule LeastCostFeedWeb.Router do
       live "/dashboard", DashboardLive
 
       live "/nutrients", NutrientLive.Index, :index
-      live "/nutrients/new", NutrientLive.Index, :new
-      live "/nutrients/:id/edit", NutrientLive.Index, :edit
-      live "/nutrients/:id", NutrientLive.Show, :show
-      live "/nutrients/:id/show/edit", NutrientLive.Show, :edit
+      live "/nutrients/new", NutrientLive.Form, :new
+      live "/nutrients/:id/edit", NutrientLive.Form, :edit
+
+      live "/ingredients", IngredientLive.Index, :index
+      live "/ingredients/new", IngredientLive.Form, :new
+      live "/ingredients/:id/edit", IngredientLive.Form, :edit
+
+      live "/formulas", FormulaLive.Index, :index
+      live "/formulas/new", FormulaLive.Form, :new
+      live "/formulas/:id/edit", FormulaLive.Form, :edit
     end
   end
 

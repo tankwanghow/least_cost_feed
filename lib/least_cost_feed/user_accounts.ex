@@ -277,6 +277,14 @@ defmodule LeastCostFeed.UserAccounts do
     with {:ok, query} <- UserToken.verify_email_token_query(token, "confirm"),
          %User{} = user <- Repo.one(query),
          {:ok, %{user: user}} <- Repo.transaction(confirm_user_multi(user)) do
+      Repo.insert_all(
+        LeastCostFeed.Entities.IngredientComposition,
+        sample_ingredient_compositions(
+          user,
+          "priv/static/sample_data/ingredient_compositions.csv"
+        )
+      )
+
       {:ok, user}
     else
       _ -> :error
@@ -285,16 +293,21 @@ defmodule LeastCostFeed.UserAccounts do
 
   defp confirm_user_multi(user) do
     Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, User.confirm_changeset(user))
     |> Ecto.Multi.insert_all(
       :insert_sample_nutrients,
       LeastCostFeed.Entities.Nutrient,
       csv_to_entries(user, "priv/static/sample_data/nutrients.csv")
     )
+    |> Ecto.Multi.insert_all(
+      :insert_sample_ingredients,
+      LeastCostFeed.Entities.Ingredient,
+      csv_to_entries(user, "priv/static/sample_data/ingredients.csv")
+    )
+    |> Ecto.Multi.update(:user, User.confirm_changeset(user))
     |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, ["confirm"]))
   end
 
-  def csv_to_entries(user, path) do
+  def sample_ingredient_compositions(user, path) do
     File.stream!(path)
     |> NimbleCSV.RFC4180.parse_stream(skip_headers: false)
     |> Stream.transform(nil, fn
@@ -302,9 +315,82 @@ defmodule LeastCostFeed.UserAccounts do
         {[], headers}
 
       row, headers ->
-        {[Enum.zip(headers, row) |> Map.new(fn {k, v} -> {String.to_atom(k), String.trim(v)} end)], headers}
+        {[
+           Enum.zip(headers, row) |> Map.new(fn {k, v} -> {k, String.trim(v)} end)
+         ], headers}
     end)
-    |> Enum.map(fn x -> Map.merge(x, %{user_id: user.id, inserted_at: DateTime.utc_now(:second), updated_at: DateTime.utc_now(:second)}) end)
+    |> Enum.map(fn x ->
+      {ingredient_name, nutrients} = Map.pop!(x, "Ingredient")
+      ingredient = get_ingredient_by_name!(ingredient_name, user.id)
+
+      nutrients
+      |> Enum.map(fn {n, v} ->
+        if v != "" do
+          nutrient = get_nutrient_by_name!(n, user.id)
+          %{ingredient_id: ingredient.id, nutrient_id: nutrient.id, quantity: string_or_float(v)}
+        end
+      end)
+    end)
+    |> Enum.map(fn l -> Enum.filter(l, fn x -> !is_nil(x) end) end)
+    |> List.flatten()
+  end
+
+  defp get_ingredient_by_name!(name, user_id) do
+    from(ing in LeastCostFeed.Entities.Ingredient,
+      where: ing.name == ^name,
+      where: ing.user_id == ^user_id
+    )
+    |> Repo.one!()
+  end
+
+  defp get_nutrient_by_name!(name, user_id) do
+    from(nt in LeastCostFeed.Entities.Nutrient,
+      where: nt.name == ^name,
+      where: nt.user_id == ^user_id
+    )
+    |> Repo.one!()
+  end
+
+  def csv_to_entries(user, path) do
+    IO.inspect(path)
+
+    File.stream!(path)
+    |> NimbleCSV.RFC4180.parse_stream(skip_headers: false)
+    |> Stream.transform(nil, fn
+      headers, nil ->
+        {[], headers}
+
+      row, headers ->
+        {[
+           Enum.zip(headers, row)
+           |> Map.new(fn {k, v} ->
+             {String.to_atom(k), string_or_float(v)}
+           end)
+         ], headers}
+    end)
+    |> Enum.map(fn x ->
+      Map.merge(x, %{
+        user_id: user.id,
+        inserted_at: DateTime.utc_now(:second),
+        updated_at: DateTime.utc_now(:second)
+      })
+    end)
+  end
+
+  def string_or_float(v) do
+    res = v |> String.trim() |> Float.parse()
+
+    if res == :error do
+      String.trim(v)
+    else
+      {vv, kk} = res
+
+      if kk == "" do
+        vv
+      else
+        String.trim(v)
+      end
+    end
   end
 
   ## Reset password

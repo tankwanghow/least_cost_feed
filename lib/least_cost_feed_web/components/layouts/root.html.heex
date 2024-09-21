@@ -10,19 +10,13 @@
   </head>
   <body class="bg-green-50">
     <%= if @current_user do %>
-      <div
-        class="flex fixed top-0 z-10 w-full items-center justify-center text-white gap-4 bg-gray-800 py-2 px-5 shadow"
-      >
+      <div class="flex fixed top-0 z-10 w-full items-center justify-center text-white gap-4 bg-gray-800 py-2 px-5 shadow">
         <div class="text-3xl font-bold cursor-default w-[70%]">
-          <%= gettext("Least Cost Feed") %>
+          Least Cost Feed
         </div>
 
-        <.link
-          id="dashboard"
-          navigate={~p"/dashboard"}
-          class="rounded hover:bg-gray-400 p-2"
-        >
-          <%= gettext("Dashboard") %>
+        <.link id="dashboard" navigate={~p"/dashboard"} class="rounded hover:bg-gray-400 p-2">
+          Dashboard
         </.link>
 
         <ul>
@@ -33,10 +27,9 @@
 
             <div class="p-2 invisible absolute right-0 top-full transform opacity-0 transition-all duration-300 group-focus-within:visible group-focus-within:opacity-100">
               <ul class="mt-1 rounded-md border border-neutral-50 bg-gray-800 p-2 shadow backdrop-blur-sm">
-
                 <li class="my-5">
                   <.link navigate={~p"/users/settings"} class="mb-2 p-3 hover:bg-emerald-400 flex">
-                    <%= gettext("User Settings") %>
+                    User Settings
                   </.link>
                 </li>
 
@@ -46,7 +39,7 @@
                     method="delete"
                     class="p-3 hover:bg-rose-400 flex"
                   >
-                    <%= gettext("Log out") %>
+                    Log out
                   </.link>
                 </li>
               </ul>
@@ -55,16 +48,16 @@
         </ul>
       </div>
     <% else %>
-      <%= if assigns[:page_title] != gettext("Home") do %>
+      <%= if assigns[:page_title] != "Home" do %>
         <div class="">
           <img src="/images/logo.jpg" alt="LCF Logo" class="mx-auto w-1/6 h-1/6" />
         </div>
 
         <h1 class="text-center text-3xl tracking-tighter mt-2">
-          <%= gettext("Feed Formulation Made Simple and Cost Effective") %>
+          Feed Formulation Made Simple and Cost Effective
         </h1>
         <div class="text-gray-400 text-center tracking-tighter">
-          <%= gettext("Version") %> <%= "0.1.0" %>
+          Version 0.1.0
         </div>
       <% end %>
     <% end %>

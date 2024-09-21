@@ -4,6 +4,60 @@
 
 /* This file is for your main application CSS */
 
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+  text-align: right;
+}
+
+button[disabled] {
+  @apply cursor-not-allowed bg-gray-400;
+}
+
+input[disabled] {
+  @apply cursor-not-allowed bg-gray-200;
+}
+
+input[readonly] { @apply bg-gray-200; }
+
+.button {
+  @apply text-center tracking-tighter rounded-md transition px-3 py-2 border duration-500;
+  @apply select-none hover:cursor-pointer;
+}
+
+.button[disabled] {@apply cursor-not-allowed;}
+
+.blue.button {
+  @apply border-sky-500 bg-sky-200 hover:bg-sky-500 focus:bg-sky-500;
+}
+
+.green.button {
+  @apply border-green-500 bg-green-200 hover:bg-green-500 focus:bg-green-500;
+}
+
+.orange.button {
+  @apply border-amber-500 bg-amber-200 hover:bg-amber-500 focus:bg-amber-500;
+}
+
+.gray.button {
+  @apply border-gray-500 bg-gray-200 hover:bg-gray-500 focus:bg-gray-500;
+}
+
+.red.button {
+  @apply border-red-500 bg-red-200 hover:bg-red-500 focus:bg-red-500;
+}
+
+.teal.button {
+  @apply border-teal-500 bg-teal-200 hover:bg-teal-500 focus:bg-teal-500;
+}
+
 .flash-shake {
   animation: flash-shake 0.2s;
   animation-iteration-count: 10;
