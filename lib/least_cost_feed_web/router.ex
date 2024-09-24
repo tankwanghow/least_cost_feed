@@ -82,6 +82,8 @@ defmodule LeastCostFeedWeb.Router do
       live "/formulas", FormulaLive.Index, :index
       live "/formulas/new", FormulaLive.Form, :new
       live "/formulas/:id/edit", FormulaLive.Form, :edit
+
+      live "/transfer", TransferLive.Form
     end
   end
 

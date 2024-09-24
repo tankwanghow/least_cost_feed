@@ -30,6 +30,8 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  config :least_cost_feed, mod_files_dir: "/app/mod_files"
+
   config :least_cost_feed, LeastCostFeed.Repo,
     # ssl: true,
     url: database_url,

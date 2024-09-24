@@ -10,6 +10,8 @@ config :least_cost_feed, LeastCostFeed.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :least_cost_feed, mod_files_dir: "mod_files"
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

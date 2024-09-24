@@ -75,6 +75,13 @@ defmodule LeastCostFeed.UserAccounts do
 
   """
   def register_user(attrs) do
+    attrs =
+      if from(u in User) |> Repo.all() |> Enum.count() == 0 do
+        attrs |> Map.merge(%{"is_admin" => true})
+      else
+        attrs
+      end
+
     %User{}
     |> User.registration_changeset(attrs)
     |> Repo.insert()
@@ -285,6 +292,13 @@ defmodule LeastCostFeed.UserAccounts do
         )
       )
 
+      path = Application.get_env(:least_cost_feed, :mod_files_dir)
+      {res, _} = File.ls(path)
+
+      if res == :error do
+        File.mkdir!(path)
+      end
+
       {:ok, user}
     else
       _ -> :error
@@ -352,8 +366,6 @@ defmodule LeastCostFeed.UserAccounts do
   end
 
   def csv_to_entries(user, path) do
-    IO.inspect(path)
-
     File.stream!(path)
     |> NimbleCSV.RFC4180.parse_stream(skip_headers: false)
     |> Stream.transform(nil, fn

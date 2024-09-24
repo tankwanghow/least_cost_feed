@@ -116,20 +116,20 @@ defmodule LeastCostFeedWeb.CoreComponents do
       role="alert"
       class={[
         "fixed top-10 left-1/2 transform -translate-x-1/2 flash-shake",
-        "w-80 z-50 rounded-lg p-3 ring-2",
+        "max-w-[50%] z-50 rounded-lg p-3 ring-2",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :warn && "bg-amber-50 text-amber-800 ring-amber-500 fill-amber-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
     >
-      <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
-        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
-        <.icon :if={@kind == :warn} name="hero-information-circle-mini" class="h-4 w-4" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
+      <p :if={@title} class="text-2xl flex items-center gap-1.5 font-semibold leading-6">
+        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-8 w-8" />
+        <.icon :if={@kind == :warn} name="hero-information-circle-mini" class="h-8 w-8" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-8 w-8" />
         <%= @title %>
       </p>
-      <p class="mt-2 text-sm leading-5"><%= msg %></p>
+      <p class="text-xl mt-2 leading-5"><%= msg %></p>
       <button type="button" class="group absolute top-1 right-1 p-2" aria-label={gettext("close")}>
         <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-40 group-hover:opacity-70" />
       </button>

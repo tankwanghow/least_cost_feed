@@ -2,12 +2,17 @@ defmodule LeastCostFeed.Entities.Formula do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias LeastCostFeed.Helpers
+
   schema "formulas" do
     field :name, :string
     field :batch_size, :float, default: 0.0
     field :weight_unit, :string
     field :note, :string
     field :usage_per_day, :float, default: 0.0
+    field :premix_bag_weight, :float, default: 0.0
+    field :premix_bag_usage_qty, :integer, default: 0
+    field :premix_bags_qty, :integer, default: 0
     field :cost, :float, virtual: true
     belongs_to :user, LeastCostFeed.UserAccounts.User
     has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient
@@ -26,35 +31,27 @@ defmodule LeastCostFeed.Entities.Formula do
   end
 
   def refresh_cost(changeset) do
-    dtls = get_change_or_data(changeset, :formula_ingredients)
+    dtls = Helpers.get_list(changeset, :formula_ingredients)
 
     sum =
       Enum.reduce(dtls, 0.0, fn x, acc ->
-        func =
-          if is_struct(x, Ecto.Changeset) do
-            &fetch_field!/2
-          else
-            &Map.fetch!/2
-          end
-
         acc +
-          if(!func.(x, :delete),
-            do: func.(x, :cost) * func.(x, :actual) * fetch_field!(changeset, :batch_size),
+          if(!Helpers.my_fetch_field!(x, :delete),
+            do:
+              (Helpers.my_fetch_field!(x, :cost) |> LeastCostFeedWeb.Helpers.float_parse()) *
+                (Helpers.my_fetch_field!(x, :actual) |> LeastCostFeedWeb.Helpers.float_parse()) *
+                (Helpers.my_fetch_field!(changeset, :batch_size)
+                 |> LeastCostFeedWeb.Helpers.float_parse()),
             else: 0.0
           )
       end)
 
-    changeset |> put_change(:cost, :erlang.float_to_binary(sum, [:compact, decimals: 4]))
-  end
+    bz = Helpers.my_fetch_field!(changeset, :batch_size) |> LeastCostFeedWeb.Helpers.float_parse()
 
-  def get_change_or_data(changeset, detail_name) do
-    list =
-      if is_nil(get_change(changeset, detail_name)) do
-        Map.fetch!(changeset.data, detail_name)
-      else
-        get_change(changeset, detail_name)
-      end
-
-    if is_struct(list, Ecto.Association.NotLoaded), do: [], else: list
+    if bz > 0.0 do
+      changeset |> force_change(:cost, sum / bz * 1000.0)
+    else
+      changeset
+    end
   end
 end

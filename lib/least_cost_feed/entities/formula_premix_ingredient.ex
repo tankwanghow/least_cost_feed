@@ -1,37 +1,25 @@
-defmodule LeastCostFeed.Entities.FormulaIngredient do
+defmodule LeastCostFeed.Entities.FormulaPremixIngredient do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "formula_ingredients" do
-    field :min, :float
-    field :max, :float
-    field :actual, :float
-    field :cost, :float, default: 0.0
-    field :shadow, :float
-    field :used, :boolean, default: true
+  schema "formula_premix_ingredients" do
+    field :formula_quantity, :float
+    field :premix_quantity, :float, default: 0.0
     belongs_to :ingredient, LeastCostFeed.Entities.Ingredient
     belongs_to :formula, LeastCostFeed.Entities.Formula
 
     field :ingredient_name, :string, virtual: true
-    field :weight, :float, virtual: true
-    field :amount, :float, virtual: true
     field :delete, :boolean, virtual: true, default: false
   end
 
   @doc false
-  def changeset(fi, attrs) do
-    fi
+  def changeset(fpi, attrs) do
+    fpi
     |> cast(attrs, [
-      :min,
-      :max,
-      :actual,
-      :used,
-      :cost,
-      :shadow,
+      :formula_quantity,
+      :premix_quantity,
       :ingredient_id,
       :formula_id,
-      :weight,
-      :amount,
       :ingredient_name,
       :delete
     ])

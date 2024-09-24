@@ -1,14 +1,15 @@
 defmodule LeastCostFeedWeb.FormulaLive.Form do
   use LeastCostFeedWeb, :live_view
 
+  alias LeastCostFeedWeb.Helpers
   alias LeastCostFeed.Entities
-  alias LeastCostFeed.Entities.Formula
+  alias LeastCostFeed.Entities.{Formula, FormulaIngredient}
   import Ecto.Query, warn: false
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-3/4 min-w-[1200px] mx-auto mb-10 p-5">
+    <div class="w-3/4 min-w-[1200px] mx-auto p-5">
       <.back navigate={~p"/formulas"}>Back Formula Listing</.back>
       <div class="font-bold text-3xl">
         <%= @page_title %>
@@ -26,6 +27,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               type="number"
               label={"Batch Size (#{@form[:weight_unit].value})"}
               step="any"
+              value={Helpers.float_decimal(@form[:batch_size].value)}
             />
           </div>
           <div class="w-[10%]">
@@ -34,30 +36,42 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               type="number"
               label={"Daily Usage (#{@form[:weight_unit].value})"}
               step="any"
+              value={Helpers.float_decimal(@form[:usage_per_day].value)}
             />
           </div>
           <div class="w-[10%]">
             <.input
               field={@form[:cost]}
               type="number"
-              label={"Cost per #{@form[:weight_unit].value}"}
+              label={"Cost per 1000#{@form[:weight_unit].value}"}
               readonly
+              value={Helpers.float_decimal(@form[:cost].value, 2)}
             />
           </div>
           <div class="w-[30%]"><.input field={@form[:note]} type="text" label="Note" /></div>
         </div>
 
-        <div class="my-2">
+        <div class="flex my-2 gap-2">
           <.button phx-disable-with="Saving...">Save Formula</.button>
-          <.link class="blue button">Optimize</.link>
-          <.link navigate={~p"/formulas/#{@form[:id].value}/edit"} class="red button">Cancel</.link>
+          <.link class="blue button font-bold w-[30%]" phx-click="optimize_formula">Optimize</.link>
+          <.link
+            navigate={
+              if(@live_action == :new,
+                do: ~p"/formulas/new",
+                else: ~p"/formulas/#{@form[:id].value}/edit"
+              )
+            }
+            class="red button w-[15%]"
+          >
+            Cancel
+          </.link>
+          <.link :if={@form.source.changes == %{} and @live_action != :new} class="red button w-[15%]">
+            Premix
+          </.link>
         </div>
 
         <div class="flex gap-5">
           <div class="w-[65%]">
-            <div class="button teal mb-0.5" phx-click="show_select_ingredients">
-              Add/Remove Ingredients
-            </div>
             <div class="font-bold flex text-center">
               <div class="w-[3%]" />
               <div class="w-[30%]">Ingredient</div>
@@ -69,7 +83,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               <div class="w-[10%]">Weight</div>
               <div class="w-[10%]">Amount</div>
             </div>
-            <div class="h-[720px] overflow-y-auto">
+            <%!-- h-[580px] overflow-y-auto border bg-teal-200 p-1 rounded-xl border-teal-500 --%>
+            <div class="">
               <.inputs_for :let={nt} field={@form[:formula_ingredients]}>
                 <div class={["flex", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[3%] mt-2">
@@ -79,19 +94,44 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                     <.input field={nt[:ingredient_name]} readonly />
                   </div>
                   <div class="w-[9%]">
-                    <.input type="number" step="any" field={nt[:cost]} />
+                    <.input
+                      type="number"
+                      step="any"
+                      field={nt[:cost]}
+                      value={Helpers.float_decimal(nt[:cost].value)}
+                    />
                   </div>
                   <div class="w-[9%]">
-                    <.input type="number" step="any" field={nt[:min]} />
+                    <.input
+                      type="number"
+                      step="any"
+                      field={nt[:min]}
+                      value={Helpers.float_decimal(nt[:min].value, 6)}
+                    />
                   </div>
                   <div class="w-[9%]">
-                    <.input type="number" step="any" field={nt[:max]} />
+                    <.input
+                      type="number"
+                      step="any"
+                      field={nt[:max]}
+                      value={Helpers.float_decimal(nt[:max].value, 6)}
+                    />
                   </div>
                   <div class="w-[10%]">
-                    <.input type="number" field={nt[:actual]} readonly />
+                    <.input
+                      type="number"
+                      field={nt[:actual]}
+                      value={Helpers.float_decimal(nt[:actual].value, 6)}
+                      readonly
+                    />
                   </div>
                   <div class="w-[10%]">
-                    <.input type="number" field={nt[:shadow]} readonly />
+                    <.input
+                      type="number"
+                      field={nt[:shadow]}
+                      value={Helpers.float_decimal(nt[:shadow].value)}
+                      readonly
+                    />
                   </div>
                   <div class="w-[10%]">
                     <.input
@@ -116,12 +156,12 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                 </div>
               </.inputs_for>
             </div>
+            <div class="button teal mb-0.5 w-[30%] mt-1" phx-click="show_select_ingredients">
+              Add/Remove Ingredients
+            </div>
           </div>
 
           <div class="w-[35%]">
-            <div class="button blue mb-0.5" phx-click="show_select_nutrients">
-              Add/Remove Nutrients
-            </div>
             <div class="font-bold flex text-center">
               <div class="w-[5%]" />
               <div class="w-[35%]">Nutrient</div>
@@ -129,7 +169,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               <div class="w-[20%]">Max</div>
               <div class="w-[20%]">Actual</div>
             </div>
-            <div class="h-[720px] overflow-y-auto">
+            <%!-- h-[580px] overflow-y-auto border bg-sky-200 p-1 rounded-xl border-sky-500--%>
+            <div class="">
               <.inputs_for :let={nt} field={@form[:formula_nutrients]}>
                 <div class={["flex", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[5%] mt-2">
@@ -151,6 +192,9 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                   <.input type="hidden" field={nt[:nutrient_id]} />
                 </div>
               </.inputs_for>
+            </div>
+            <div class="button blue mb-0.5 w-[40%] mt-1" phx-click="show_select_nutrients">
+              Add/Remove Nutrients
             </div>
           </div>
         </div>
@@ -227,6 +271,39 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   end
 
   @impl true
+  def handle_event("optimize_formula", _, socket) do
+    socket =
+      case LeastCostFeed.GlpsolFileGen.optimize(
+             socket.assigns.form.source,
+             socket.assigns.current_user.id
+           ) do
+        {:ok, optimize_ingredient_params, optimize_nutrient_params} ->
+          LeastCostFeed.GlpsolFileGen.optimize(
+            socket.assigns.form.source,
+            socket.assigns.current_user.id
+          )
+
+          cs =
+            Entities.replace_formula_with_optimize(
+              socket.assigns.form.source,
+              optimize_ingredient_params,
+              optimize_nutrient_params
+            )
+            |> Formula.refresh_cost()
+
+          socket
+          |> assign(form: to_form(cs, action: :validate))
+          |> put_flash(:info, "Formula OPTIMIZED successfully")
+          |> put_flash(:error, nil)
+
+        {:error, title, _msg} ->
+          socket |> put_flash(:error, title) |> put_flash(:info, nil)
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("show_select_nutrients", _, socket) do
     {:noreply,
      socket
@@ -259,8 +336,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
     new_formual_nutrient = %{
       nutrient_id: nutrient.id,
       nutrient_name: "#{nutrient.name} (#{nutrient.unit})",
-      min: 0.0,
-      max: 0.0,
+      min: nil,
+      max: nil,
       actual: 0.0,
       used: true
     }
@@ -285,13 +362,13 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   def handle_event("ingredient_clicked", %{"object-id" => id, "value" => "on"}, socket) do
     ingredient = Entities.get_ingredient!(id)
 
-    new_formula_ingredient = %{
+    new_formula_ingredient = %FormulaIngredient{
       ingredient_id: ingredient.id,
       ingredient_name: ingredient.name,
       cost: ingredient.cost,
-      min: 0.0,
-      max: 0.0,
-      actual: 9.0,
+      min: nil,
+      max: nil,
+      actual: 0.0,
       shadow: 0.0,
       weight: 0.0,
       amount: 0.0,
@@ -322,7 +399,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
       Entities.change_formula(socket.assigns.form.source.data, formula_params)
       |> Formula.refresh_cost()
 
-    {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
+    {:noreply,
+     socket
+     |> assign(form: to_form(changeset, action: :validate))
+     |> put_flash(:error, nil)
+     |> put_flash(:info, nil)}
   end
 
   @impl true
@@ -344,11 +425,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
   defp save_formula(socket, :edit, formula_params) do
     case Entities.update_formula(socket.assigns.form.source.data, formula_params) do
-      {:ok, _ingredient} ->
+      {:ok, formula} ->
         {:noreply,
          socket
          |> put_flash(:info, "Formula updated successfully")
-         |> push_navigate(to: ~p"/formulas")}
+         |> push_navigate(to: ~p"/formulas/#{formula.id}/edit")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -357,11 +438,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
   defp save_formula(socket, :new, formula_params) do
     case Entities.create_formula(formula_params) do
-      {:ok, _ingredient} ->
+      {:ok, formula} ->
         {:noreply,
          socket
          |> put_flash(:info, "Formula created successfully")
-         |> push_navigate(to: ~p"/formulas")}
+         |> push_navigate(to: ~p"/formulas/#{formula.id}/edit")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -374,7 +455,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
     cond do
       a == :error || bs == :error -> -99999.0
-      true -> :erlang.float_to_binary(bs * a, [:compact, decimals: 4])
+      true -> LeastCostFeedWeb.Helpers.float_decimal(bs * a)
     end
   end
 
@@ -385,7 +466,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
     cond do
       a == :error || bs == :error || c == :error -> -99999.0
-      true -> :erlang.float_to_binary(bs * a * c, [:compact, decimals: 4])
+      true -> LeastCostFeedWeb.Helpers.float_decimal(bs * a * c)
     end
   end
 end

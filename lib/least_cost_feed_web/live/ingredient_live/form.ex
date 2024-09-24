@@ -19,7 +19,22 @@ defmodule LeastCostFeedWeb.IngredientLive.Form do
             <.input field={@form[:user_id]} type="hidden" value={@current_user.id} />
             <.input field={@form[:name]} type="text" label="Name" />
             <.input field={@form[:category]} type="text" label="Category" />
-            <.input field={@form[:cost]} type="number" label="Cost" step="any" />
+            <.input
+              field={@form[:cost]}
+              type="number"
+              label="Cost"
+              step="any"
+              value={LeastCostFeedWeb.Helpers.float_decimal(@form[:cost].value)}
+            />
+            <span
+              :if={@live_action == :edit and Ecto.Changeset.changed?(@form.source, :cost)}
+              class="text-amber-700 font-bold"
+            >
+              Waring!! changing the COST here, will effect COST in all Formulas.
+              <p class="text-sm text-green-600">
+                You can change COST in Formula, which will NOT effect others Formulas.
+              </p>
+            </span>
             <.input field={@form[:dry_matter]} type="number" label="Dry Matter %" step="any" />
             <.input field={@form[:description]} type="textarea" label="Description" />
             <div class="mt-4">
@@ -42,7 +57,12 @@ defmodule LeastCostFeedWeb.IngredientLive.Form do
                     <.input field={ing_com[:nutrient_name]} readonly />
                   </div>
                   <div class="w-[30%]">
-                    <.input type="number" step="any" field={ing_com[:quantity]} />
+                    <.input
+                      type="number"
+                      step="any"
+                      field={ing_com[:quantity]}
+                      value={LeastCostFeedWeb.Helpers.float_decimal(ing_com[:quantity].value)}
+                    />
                   </div>
                   <div class="w-[20%]">
                     <.input field={ing_com[:nutrient_unit]} readonly />

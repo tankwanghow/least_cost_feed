@@ -9,6 +9,9 @@ defmodule LeastCostFeed.Repo.Migrations.CreateFormulas do
       add :weight_unit, :string, default: "Kg"
       add :usage_per_day, :float, default: 0.0
       add :user_id, references(:users, on_delete: :delete_all)
+      add :premix_bag_weight, :float
+      add :premix_bag_usage_qty, :integer
+      add :premix_bags_qty, :integer
 
       timestamps(type: :utc_datetime)
     end
@@ -33,7 +36,7 @@ defmodule LeastCostFeed.Repo.Migrations.CreateFormulas do
       add :used, :boolean, default: true
     end
 
-    create table(:premix_ingredients) do
+    create table(:formula_premix_ingredients) do
       add :formula_id, references(:formulas, on_delete: :delete_all)
       add :ingredient_id, references(:ingredients, on_delete: :restrict)
       add :formula_quantity, :float
@@ -44,6 +47,6 @@ defmodule LeastCostFeed.Repo.Migrations.CreateFormulas do
     create unique_index(:formulas, [:name, :user_id], name: :formulas_unique_name_in_user)
     create unique_index(:formula_ingredients, [:ingredient_id, :formula_id], name: :formula_unique_ingredient)
     create unique_index(:formula_nutrients, [:formula_id, :nutrient_id], name: :formula_unique_nutrient)
-    create unique_index(:premix_ingredients, [:ingredient_id, :formula_id], name: :premix_unique_ingredient)
+    create unique_index(:formula_premix_ingredients, [:ingredient_id, :formula_id], name: :formula_premix_unique_ingredient)
   end
 end

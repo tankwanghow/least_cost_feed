@@ -4,6 +4,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
 
   alias LeastCostFeed.Entities
   alias LeastCostFeed.Entities.Formula
+  alias LeastCostFeedWeb.Helpers
   import Ecto.Query, warn: false
 
   @per_page 25
@@ -39,10 +40,10 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           </.link>
         </:col>
         <:col :let={{_id, formula}} label="Batch Size" class="w-[20%]" sort="batch_size">
-          <%= :erlang.float_to_binary(formula.batch_size, [:compact, decimals: 4]) %><%= formula.weight_unit %>
+          <%= Helpers.float_decimal(formula.batch_size) %><%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Cost" class="w-[10%]" sort="cost">
-          <%= :erlang.float_to_binary(formula.cost, [:compact, decimals: 4]) %>/<%= formula.weight_unit %>
+          <%= Helpers.float_decimal(formula.cost * 1000, 2) %>/1000<%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Usage/Day" class="w-[10%]" sort="usage_per_day">
           <input
@@ -52,7 +53,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
             id={"formula_#{formula.id}"}
             phx-value-id={formula.id}
             phx-blur="update_usage"
-            value={formula.usage_per_day}
+            value={Helpers.float_decimal(formula.usage_per_day)}
           /><%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Updated" class="w-[15%]" sort="updated_at">
