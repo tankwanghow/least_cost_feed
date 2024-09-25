@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for least-cost-feed on 2024-09-25T13:38:21+08:00
+# fly.toml app configuration file generated for leastcostfeed on 2024-09-25T15:22:23+08:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'least-cost-feed'
+app = 'leastcostfeed'
 primary_region = 'sin'
 kill_signal = 'SIGTERM'
 
@@ -13,7 +13,7 @@ kill_signal = 'SIGTERM'
   release_command = '/app/bin/migrate'
 
 [env]
-  PHX_HOST = 'least-cost-feed.fly.dev'
+  PHX_HOST = 'leastcostfeed.fly.dev'
   PORT = '8080'
 
 [http_service]
