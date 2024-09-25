@@ -278,11 +278,6 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
              socket.assigns.current_user.id
            ) do
         {:ok, optimize_ingredient_params, optimize_nutrient_params} ->
-          LeastCostFeed.GlpsolFileGen.optimize(
-            socket.assigns.form.source,
-            socket.assigns.current_user.id
-          )
-
           cs =
             Entities.replace_formula_with_optimize(
               socket.assigns.form.source,
