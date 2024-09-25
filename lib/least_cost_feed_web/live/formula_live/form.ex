@@ -1,5 +1,6 @@
 defmodule LeastCostFeedWeb.FormulaLive.Form do
   use LeastCostFeedWeb, :live_view
+  alias Phoenix.PubSub
 
   alias LeastCostFeedWeb.Helpers
   alias LeastCostFeed.Entities
@@ -53,7 +54,16 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
         <div class="flex my-2 gap-2">
           <.button phx-disable-with="Saving...">Save Formula</.button>
-          <.link class="blue button font-bold w-[30%]" phx-click="optimize_formula">Optimize</.link>
+          <.link
+            :if={!@optimizing?}
+            class="blue button font-bold w-[30%]"
+            phx-click="optimize_formula"
+          >
+            Try   Optimize
+          </.link>
+          <div :if={@optimizing?} class="hover:cursor-wait gray button font-bold w-[30%]">
+            Optimizing....
+          </div>
           <.link
             navigate={
               if(@live_action == :new,
@@ -235,6 +245,13 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   def mount(params, _session, socket) do
     id = params["id"]
 
+    if connected?(socket) do
+      PubSub.subscribe(
+        LeastCostFeed.PubSub,
+        "#{socket.assigns.current_user.id}_optimization_job"
+      )
+    end
+
     socket =
       case socket.assigns.live_action do
         :new -> mount_new(socket)
@@ -246,7 +263,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
      |> assign(show_select_nutrients?: false)
      |> assign(show_select_ingredients?: false)
      |> assign(selected_ingredient_ids: selected_ingredients(socket))
-     |> assign(selected_nutrient_ids: selected_nutrients(socket))}
+     |> assign(selected_nutrient_ids: selected_nutrients(socket))
+     |> assign(optimizing?: false)}
   end
 
   defp mount_new(socket) do
@@ -271,12 +289,15 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   end
 
   @impl true
-  def handle_event("optimize_formula", _, socket) do
+  def handle_info("start_optimize", socket) do
+    {:noreply,
+     socket |> put_flash(:error, nil) |> put_flash(:info, nil) |> assign(optimizing?: true)}
+  end
+
+  @impl true
+  def handle_info({"finish_optimize", results}, socket) do
     socket =
-      case LeastCostFeed.GlpsolFileGen.optimize(
-             socket.assigns.form.source,
-             socket.assigns.current_user.id
-           ) do
+      case results do
         {:ok, optimize_ingredient_params, optimize_nutrient_params} ->
           cs =
             Entities.replace_formula_with_optimize(
@@ -294,6 +315,29 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
         {:error, title, _msg} ->
           socket |> put_flash(:error, title) |> put_flash(:info, nil)
       end
+
+    {:noreply, socket |> assign(optimizing?: false)}
+  end
+
+  @impl true
+  def handle_event("optimize_formula", _, socket) do
+    PubSub.broadcast(
+      LeastCostFeed.PubSub,
+      "#{socket.assigns.current_user.id}_optimization_job",
+      "start_optimize"
+    )
+
+    results =
+      LeastCostFeed.GlpsolFileGen.optimize(
+        socket.assigns.form.source,
+        socket.assigns.current_user.id
+      )
+
+    PubSub.broadcast(
+      LeastCostFeed.PubSub,
+      "#{socket.assigns.current_user.id}_optimization_job",
+      {"finish_optimize", results}
+    )
 
     {:noreply, socket}
   end
