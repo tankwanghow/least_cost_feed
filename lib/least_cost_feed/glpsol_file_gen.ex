@@ -60,7 +60,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
 
   defp create_file(formula, user_id) do
     filename = "#{user_id}_#{gen_temp_id()}.mod"
-    path = Path.join([Application.get_env(:least_cost_feed, :mod_files_dir), filename])
+    path = Path.join([Application.app_dir(:least_cost_feed, "priv"), "mod_files", filename])
 
     formula_ingredients =
       Helpers.get_list(formula, :formula_ingredients)
@@ -158,8 +158,12 @@ defmodule LeastCostFeed.GlpsolFileGen do
           )
       end
     else
-      id = (Enum.at(formula_ingredients, 0) || %{ingredient_id: 0}) |> Helpers.my_fetch_field!(:ingredient_id)
-      "n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}: " <> constraint(formula_nutrient, "+0*p_#{id}")
+      id =
+        (Enum.at(formula_ingredients, 0) || %{ingredient_id: 0})
+        |> Helpers.my_fetch_field!(:ingredient_id)
+
+      "n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}: " <>
+        constraint(formula_nutrient, "+0*p_#{id}")
     end
   end
 

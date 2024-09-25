@@ -30,8 +30,6 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  config :least_cost_feed, mod_files_dir: "/app/mod_files"
-
   config :least_cost_feed, LeastCostFeed.Repo,
     # ssl: true,
     url: database_url,
@@ -124,5 +122,5 @@ if config_env() == :prod do
   # For this example you need include a HTTP client required by Swoosh API client.
   # Swoosh supports Hackney and Finch out of the box:
   # config :swoosh, :api_client, Swoosh.ApiClient.Hackney
-  config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: FullCircle.Finch
+  config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: LeastCostFeed.Finch
 end
