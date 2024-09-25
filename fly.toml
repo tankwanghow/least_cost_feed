@@ -16,8 +16,8 @@ kill_signal = 'SIGTERM'
   PHX_HOST = 'leastcostfeed.fly.dev'
   PORT = '8080'
 
-[[mounts]]
-  source = 'data'
+[mounts]
+  source = 'mod_files'
   destination = '/app/mod_files'
 
 [http_service]

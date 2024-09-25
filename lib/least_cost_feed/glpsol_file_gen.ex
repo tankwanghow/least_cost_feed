@@ -3,7 +3,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
 
   def optimize(formula, user_id) do
     mod_file = create_file(formula, user_id)
-    {result, _} = System.shell("./priv/static/glpsol --math #{mod_file}")
+    {result, _} = System.shell("glpsol --math #{mod_file}")
     optimized = interpret_optimize_result(result)
 
     if optimized != {:error, "!!mod file error!! #{result}"},
