@@ -43,7 +43,7 @@ defmodule LeastCostFeedWeb do
         layouts: [html: LeastCostFeedWeb.Layouts]
 
       import Plug.Conn
-      import LeastCostFeedWeb.Gettext
+      use Gettext, backend: LeastCostFeedWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -85,7 +85,7 @@ defmodule LeastCostFeedWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import LeastCostFeedWeb.CoreComponents
-      import LeastCostFeedWeb.Gettext
+      use Gettext, backend: LeastCostFeedWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

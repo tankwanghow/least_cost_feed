@@ -16,6 +16,10 @@ kill_signal = 'SIGTERM'
   PHX_HOST = 'leastcostfeed.fly.dev'
   PORT = '8080'
 
+[[mounts]]
+  source = 'data'
+  destination = '/app/mod_files'
+
 [http_service]
   internal_port = 8080
   force_https = true

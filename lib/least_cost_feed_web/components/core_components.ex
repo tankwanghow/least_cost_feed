@@ -17,8 +17,7 @@ defmodule LeastCostFeedWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import LeastCostFeedWeb.Gettext
-
+  use Gettext, backend: LeastCostFeedWeb.Gettext
   @doc """
   Renders a modal.
 
