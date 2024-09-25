@@ -8,7 +8,7 @@ defmodule LeastCostFeed.UserAccounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"LeastCostFeed", "contact@example.com"})
+      |> from({"LeastCostFeed", "tankwanghow@gmail.com"})
       |> subject(subject)
       |> text_body(body)
 
