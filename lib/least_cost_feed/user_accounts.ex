@@ -288,16 +288,9 @@ defmodule LeastCostFeed.UserAccounts do
         LeastCostFeed.Entities.IngredientComposition,
         sample_ingredient_compositions(
           user,
-          "priv/static/sample_data/ingredient_compositions.csv"
+          "#{Application.app_dir(:least_cost_feed, "priv")}/static/sample_data/ingredient_compositions.csv"
         )
       )
-
-      path = Application.get_env(:least_cost_feed, :mod_files_dir)
-      {res, _} = File.ls(path)
-
-      if res == :error do
-        File.mkdir!(path)
-      end
 
       {:ok, user}
     else
@@ -310,12 +303,18 @@ defmodule LeastCostFeed.UserAccounts do
     |> Ecto.Multi.insert_all(
       :insert_sample_nutrients,
       LeastCostFeed.Entities.Nutrient,
-      csv_to_entries(user, "priv/static/sample_data/nutrients.csv")
+      csv_to_entries(
+        user,
+        "#{Application.app_dir(:least_cost_feed, "priv")}/static/sample_data/nutrients.csv"
+      )
     )
     |> Ecto.Multi.insert_all(
       :insert_sample_ingredients,
       LeastCostFeed.Entities.Ingredient,
-      csv_to_entries(user, "priv/static/sample_data/ingredients.csv")
+      csv_to_entries(
+        user,
+        "#{Application.app_dir(:least_cost_feed, "priv")}/static/sample_data/ingredients.csv"
+      )
     )
     |> Ecto.Multi.update(:user, User.confirm_changeset(user))
     |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, ["confirm"]))
