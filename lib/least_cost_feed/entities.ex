@@ -2,7 +2,7 @@ defmodule LeastCostFeed.Entities do
   import Ecto.Query, warn: false
   alias LeastCostFeed.Repo
   alias LeastCostFeed.Entities.{Formula, Nutrient, FormulaIngredient, FormulaNutrient}
-  alias LeastCostFeed.Entities.{Ingredient, IngredientComposition}
+  alias LeastCostFeed.Entities.{Ingredient, IngredientComposition, FormulaPremixIngredient}
 
   def list_entities(query, page: page, per_page: per_page) do
     from(q in query,
@@ -115,6 +115,55 @@ defmodule LeastCostFeed.Entities do
     |> Repo.one!()
   end
 
+  def get_formula_premix_ingredients!(id) do
+    fpi =
+      from(fping in FormulaPremixIngredient,
+        join: i in Ingredient,
+        on: i.id == fping.ingredient_id,
+        where: fping.formula_id == ^id,
+        select: %FormulaPremixIngredient{
+          id: fping.id,
+          ingredient_id: i.id,
+          formula_id: fping.formula_id,
+          ingredient_name: i.name,
+          formula_quantity: fping.formula_quantity,
+          premix_quantity: fping.premix_quantity,
+          delete: false
+        }
+      )
+
+    from(frm in Formula,
+      where: frm.id == ^id,
+      preload: [formula_premix_ingredients: ^fpi],
+      select: frm,
+      select_merge: %{
+        premix_batch_weight: fragment("?*?", frm.premix_bag_weight, frm.premix_bags_qty)
+      }
+    )
+    |> Repo.one!()
+  end
+
+  def get_formula_ingredients!(id) do
+      from(fing in FormulaIngredient,
+        join: f in Formula,
+        on: f.id == fing.formula_id,
+        join: i in Ingredient,
+        on: i.id == fing.ingredient_id,
+        where: f.id == ^id,
+        where: fing.actual > 0.0,
+        select: %FormulaPremixIngredient{
+          id: nil,
+          ingredient_id: i.id,
+          formula_id: f.id,
+          ingredient_name: i.name,
+          formula_quantity: fing.actual * f.batch_size,
+          premix_quantity: 0.0,
+          delete: false
+        }
+      )
+      |> Repo.all()
+  end
+
   def create_formula(attrs \\ %{}) do
     %Formula{}
     |> Formula.changeset(attrs)
@@ -124,6 +173,12 @@ defmodule LeastCostFeed.Entities do
   def update_formula(%Formula{} = formula, attrs) do
     formula
     |> Formula.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_formula_premix(%Formula{} = formula, attrs) do
+    formula
+    |> Formula.premix_changeset(attrs)
     |> Repo.update()
   end
 
@@ -138,6 +193,10 @@ defmodule LeastCostFeed.Entities do
 
   def change_formula(%Formula{} = formula, attrs \\ %{}) do
     Formula.changeset(formula, attrs)
+  end
+
+  def change_formula_premix(%Formula{} = formula, attrs \\ %{}) do
+    Formula.premix_changeset(formula, attrs)
   end
 
   def replace_formula_with_optimize(formula, ingredient_attrs, nutrient_attrs) do
@@ -173,7 +232,7 @@ defmodule LeastCostFeed.Entities do
           shadow: "0.0"
         })
       end
-    end)
+    end) |> Enum.sort_by(& (LeastCostFeed.Helpers.my_fetch_field!(&1, :actual)), :desc)
   end
 
   defp replace_formula_nutrient_with_optimize(formula_nutrients, attrs) do
@@ -192,6 +251,6 @@ defmodule LeastCostFeed.Entities do
           actual: "0.0"
         })
       end
-    end)
+    end) |> Enum.sort_by(& (LeastCostFeed.Helpers.my_fetch_field!(&1, :nutrient_name)))
   end
 end

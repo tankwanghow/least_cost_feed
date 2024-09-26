@@ -30,6 +30,8 @@ defmodule LeastCostFeed.Entities.FormulaNutrient do
       :nutrient_unit
     ])
     |> validate_required([:nutrient_id])
+    |> validate_number(:min, greater_than_or_equal_to: 0.0)
+    |> validate_number(:max, greater_than_or_equal_to: 0.0)
     |> maybe_mark_for_deletion()
   end
 

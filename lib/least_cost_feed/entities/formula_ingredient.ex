@@ -36,6 +36,9 @@ defmodule LeastCostFeed.Entities.FormulaIngredient do
       :delete
     ])
     |> validate_required([:ingredient_id])
+    |> validate_number(:min, greater_than_or_equal_to: 0.0)
+    |> validate_number(:max, greater_than_or_equal_to: 0.0)
+    |> validate_number(:cost, greater_than_or_equal_to: 0.0)
     |> maybe_mark_for_deletion()
   end
 

@@ -24,7 +24,17 @@ defmodule LeastCostFeed.Entities.FormulaPremixIngredient do
       :delete
     ])
     |> validate_required([:ingredient_id])
+    |> validate_number(:premix_quantity, greater_than_or_equal_to: 0.0)
+    |> validate_formula_premit_qty()
     |> maybe_mark_for_deletion()
+  end
+
+  defp validate_formula_premit_qty(cs) do
+    if fetch_field!(cs, :premix_quantity) > fetch_field!(cs, :formula_quantity) do
+      add_error(cs, :premix_quantity, "need to be smaller")
+    else
+      cs
+    end
   end
 
   defp maybe_mark_for_deletion(%{data: %{id: nil}} = changeset), do: changeset

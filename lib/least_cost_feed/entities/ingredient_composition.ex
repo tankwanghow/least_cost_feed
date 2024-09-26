@@ -26,6 +26,7 @@ defmodule LeastCostFeed.Entities.IngredientComposition do
     ])
     |> validate_required([:nutrient_id, :quantity])
     |> unsafe_validate_unique([:nutrient_id, :ingredient_id], LeastCostFeed.Repo)
+    |> validate_number(:quantity, greater_than_or_equal_to: 0.0)
     |> unique_constraint(:nutrient_id, name: :ingredient_unique_nutrient)
     |> maybe_mark_for_deletion()
   end

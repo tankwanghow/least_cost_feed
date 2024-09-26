@@ -15,14 +15,14 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
       <div class="font-bold text-3xl">
         <%= @page_title %>
       </div>
-      <.form for={@form} id="ingredient-form" phx-change="validate" phx-submit="save">
+      <.form for={@form} id="formula-form" phx-change="validate" phx-submit="save">
         <div class="flex gap-1">
           <.input field={@form[:user_id]} type="hidden" value={@current_user.id} />
-          <div class="w-[30%]"><.input field={@form[:name]} type="text" label="Name" /></div>
-          <div class="w-[10%]">
+          <div class="w-[20%]"><.input field={@form[:name]} type="text" label="Name" /></div>
+          <div class="w-[7%]">
             <.input field={@form[:weight_unit]} type="text" label="Weight Unit" />
           </div>
-          <div class="w-[10%]">
+          <div class="w-[8%]">
             <.input
               field={@form[:batch_size]}
               type="number"
@@ -31,7 +31,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               value={Helpers.float_decimal(@form[:batch_size].value)}
             />
           </div>
-          <div class="w-[10%]">
+          <div class="w-[8%]">
             <.input
               field={@form[:usage_per_day]}
               type="number"
@@ -40,7 +40,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               value={Helpers.float_decimal(@form[:usage_per_day].value)}
             />
           </div>
-          <div class="w-[10%]">
+          <div class="w-[9%]">
             <.input
               field={@form[:cost]}
               type="number"
@@ -49,7 +49,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               value={Helpers.float_decimal(@form[:cost].value, 2)}
             />
           </div>
-          <div class="w-[30%]"><.input field={@form[:note]} type="text" label="Note" /></div>
+          <div class="w-[40%]"><.input field={@form[:note]} type="text" label="Note" /></div>
         </div>
 
         <div class="flex my-2 gap-2">
@@ -59,7 +59,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
             class="blue button font-bold w-[30%]"
             phx-click="optimize_formula"
           >
-            Try   Optimize
+            Try Optimize
           </.link>
           <div :if={@optimizing?} class="hover:cursor-wait gray button font-bold w-[30%]">
             Optimizing....
@@ -75,7 +75,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           >
             Cancel
           </.link>
-          <.link :if={@form.source.changes == %{} and @live_action != :new} class="red button w-[15%]">
+          <.link
+            :if={@form.source.changes == %{} and @live_action != :new}
+            navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
+            class="red button w-[15%]"
+          >
             Premix
           </.link>
         </div>
@@ -327,17 +331,19 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
       "start_optimize"
     )
 
-    results =
-      LeastCostFeed.GlpsolFileGen.optimize(
-        socket.assigns.form.source,
-        socket.assigns.current_user.id
-      )
+    Task.start(fn ->
+      results =
+        LeastCostFeed.GlpsolFileGen.optimize(
+          socket.assigns.form.source,
+          socket.assigns.current_user.id
+        )
 
-    PubSub.broadcast(
-      LeastCostFeed.PubSub,
-      "#{socket.assigns.current_user.id}_optimization_job",
-      {"finish_optimize", results}
-    )
+      PubSub.broadcast(
+        LeastCostFeed.PubSub,
+        "#{socket.assigns.current_user.id}_optimization_job",
+        {"finish_optimize", results}
+      )
+    end)
 
     {:noreply, socket}
   end
@@ -372,7 +378,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   def handle_event("nutrient_clicked", %{"object-id" => id, "value" => "on"}, socket) do
     nutrient = Entities.get_nutrient!(id)
 
-    new_formual_nutrient = %{
+    new_formula_nutrients = %{
       nutrient_id: nutrient.id,
       nutrient_name: "#{nutrient.name} (#{nutrient.unit})",
       min: nil,
@@ -383,7 +389,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
     cs =
       socket.assigns.form.source
-      |> LeastCostFeedWeb.Helpers.add_line(:formula_nutrients, new_formual_nutrient)
+      |> LeastCostFeedWeb.Helpers.add_line(:formula_nutrients, new_formula_nutrients)
 
     {:noreply, socket |> assign(form: to_form(cs, action: :validate))}
   end
