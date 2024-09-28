@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>
+      <%= "Print" %>
+    </title>
+    <style>
+      body { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #FAFAFA; font-family: system-ui, Arial, Helvetica, sans-serif;}
+      * { box-sizing: border-box; -moz-box-sizing: border-box; }
+      .page { padding: 0mm; margin: 5mm auto; border: 1px #D3D3D3 solid; border-radius: 5px; background: white; box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); }
+      @media print { .page { border: initial; border-radius: initial; width: initial; min-height: initial; box-shadow: initial; background: initial; } }
+      a { background-color: #EEEEEE; padding: 7px; text-decoration: auto; font-weight: bold; border-radius: 5px; border: 1px solid black; cursor: pointer; color: black; } 
+      #button { margin-left: 46.5%; margin-top: 25px; }
+    </style>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+  </head>
+  <body>
+    <div id="button">
+      <a href="#" onclick="printElement('print-me')"><%= gettext("Print") %></a>
+      <a href="#" onclick="closeTab()"><%= gettext("Close") %></a>
+    </div>
+    <%= @inner_content %>
+    <script>
+      document.addEventListener("keydown", evt => {
+        if (evt.key === 'Escape') { closeTab(); }
+      });
+
+      function closeTab() {
+        close();
+      }
+
+      function printElement(elm) {
+        var browser = (function (agent) {
+          switch (true) {
+            case agent.indexOf("edge") > -1: return "MS Edge (EdgeHtml)";
+            case agent.indexOf("edg") > -1: return "MS Edge Chromium";
+            case agent.indexOf("opr") > -1 && !!window.opr: return "opera";
+            case agent.indexOf("chrome") > -1 && !!window.chrome: return "chrome";
+            case agent.indexOf("trident") > -1: return "Internet Explorer";
+            case agent.indexOf("firefox") > -1: return "firefox";
+            case agent.indexOf("safari") > -1: return "safari";
+            default: return "other";
+          }
+        })(window.navigator.userAgent.toLowerCase());
+        switch(browser) {
+          case "firefox": document.getElementById("print-me").classList.add("firefox-page"); break;
+          default: document.getElementById("print-me").classList.add("chrome-page");
+        }
+        const printContents = document.getElementById(elm).innerHTML;
+        const originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+      }
+    </script>
+  </body>
+</html>
