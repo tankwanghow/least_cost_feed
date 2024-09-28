@@ -39,10 +39,10 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
             <%= formula.name %>
           </.link>
         </:col>
-        <:col :let={{_id, formula}} label="Batch Size" class="w-[20%]" sort="batch_size">
+        <:col :let={{_id, formula}} label="Batch Size" class="w-[15%]" sort="batch_size">
           <%= Helpers.float_decimal(formula.batch_size) %><%= formula.weight_unit %>
         </:col>
-        <:col :let={{_id, formula}} label="Cost" class="w-[10%]" sort="cost">
+        <:col :let={{_id, formula}} label="Cost" class="w-[15%]" sort="cost">
           <%= Helpers.float_decimal(formula.cost * 1000, 2) %>/1000<%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Usage/Day" class="w-[10%]" sort="usage_per_day">
@@ -60,8 +60,23 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           <%= Timex.from_now(formula.updated_at) %>
         </:col>
 
-        <:action :let={{id, formula}} class="w-[5%] text-rose-500">
+        <:action :let={{id, formula}} class="flex w-[15%] gap-5">
           <.link
+            target="_blank"
+            navigate={~p"/formulas/print_multi?ids=#{formula.id}"}
+            class="text-blue-600"
+          >
+            <.icon name="hero-printer-solid" class="h-5 w-5" />
+          </.link>
+          <.link
+            target="_blank"
+            navigate={~p"/formulas_premix/print_multi?ids=#{formula.id}"}
+            class="text-green-600"
+          >
+            <.icon name="hero-printer-solid" class="h-5 w-5" />
+          </.link>
+          <.link
+            class="text-rose-500"
             phx-click={JS.push("delete", value: %{id: formula.id}) |> hide("##{id}")}
             data-confirm={"Are you sure? DELETE (#{formula.name})"}
           >

@@ -83,8 +83,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
             Premix
           </.link>
           <.link
-                target="_blank"
             :if={@form.source.changes == %{} and @live_action != :new}
+            target="_blank"
             navigate={~p"/formulas/print_multi?ids=#{@form[:id].value}"}
             class="blue button w-[15%]"
           >
@@ -188,7 +188,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                     <.input type="checkbox" field={nt[:used]} />
                   </div>
                   <div class="w-[50%]">
-                    <.input field={nt[:nutrient_name]} value={"#{nt[:nutrient_name].value}(#{nt[:nutrient_unit].value})"} readonly />
+                    <.input
+                      field={nt[:nutrient_name]}
+                      value={"#{nt[:nutrient_name].value}(#{nt[:nutrient_unit].value})"}
+                      readonly
+                    />
                   </div>
                   <div class="w-[15%]">
                     <.input type="number" step="any" field={nt[:min]} />

@@ -18,6 +18,7 @@ defmodule LeastCostFeedWeb.CoreComponents do
 
   alias Phoenix.LiveView.JS
   use Gettext, backend: LeastCostFeedWeb.Gettext
+
   @doc """
   Renders a modal.
 
@@ -583,10 +584,7 @@ defmodule LeastCostFeedWeb.CoreComponents do
   def back(assigns) do
     ~H"""
     <div class="mb-5">
-      <.link
-        navigate={@navigate}
-        class="button orange"
-      >
+      <.link navigate={@navigate} class="button orange">
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
       </.link>

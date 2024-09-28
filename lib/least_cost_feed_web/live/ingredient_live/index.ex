@@ -91,7 +91,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
   @impl true
   def handle_event("search", %{"search" => %{"terms" => terms}}, socket) do
     socket = socket |> assign(search: %{terms: terms})
-    {:noreply, socket |> assign(query: query(socket))|> filter(true, 1)}
+    {:noreply, socket |> assign(query: query(socket)) |> filter(true, 1)}
   end
 
   @impl true

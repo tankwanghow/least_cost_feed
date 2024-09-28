@@ -13,11 +13,12 @@ defmodule LeastCostFeed.Helpers do
   end
 
   def my_fetch_field!(data, field) do
-    func = if is_struct(data, Ecto.Changeset) do
-      &fetch_field!/2
-    else
-      &Map.fetch!/2
-    end
+    func =
+      if is_struct(data, Ecto.Changeset) do
+        &fetch_field!/2
+      else
+        &Map.fetch!/2
+      end
 
     func.(data, field)
   end

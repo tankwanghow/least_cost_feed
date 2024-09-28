@@ -49,6 +49,7 @@ defmodule LeastCostFeedWeb.Helpers do
 
   def float_parse(nil), do: nil
   def float_parse(""), do: nil
+
   def float_parse(value) do
     {v, t} = if is_number(value), do: {value, ""}, else: Float.parse("0" <> value)
     if t != "", do: :error, else: v
@@ -57,6 +58,7 @@ defmodule LeastCostFeedWeb.Helpers do
   def float_decimal(value, decimal \\ 4)
   def float_decimal(nil, _), do: nil
   def float_decimal("", _), do: nil
+
   def float_decimal(value, decimal) do
     float = float_parse(value)
     :erlang.float_to_binary(float, [:compact, decimals: decimal])

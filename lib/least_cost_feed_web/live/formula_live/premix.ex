@@ -73,7 +73,11 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
 
         <div class="flex my-2 gap-2">
           <.button phx-disable-with="Saving...">Save Premix</.button>
-          <.link :if={@form.source.changes != %{}} navigate={~p"/formula_premix/#{@form[:id].value}/edit"} class="red button">
+          <.link
+            :if={@form.source.changes != %{}}
+            navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
+            class="red button"
+          >
             Cancel
           </.link>
           <.link
@@ -155,7 +159,8 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
 
         if fing do
           if(
-            fing.formula_quantity != LeastCostFeed.Helpers.my_fetch_field!(fping, :formula_quantity)
+            fing.formula_quantity !=
+              LeastCostFeed.Helpers.my_fetch_field!(fping, :formula_quantity)
           ) do
             Ecto.Changeset.change(fping, formula_quantity: Float.round(fing.formula_quantity, 6))
           else
@@ -185,7 +190,8 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
         (fpings ++ new)
         |> Enum.sort_by(&LeastCostFeed.Helpers.my_fetch_field!(&1, :formula_quantity), :desc)
       )
-      # |> Formula.refresh_premix_calculations()
+
+    # |> Formula.refresh_premix_calculations()
 
     {:ok,
      socket

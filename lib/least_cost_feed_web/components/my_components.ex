@@ -47,7 +47,6 @@ defmodule LeastCostFeedWeb.MyComponents do
         <span><%= col[:label] %></span>
         <span :if={@sort_directions[col[:sort]] == :asc}>&uarr;</span>
         <span :if={@sort_directions[col[:sort]] == :desc}>&darr;</span>
-
       </div>
     </div>
 
@@ -61,8 +60,10 @@ defmodule LeastCostFeedWeb.MyComponents do
         :for={row <- @rows}
         phx-click={@row_click && @row_click.(row)}
         id={@row_id && @row_id.(row)}
-        class={["flex flex-row text-center hover:bg-amber-300 p-1 border-b border-gray-600 bg-amber-200",
-        @row_click && "hover:cursor-pointer"]}
+        class={[
+          "flex flex-row text-center hover:bg-amber-300 p-1 border-b border-gray-600 bg-amber-200",
+          @row_click && "hover:cursor-pointer"
+        ]}
       >
         <div :for={{col, _i} <- Enum.with_index(@col)} class={[col[:class], col[:b_class]]}>
           <%= render_slot(col, @row_item.(row)) %>
@@ -100,10 +101,23 @@ defmodule LeastCostFeedWeb.MyComponents do
   def search_form(assigns) do
     ~H"""
     <div class="flex justify-center mb-2">
-      <.form for={%{}} id="search-form" phx-change="search" phx-submit="search" autocomplete="off" class="w-full">
+      <.form
+        for={%{}}
+        id="search-form"
+        phx-change="search"
+        phx-submit="search"
+        autocomplete="off"
+        class="w-full"
+      >
         <div class="grid grid-cols-12 gap-1">
           <div class="col-span-11">
-            <.input name="search[terms]" type="search" value={@search_val} placeholder={@placeholder} phx-debounce="800"/>
+            <.input
+              name="search[terms]"
+              type="search"
+              value={@search_val}
+              placeholder={@placeholder}
+              phx-debounce="800"
+            />
           </div>
           <.button class="col-span-1">🔍</.button>
         </div>

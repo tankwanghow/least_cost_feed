@@ -167,7 +167,9 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
           target_premix_weight: LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight),
           premix_bag_usage_qty: String.to_integer(a.premix_bag_usage_qty),
           premix_bag_make_qty: String.to_integer(a.premix_bags_qty),
-          premix_batch_weight: LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight) * LeastCostFeedWeb.Helpers.float_parse(a.premix_bags_qty),
+          premix_batch_weight:
+            LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight) *
+              LeastCostFeedWeb.Helpers.float_parse(a.premix_bags_qty),
           inserted_at: string_to_datetime(a.inserted_at),
           updated_at: string_to_datetime(a.updated_at)
         })
@@ -177,10 +179,13 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
 
   defp transfer("IngredientComposition", path) do
     attrs = csv_to_attrs(path)
-      ingcom = attrs
+
+    ingcom =
+      attrs
       |> Enum.map(fn a ->
         i = get_ingredient_by_name_email(a.ingredient_name, a.email)
         n = get_nutrient_by_name_email(a.nutrient_name, a.email)
+
         %{
           ingredient_id: i.id,
           nutrient_id: n.id,
@@ -188,7 +193,7 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
         }
       end)
 
-      Repo.insert_all(IngredientComposition, ingcom)
+    Repo.insert_all(IngredientComposition, ingcom)
   end
 
   defp transfer("Ingredient", path) do

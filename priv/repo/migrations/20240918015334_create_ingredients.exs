@@ -21,6 +21,9 @@ defmodule LeastCostFeed.Repo.Migrations.CreateIngredients do
 
     create index(:ingredients, [:user_id])
     create unique_index(:ingredients, [:name, :user_id], name: :ingredients_unique_name_in_user)
-    create unique_index(:ingredient_compositions, [:ingredient_id, :nutrient_id], name: :ingredient_unique_nutrient)
+
+    create unique_index(:ingredient_compositions, [:ingredient_id, :nutrient_id],
+             name: :ingredient_unique_nutrient
+           )
   end
 end

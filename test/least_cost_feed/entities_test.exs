@@ -77,7 +77,13 @@ defmodule LeastCostFeed.EntitiesTest do
     end
 
     test "create_ingredient/1 with valid data creates a ingredient" do
-      valid_attrs = %{name: "some name", unit: "some unit", description: "some description", category: "some category", cost: 120.5}
+      valid_attrs = %{
+        name: "some name",
+        unit: "some unit",
+        description: "some description",
+        category: "some category",
+        cost: 120.5
+      }
 
       assert {:ok, %Ingredient{} = ingredient} = Entities.create_ingredient(valid_attrs)
       assert ingredient.name == "some name"
@@ -93,9 +99,18 @@ defmodule LeastCostFeed.EntitiesTest do
 
     test "update_ingredient/2 with valid data updates the ingredient" do
       ingredient = ingredient_fixture()
-      update_attrs = %{name: "some updated name", unit: "some updated unit", description: "some updated description", category: "some updated category", cost: 456.7}
 
-      assert {:ok, %Ingredient{} = ingredient} = Entities.update_ingredient(ingredient, update_attrs)
+      update_attrs = %{
+        name: "some updated name",
+        unit: "some updated unit",
+        description: "some updated description",
+        category: "some updated category",
+        cost: 456.7
+      }
+
+      assert {:ok, %Ingredient{} = ingredient} =
+               Entities.update_ingredient(ingredient, update_attrs)
+
       assert ingredient.name == "some updated name"
       assert ingredient.unit == "some updated unit"
       assert ingredient.description == "some updated description"

@@ -231,13 +231,13 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
   def pre_print_style(assigns) do
     ~H"""
     <style>
-    .page { width: 210mm; min-height: 290mm; padding: 5mm;}
+      .page { width: 210mm; min-height: 290mm; padding: 5mm;}
 
-      @media print {
-        @page { size: A4; margin: 0mm; }
-        body { width: 210mm; height: 290mm; margin: 0mm; }
-        html { margin: 0mm; }
-        .page { padding-top: 0; padding-bottom: 0; padding-left: 10mm; padding-right: 10mm; page-break-after: always; } }
+        @media print {
+          @page { size: A4; margin: 0mm; }
+          body { width: 210mm; height: 290mm; margin: 0mm; }
+          html { margin: 0mm; }
+          .page { padding-top: 0; padding-bottom: 0; padding-left: 10mm; padding-right: 10mm; page-break-after: always; } }
     </style>
     """
   end

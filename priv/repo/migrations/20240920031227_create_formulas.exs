@@ -46,8 +46,17 @@ defmodule LeastCostFeed.Repo.Migrations.CreateFormulas do
 
     create index(:formulas, [:user_id])
     create unique_index(:formulas, [:name, :user_id], name: :formulas_unique_name_in_user)
-    create unique_index(:formula_ingredients, [:ingredient_id, :formula_id], name: :formula_unique_ingredient)
-    create unique_index(:formula_nutrients, [:formula_id, :nutrient_id], name: :formula_unique_nutrient)
-    create unique_index(:formula_premix_ingredients, [:ingredient_id, :formula_id], name: :formula_premix_unique_ingredient)
+
+    create unique_index(:formula_ingredients, [:ingredient_id, :formula_id],
+             name: :formula_unique_ingredient
+           )
+
+    create unique_index(:formula_nutrients, [:formula_id, :nutrient_id],
+             name: :formula_unique_nutrient
+           )
+
+    create unique_index(:formula_premix_ingredients, [:ingredient_id, :formula_id],
+             name: :formula_premix_unique_ingredient
+           )
   end
 end

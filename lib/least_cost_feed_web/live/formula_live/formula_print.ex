@@ -101,7 +101,9 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
 
     ~H"""
     <div class="w-[50%] text-center"><%= @n.nutrient_name %></div>
-    <div class="w-[50%] text-center"><%= Number.Delimit.number_to_delimited(@n.actual) %> <%= @n.nutrient_unit %></div>
+    <div class="w-[50%] text-center">
+      <%= Number.Delimit.number_to_delimited(@n.actual) %> <%= @n.nutrient_unit %>
+    </div>
     """
   end
 
