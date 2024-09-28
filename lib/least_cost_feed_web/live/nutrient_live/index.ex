@@ -89,7 +89,6 @@ defmodule LeastCostFeedWeb.NutrientLive.Index do
 
   @impl true
   def handle_event("next-page", _, socket) do
-    socket = socket |> assign(query: query(socket))
     {:noreply, socket |> filter(false, socket.assigns.page + 1)}
   end
 
