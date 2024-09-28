@@ -85,6 +85,7 @@ defmodule LeastCostFeed.Entities do
         join: nt in Nutrient,
         on: nt.id == fnt.nutrient_id,
         preload: :nutrient,
+        order_by: nt.name,
         select: fnt,
         select_merge: %{nutrient_name: nt.name, nutrient_unit: nt.unit}
       )
@@ -115,12 +116,85 @@ defmodule LeastCostFeed.Entities do
     |> Repo.one!()
   end
 
+  def get_print_formulas!(ids) do
+    frm_nut =
+      from(fnt in FormulaNutrient,
+        join: nt in Nutrient,
+        on: nt.id == fnt.nutrient_id,
+        preload: :nutrient,
+        select: fnt,
+        select_merge: %{nutrient_name: nt.name, nutrient_unit: nt.unit},
+        order_by: nt.name
+      )
+
+    frm_ing =
+      from(fing in FormulaIngredient,
+        join: ing in Ingredient,
+        on: ing.id == fing.ingredient_id,
+        preload: [ingredient: :ingredient_compositions],
+        order_by: [desc: fing.actual],
+        select: fing,
+        select_merge: %{ingredient_name: ing.name, cost: fing.cost, amount: 0.0}
+      )
+
+    from(frm in Formula,
+      join: frming in FormulaIngredient,
+      on: frm.id == frming.formula_id,
+      preload: [formula_ingredients: ^frm_ing],
+      preload: [formula_nutrients: ^frm_nut],
+      preload: :user,
+      where: frm.id in ^ids,
+      group_by: frm.id,
+      select: frm,
+      select_merge: %{
+        cost:
+          fragment("?/?*1000", sum(frm.batch_size * frming.actual * frming.cost), frm.batch_size)
+      }
+    )
+    |> Repo.all()
+  end
+
+  def get_print_premix!(ids) do
+    premix_ing =
+      from(fping in FormulaPremixIngredient,
+        join: ing in Ingredient,
+        on: ing.id == fping.ingredient_id,
+        preload: [ingredient: :ingredient_compositions],
+        order_by: [desc: fping.formula_quantity],
+        select: fping,
+        select_merge: %{ingredient_name: ing.name}
+      )
+
+    frm_ing =
+      from(fing in FormulaIngredient,
+        join: ing in Ingredient,
+        on: ing.id == fing.ingredient_id,
+        preload: [ingredient: :ingredient_compositions],
+        order_by: [desc: fing.actual],
+        select: fing,
+        select_merge: %{ingredient_name: ing.name, cost: fing.cost, amount: 0.0}
+      )
+
+    from(frm in Formula,
+      join: frming in FormulaIngredient,
+      on: frm.id == frming.formula_id,
+      preload: [formula_premix_ingredients: ^premix_ing],
+      preload: [formula_ingredients: ^frm_ing],
+      preload: :user,
+      where: frm.id in ^ids,
+      group_by: frm.id,
+      select: frm
+    )
+    |> Repo.all()
+  end
+
   def get_formula_premix_ingredients!(id) do
     fpi =
       from(fping in FormulaPremixIngredient,
         join: i in Ingredient,
         on: i.id == fping.ingredient_id,
         where: fping.formula_id == ^id,
+        order_by: [desc: fping.formula_quantity],
         select: %FormulaPremixIngredient{
           id: fping.id,
           ingredient_id: i.id,
@@ -137,31 +211,37 @@ defmodule LeastCostFeed.Entities do
       preload: [formula_premix_ingredients: ^fpi],
       select: frm,
       select_merge: %{
-        premix_batch_weight: fragment("?*?", frm.premix_bag_weight, frm.premix_bags_qty)
+        left_premix_bag_weight:
+          fragment(
+            "?",
+            frm.premix_batch_weight / frm.premix_bag_make_qty * frm.premix_bag_usage_qty -
+              frm.target_premix_weight
+          ),
+        true_premix_bag_weight: fragment("?", frm.premix_batch_weight / frm.premix_bag_make_qty)
       }
     )
     |> Repo.one!()
   end
 
   def get_formula_ingredients!(id) do
-      from(fing in FormulaIngredient,
-        join: f in Formula,
-        on: f.id == fing.formula_id,
-        join: i in Ingredient,
-        on: i.id == fing.ingredient_id,
-        where: f.id == ^id,
-        where: fing.actual > 0.0,
-        select: %FormulaPremixIngredient{
-          id: nil,
-          ingredient_id: i.id,
-          formula_id: f.id,
-          ingredient_name: i.name,
-          formula_quantity: fing.actual * f.batch_size,
-          premix_quantity: 0.0,
-          delete: false
-        }
-      )
-      |> Repo.all()
+    from(fing in FormulaIngredient,
+      join: f in Formula,
+      on: f.id == fing.formula_id,
+      join: i in Ingredient,
+      on: i.id == fing.ingredient_id,
+      where: f.id == ^id,
+      where: fing.actual > 0.0,
+      select: %FormulaPremixIngredient{
+        id: nil,
+        ingredient_id: i.id,
+        formula_id: f.id,
+        ingredient_name: i.name,
+        formula_quantity: fing.actual * f.batch_size,
+        premix_quantity: 0.0,
+        delete: false
+      }
+    )
+    |> Repo.all()
   end
 
   def create_formula(attrs \\ %{}) do
@@ -232,7 +312,8 @@ defmodule LeastCostFeed.Entities do
           shadow: "0.0"
         })
       end
-    end) |> Enum.sort_by(& (LeastCostFeed.Helpers.my_fetch_field!(&1, :actual)), :desc)
+    end)
+    |> Enum.sort_by(&LeastCostFeed.Helpers.my_fetch_field!(&1, :actual), :desc)
   end
 
   defp replace_formula_nutrient_with_optimize(formula_nutrients, attrs) do
@@ -251,6 +332,7 @@ defmodule LeastCostFeed.Entities do
           actual: "0.0"
         })
       end
-    end) |> Enum.sort_by(& (LeastCostFeed.Helpers.my_fetch_field!(&1, :nutrient_name)))
+    end)
+    |> Enum.sort_by(&LeastCostFeed.Helpers.my_fetch_field!(&1, :nutrient_name))
   end
 end

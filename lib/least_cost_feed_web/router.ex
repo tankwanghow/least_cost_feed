@@ -78,6 +78,7 @@ defmodule LeastCostFeedWeb.Router do
       live "/ingredients", IngredientLive.Index, :index
       live "/ingredients/new", IngredientLive.Form, :new
       live "/ingredients/:id/edit", IngredientLive.Form, :edit
+      live "/ingredient_usages", IngredientLive.Usage, :index
 
       live "/formulas", FormulaLive.Index, :index
       live "/formulas/new", FormulaLive.Form, :new
@@ -86,6 +87,13 @@ defmodule LeastCostFeedWeb.Router do
       live "/formula_premix/:id/edit", PremixLive.Form, :edit
 
       live "/transfer", TransferLive.Form
+    end
+
+    live_session :require_authenticated_user_print,
+      on_mount: [{LeastCostFeedWeb.UserAuth, :ensure_authenticated}],
+      root_layout: {LeastCostFeedWeb.Layouts, :print_root} do
+      live "/formulas/print_multi", FormulaLive.FormulaPrint, :print
+      live "/formulas_premix/print_multi", FormulaLive.PremixPrint, :print
     end
   end
 

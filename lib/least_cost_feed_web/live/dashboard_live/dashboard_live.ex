@@ -16,6 +16,9 @@ defmodule LeastCostFeedWeb.DashboardLive do
         <.link navigate={~p"/formulas"} class="button blue">
           Formulas
         </.link>
+        <.link navigate={~p"/ingredient_usages"} class="button blue">
+          Ingredient Usages
+        </.link>
         <.link :if={@current_user.is_admin} navigate={~p"/transfer"} class="button blue">
           Transfer for Ruby LCF
         </.link>

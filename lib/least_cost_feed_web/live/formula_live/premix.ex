@@ -20,11 +20,11 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
           <div class="w-[20%]"><.input field={@form[:name]} type="text" label="Name" readonly /></div>
           <div class="w-[10%]">
             <.input
-              field={@form[:premix_bag_weight]}
+              field={@form[:target_premix_weight]}
               type="number"
               label={"Target Weight(#{@form[:weight_unit].value})"}
               step="any"
-              value={Helpers.float_decimal(@form[:premix_bag_weight].value)}
+              value={Helpers.float_decimal(@form[:target_premix_weight].value)}
             />
           </div>
           <div class="w-[8%]">
@@ -47,7 +47,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
             />
           </div>
           <div class="w-[8%]">
-            <.input field={@form[:premix_bags_qty]} type="number" label="Bags to Make" />
+            <.input field={@form[:premix_bag_make_qty]} type="number" label="Bags to Make" />
           </div>
 
           <div class="w-[12%] font-bold">
@@ -73,11 +73,16 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
 
         <div class="flex my-2 gap-2">
           <.button phx-disable-with="Saving...">Save Premix</.button>
-          <.link
-            navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
-            class="red button"
-          >
+          <.link :if={@form.source.changes != %{}} navigate={~p"/formula_premix/#{@form[:id].value}/edit"} class="red button">
             Cancel
+          </.link>
+          <.link
+            :if={@form.source.changes == %{} and @live_action != :new}
+            target="_blank"
+            navigate={~p"/formulas_premix/print_multi?ids=#{@form[:id].value}"}
+            class="blue button w-[15%]"
+          >
+            Print
           </.link>
         </div>
 
@@ -95,7 +100,11 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
                   <div class="w-[30%]">
                     <.input field={nt[:ingredient_name]} readonly />
                   </div>
-                  <div class={["w-[20%]", Helpers.float_parse(nt[:formula_quantity].value) - Helpers.float_parse(nt[:premix_quantity].value) > 0.00001 && "font-bold"]}>
+                  <div class={[
+                    "w-[20%]",
+                    Helpers.float_parse(nt[:formula_quantity].value) !=
+                      Helpers.float_parse(nt[:premix_quantity].value) && "font-bold"
+                  ]}>
                     <.input
                       type="number"
                       field={nt[:formula_quantity]}
@@ -137,17 +146,23 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
 
     fpings =
       fpings
-      |> Enum.map(fn x ->
+      |> Enum.map(fn fping ->
         fing =
           fings
           |> Enum.find(fn fi ->
-            fi.ingredient_id == LeastCostFeed.Helpers.my_fetch_field!(x, :ingredient_id)
+            fi.ingredient_id == LeastCostFeed.Helpers.my_fetch_field!(fping, :ingredient_id)
           end)
 
         if fing do
-          Ecto.Changeset.change(x, formula_quantity: fing.formula_quantity)
+          if(
+            fing.formula_quantity != LeastCostFeed.Helpers.my_fetch_field!(fping, :formula_quantity)
+          ) do
+            Ecto.Changeset.change(fping, formula_quantity: Float.round(fing.formula_quantity, 6))
+          else
+            fping
+          end
         else
-          Ecto.Changeset.change(x, delete: true)
+          Ecto.Changeset.change(fping, delete: true)
         end
       end)
 
@@ -167,9 +182,10 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
       changeset
       |> Ecto.Changeset.put_assoc(
         :formula_premix_ingredients,
-        (fpings ++ new) |> Enum.sort_by(& (LeastCostFeed.Helpers.my_fetch_field!(&1, :formula_quantity)), :desc)
+        (fpings ++ new)
+        |> Enum.sort_by(&LeastCostFeed.Helpers.my_fetch_field!(&1, :formula_quantity), :desc)
       )
-      |> Formula.refresh_premix_calculations()
+      # |> Formula.refresh_premix_calculations()
 
     {:ok,
      socket

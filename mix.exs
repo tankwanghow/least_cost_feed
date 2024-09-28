@@ -61,7 +61,8 @@ defmodule LeastCostFeed.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:nimble_csv, "~> 1.2"},
-      {:timex, "~> 3.0"}
+      {:timex, "~> 3.0"},
+      {:number, "~> 1.0"}
     ]
   end
 

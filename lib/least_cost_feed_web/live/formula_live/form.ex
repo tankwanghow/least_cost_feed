@@ -18,11 +18,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
       <.form for={@form} id="formula-form" phx-change="validate" phx-submit="save">
         <div class="flex gap-1">
           <.input field={@form[:user_id]} type="hidden" value={@current_user.id} />
-          <div class="w-[20%]"><.input field={@form[:name]} type="text" label="Name" /></div>
-          <div class="w-[7%]">
+          <div class="w-[28%]"><.input field={@form[:name]} type="text" label="Name" /></div>
+          <div class="w-[9%]">
             <.input field={@form[:weight_unit]} type="text" label="Weight Unit" />
           </div>
-          <div class="w-[8%]">
+          <div class="w-[12%]">
             <.input
               field={@form[:batch_size]}
               type="number"
@@ -31,7 +31,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               value={Helpers.float_decimal(@form[:batch_size].value)}
             />
           </div>
-          <div class="w-[8%]">
+          <div class="w-[12%]">
             <.input
               field={@form[:usage_per_day]}
               type="number"
@@ -40,7 +40,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               value={Helpers.float_decimal(@form[:usage_per_day].value)}
             />
           </div>
-          <div class="w-[9%]">
+          <div class="w-[12%]">
             <.input
               field={@form[:cost]}
               type="number"
@@ -49,7 +49,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               value={Helpers.float_decimal(@form[:cost].value, 2)}
             />
           </div>
-          <div class="w-[40%]"><.input field={@form[:note]} type="text" label="Note" /></div>
+          <div class="w-[27%]"><.input field={@form[:note]} type="text" label="Note" /></div>
         </div>
 
         <div class="flex my-2 gap-2">
@@ -78,24 +78,31 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
             navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
-            class="red button w-[15%]"
+            class="teal button w-[15%]"
           >
             Premix
+          </.link>
+          <.link
+                target="_blank"
+            :if={@form.source.changes == %{} and @live_action != :new}
+            navigate={~p"/formulas/print_multi?ids=#{@form[:id].value}"}
+            class="blue button w-[15%]"
+          >
+            Print
           </.link>
         </div>
 
         <div class="flex gap-5">
-          <div class="w-[65%]">
+          <div class="w-[60%]">
             <div class="font-bold flex text-center">
               <div class="w-[3%]" />
-              <div class="w-[30%]">Ingredient</div>
-              <div class="w-[9%]">Cost</div>
-              <div class="w-[9%]">Min</div>
-              <div class="w-[9%]">Max</div>
-              <div class="w-[10%]">Actual</div>
+              <div class="w-[32%]">Ingredient</div>
+              <div class="w-[11%]">Cost/<%= @form[:weight_unit].value %></div>
+              <div class="w-[10%]">Min</div>
+              <div class="w-[10%]">Max</div>
+              <div class="w-[12%]">Actual</div>
+              <div class="w-[12%]">Weight(<%= @form[:weight_unit].value %>)</div>
               <div class="w-[10%]">Shadow</div>
-              <div class="w-[10%]">Weight</div>
-              <div class="w-[10%]">Amount</div>
             </div>
             <%!-- h-[580px] overflow-y-auto border bg-teal-200 p-1 rounded-xl border-teal-500 --%>
             <div class="">
@@ -104,10 +111,10 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                   <div class="w-[3%] mt-2">
                     <.input type="checkbox" field={nt[:used]} />
                   </div>
-                  <div class="w-[30%]">
+                  <div class="w-[32%]">
                     <.input field={nt[:ingredient_name]} readonly />
                   </div>
-                  <div class="w-[9%]">
+                  <div class="w-[11%]">
                     <.input
                       type="number"
                       step="any"
@@ -115,7 +122,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       value={Helpers.float_decimal(nt[:cost].value)}
                     />
                   </div>
-                  <div class="w-[9%]">
+                  <div class="w-[10%]">
                     <.input
                       type="number"
                       step="any"
@@ -123,7 +130,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       value={Helpers.float_decimal(nt[:min].value, 6)}
                     />
                   </div>
-                  <div class="w-[9%]">
+                  <div class="w-[10%]">
                     <.input
                       type="number"
                       step="any"
@@ -131,7 +138,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       value={Helpers.float_decimal(nt[:max].value, 6)}
                     />
                   </div>
-                  <div class="w-[10%]">
+                  <div class="w-[12%]">
                     <.input
                       type="number"
                       field={nt[:actual]}
@@ -139,15 +146,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       readonly
                     />
                   </div>
-                  <div class="w-[10%]">
-                    <.input
-                      type="number"
-                      field={nt[:shadow]}
-                      value={Helpers.float_decimal(nt[:shadow].value)}
-                      readonly
-                    />
-                  </div>
-                  <div class="w-[10%]">
+                  <div class="w-[12%]">
                     <.input
                       type="number"
                       field={nt[:weight]}
@@ -158,10 +157,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                   <div class="w-[10%]">
                     <.input
                       type="number"
-                      field={nt[:amount]}
-                      value={
-                        count_amount(@form[:batch_size].value, nt[:actual].value, nt[:cost].value)
-                      }
+                      field={nt[:shadow]}
+                      value={Helpers.float_decimal(nt[:shadow].value)}
                       readonly
                     />
                   </div>
@@ -175,31 +172,31 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
             </div>
           </div>
 
-          <div class="w-[35%]">
+          <div class="w-[40%]">
             <div class="font-bold flex text-center">
-              <div class="w-[5%]" />
-              <div class="w-[35%]">Nutrient</div>
-              <div class="w-[20%]">Min</div>
-              <div class="w-[20%]">Max</div>
-              <div class="w-[20%]">Actual</div>
+              <div class="w-[4%]" />
+              <div class="w-[50%]">Nutrient</div>
+              <div class="w-[15%]">Min</div>
+              <div class="w-[15%]">Max</div>
+              <div class="w-[16%]">Actual</div>
             </div>
             <%!-- h-[580px] overflow-y-auto border bg-sky-200 p-1 rounded-xl border-sky-500--%>
             <div class="">
               <.inputs_for :let={nt} field={@form[:formula_nutrients]}>
                 <div class={["flex", nt[:delete].value == true && "hidden"]}>
-                  <div class="w-[5%] mt-2">
+                  <div class="w-[3%] mt-2 mr-1">
                     <.input type="checkbox" field={nt[:used]} />
                   </div>
-                  <div class="w-[35%]">
-                    <.input field={nt[:nutrient_name]} readonly />
+                  <div class="w-[50%]">
+                    <.input field={nt[:nutrient_name]} value={"#{nt[:nutrient_name].value}(#{nt[:nutrient_unit].value})"} readonly />
                   </div>
-                  <div class="w-[20%]">
+                  <div class="w-[15%]">
                     <.input type="number" step="any" field={nt[:min]} />
                   </div>
-                  <div class="w-[20%]">
+                  <div class="w-[15%]">
                     <.input type="number" step="any" field={nt[:max]} />
                   </div>
-                  <div class="w-[20%]">
+                  <div class="w-[17%]">
                     <.input type="number" field={nt[:actual]} readonly />
                   </div>
                   <.input type="hidden" field={nt[:delete]} value={"#{nt[:delete].value}"} />
@@ -501,17 +498,6 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
     cond do
       a == :error || bs == :error -> -99999.0
       true -> LeastCostFeedWeb.Helpers.float_decimal(bs * a)
-    end
-  end
-
-  defp count_amount(batch_size, actual, cost) do
-    bs = LeastCostFeedWeb.Helpers.float_parse(batch_size)
-    a = LeastCostFeedWeb.Helpers.float_parse(actual)
-    c = LeastCostFeedWeb.Helpers.float_parse(cost)
-
-    cond do
-      a == :error || bs == :error || c == :error -> -99999.0
-      true -> LeastCostFeedWeb.Helpers.float_decimal(bs * a * c)
     end
   end
 end

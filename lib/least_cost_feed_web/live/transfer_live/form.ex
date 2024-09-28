@@ -164,9 +164,10 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
           weight_unit: a.weight_unit,
           usage_per_day: LeastCostFeedWeb.Helpers.float_parse(a.usage_per_day),
           note: a.note,
-          premix_bag_weight: LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight),
+          target_premix_weight: LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight),
           premix_bag_usage_qty: String.to_integer(a.premix_bag_usage_qty),
-          premix_bags_qty: String.to_integer(a.premix_bags_qty),
+          premix_bag_make_qty: String.to_integer(a.premix_bags_qty),
+          premix_batch_weight: LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight) * LeastCostFeedWeb.Helpers.float_parse(a.premix_bags_qty),
           inserted_at: string_to_datetime(a.inserted_at),
           updated_at: string_to_datetime(a.updated_at)
         })

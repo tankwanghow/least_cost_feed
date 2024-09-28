@@ -10,16 +10,16 @@ defmodule LeastCostFeed.Entities.Formula do
     field :weight_unit, :string
     field :note, :string
     field :usage_per_day, :float, default: 0.0
-    field :premix_bag_weight, :float, default: 0.0
+    field :target_premix_weight, :float, default: 0.0
     field :premix_bag_usage_qty, :integer, default: 1
-    field :premix_bags_qty, :integer, default: 0
+    field :premix_bag_make_qty, :integer, default: 0
+    field :premix_batch_weight, :float, default: 0.0
     field :cost, :float, virtual: true
     belongs_to :user, LeastCostFeed.UserAccounts.User
     has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient
     has_many :formula_nutrients, LeastCostFeed.Entities.FormulaNutrient
     has_many :formula_premix_ingredients, LeastCostFeed.Entities.FormulaPremixIngredient
 
-    field :premix_batch_weight, :float, virtual: true
     field :left_premix_bag_weight, :float, virtual: true
     field :true_premix_bag_weight, :float, virtual: true
 
@@ -39,15 +39,21 @@ defmodule LeastCostFeed.Entities.Formula do
   def premix_changeset(formula, attrs) do
     formula
     |> cast(attrs, [
-      :premix_bag_weight,
+      :target_premix_weight,
       :premix_bag_usage_qty,
-      :premix_bags_qty,
+      :premix_bag_make_qty,
       :user_id,
       :premix_batch_weight,
       :name,
       :weight_unit
     ])
-    |> validate_required([:premix_bag_weight, :premix_bag_usage_qty, :premix_bags_qty, :user_id])
+    |> validate_required([
+      :target_premix_weight,
+      :premix_bag_usage_qty,
+      :premix_bag_make_qty,
+      :premix_batch_weight,
+      :user_id
+    ])
     |> cast_assoc(:formula_premix_ingredients)
   end
 
@@ -90,13 +96,13 @@ defmodule LeastCostFeed.Entities.Formula do
           )
       end)
 
-    bag_qty =
-      Helpers.my_fetch_field!(changeset, :premix_bags_qty)
+    make_bag_qty =
+      Helpers.my_fetch_field!(changeset, :premix_bag_make_qty)
       |> LeastCostFeedWeb.Helpers.float_parse()
 
-    premix_bag_weight =
-        Helpers.my_fetch_field!(changeset, :premix_bag_weight)
-        |> LeastCostFeedWeb.Helpers.float_parse()
+    target_premix_weight =
+      Helpers.my_fetch_field!(changeset, :target_premix_weight)
+      |> LeastCostFeedWeb.Helpers.float_parse()
 
     bag_use =
       Helpers.my_fetch_field!(changeset, :premix_bag_usage_qty)
@@ -104,8 +110,8 @@ defmodule LeastCostFeed.Entities.Formula do
 
     if bag_use > 0 do
       changeset
-      |> force_change(:left_premix_bag_weight, premix_bag_weight - current_bag_weight)
-      |> force_change(:premix_batch_weight, current_bag_weight * bag_qty / bag_use)
+      |> force_change(:left_premix_bag_weight, target_premix_weight - current_bag_weight)
+      |> force_change(:premix_batch_weight, current_bag_weight * make_bag_qty / bag_use)
       |> force_change(:true_premix_bag_weight, current_bag_weight / bag_use)
     else
       changeset

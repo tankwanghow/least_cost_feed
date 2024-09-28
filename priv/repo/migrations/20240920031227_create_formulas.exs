@@ -9,9 +9,10 @@ defmodule LeastCostFeed.Repo.Migrations.CreateFormulas do
       add :weight_unit, :string, default: "Kg"
       add :usage_per_day, :float, default: 0.0
       add :user_id, references(:users, on_delete: :delete_all)
-      add :premix_bag_weight, :float
+      add :target_premix_weight, :float
       add :premix_bag_usage_qty, :integer
-      add :premix_bags_qty, :integer
+      add :premix_bag_make_qty, :integer
+      add :premix_batch_weight, :float
 
       timestamps(type: :utc_datetime)
     end
