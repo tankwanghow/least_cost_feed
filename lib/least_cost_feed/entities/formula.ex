@@ -6,15 +6,15 @@ defmodule LeastCostFeed.Entities.Formula do
 
   schema "formulas" do
     field :name, :string
-    field :batch_size, :float, default: 0.0
+    field :batch_size, :float
     field :weight_unit, :string
     field :note, :string
-    field :usage_per_day, :float, default: 0.0
-    field :target_premix_weight, :float, default: 0.0
-    field :premix_bag_usage_qty, :integer, default: 1
-    field :premix_bag_make_qty, :integer, default: 0
-    field :premix_batch_weight, :float, default: 0.0
-    field :cost, :float, virtual: true
+    field :usage_per_day, :float
+    field :target_premix_weight, :float
+    field :premix_bag_usage_qty, :integer
+    field :premix_bag_make_qty, :integer
+    field :premix_batch_weight, :float
+
     belongs_to :user, LeastCostFeed.UserAccounts.User
     has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient
     has_many :formula_nutrients, LeastCostFeed.Entities.FormulaNutrient
@@ -22,6 +22,7 @@ defmodule LeastCostFeed.Entities.Formula do
 
     field :left_premix_bag_weight, :float, virtual: true
     field :true_premix_bag_weight, :float, virtual: true
+    field :cost, :float, virtual: true
 
     timestamps(type: :utc_datetime)
   end
@@ -30,8 +31,9 @@ defmodule LeastCostFeed.Entities.Formula do
   def changeset(formula, attrs) do
     formula
     |> cast(attrs, [:name, :batch_size, :note, :weight_unit, :cost, :usage_per_day, :user_id])
-    |> validate_required([:name, :weight_unit, :batch_size, :user_id])
+    |> validate_required([:name, :weight_unit, :batch_size, :user_id, :usage_per_day])
     |> validate_number(:batch_size, greater_than: 0)
+    |> validate_number(:batch_size, greater_than_or_equal_to: 0)
     |> cast_assoc(:formula_ingredients)
     |> cast_assoc(:formula_nutrients)
   end
@@ -54,6 +56,9 @@ defmodule LeastCostFeed.Entities.Formula do
       :premix_batch_weight,
       :user_id
     ])
+    |> validate_number(:premix_bag_make_qty, greater_than: 0)
+    |> validate_number(:premix_bag_usage_qty, greater_than_or_equal_to: 1)
+    |> validate_number(:target_premix_weight, greater_than_or_equal_to: 0)
     |> cast_assoc(:formula_premix_ingredients)
   end
 

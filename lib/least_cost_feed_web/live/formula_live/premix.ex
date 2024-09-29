@@ -1,6 +1,7 @@
 defmodule LeastCostFeedWeb.PremixLive.Form do
   use LeastCostFeedWeb, :live_view
 
+  # alias Ecto.Changeset
   alias LeastCostFeedWeb.Helpers
   alias LeastCostFeed.Entities
   alias LeastCostFeed.Entities.{Formula}
@@ -24,7 +25,6 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
               type="number"
               label={"Target Weight(#{@form[:weight_unit].value})"}
               step="any"
-              value={Helpers.float_decimal(@form[:target_premix_weight].value)}
             />
           </div>
           <div class="w-[8%]">
@@ -32,8 +32,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
               field={@form[:left_premix_bag_weight]}
               type="number"
               label={"Still need(#{@form[:weight_unit].value})"}
-              step="any"
-              value={Helpers.float_decimal(@form[:left_premix_bag_weight].value)}
+              tabindex="-1"
               readonly
             />
           </div>
@@ -47,7 +46,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
             />
           </div>
           <div class="w-[8%]">
-            <.input field={@form[:premix_bag_make_qty]} type="number" label="Bags to Make" />
+            <.input field={@form[:premix_bag_make_qty]} type="number" label="Bags to Make" step="any" />
           </div>
 
           <div class="w-[12%] font-bold">
@@ -55,7 +54,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
               field={@form[:true_premix_bag_weight]}
               type="number"
               label={"Premix Bag Weight(#{@form[:weight_unit].value})"}
-              value={Helpers.float_decimal(@form[:true_premix_bag_weight].value)}
+              tabindex="-1"
               readonly
             />
           </div>
@@ -65,7 +64,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
               field={@form[:premix_batch_weight]}
               type="number"
               label={"Premix Batch Weight(#{@form[:weight_unit].value})"}
-              value={Helpers.float_decimal(@form[:premix_batch_weight].value)}
+              tabindex="-1"
               readonly
             />
           </div>
@@ -102,7 +101,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
               <.inputs_for :let={nt} field={@form[:formula_premix_ingredients]}>
                 <div class={["flex", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[30%]">
-                    <.input field={nt[:ingredient_name]} readonly />
+                    <.input field={nt[:ingredient_name]} readonly tabindex="-1" />
                   </div>
                   <div class={[
                     "w-[20%]",
@@ -112,17 +111,13 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
                     <.input
                       type="number"
                       field={nt[:formula_quantity]}
+                      tabindex="-1"
                       value={Helpers.float_decimal(nt[:formula_quantity].value)}
                       readonly
                     />
                   </div>
-                  <div class={["w-[20%]"]}>
-                    <.input
-                      type="number"
-                      field={nt[:premix_quantity]}
-                      value={Helpers.float_decimal(nt[:premix_quantity].value)}
-                      step="any"
-                    />
+                  <div class="w-[20%]">
+                    <.input type="number" field={nt[:premix_quantity]} step="any" />
                   </div>
                   <.input type="hidden" field={nt[:ingredient_id]} />
                   <.input type="hidden" field={nt[:formula_id]} />
@@ -190,8 +185,6 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
         (fpings ++ new)
         |> Enum.sort_by(&LeastCostFeed.Helpers.my_fetch_field!(&1, :formula_quantity), :desc)
       )
-
-    # |> Formula.refresh_premix_calculations()
 
     {:ok,
      socket

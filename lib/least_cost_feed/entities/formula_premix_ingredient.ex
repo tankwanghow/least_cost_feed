@@ -23,7 +23,7 @@ defmodule LeastCostFeed.Entities.FormulaPremixIngredient do
       :ingredient_name,
       :delete
     ])
-    |> validate_required([:ingredient_id])
+    |> validate_required([:ingredient_id, :premix_quantity])
     |> validate_number(:premix_quantity, greater_than_or_equal_to: 0.0)
     |> validate_formula_premit_qty()
     |> maybe_mark_for_deletion()

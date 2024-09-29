@@ -60,29 +60,30 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           <%= Timex.from_now(formula.updated_at) %>
         </:col>
 
-        <:action :let={{id, formula}} class="flex w-[15%] gap-5">
-          <.link
-            target="_blank"
-            navigate={~p"/formulas/print_multi?ids=#{formula.id}"}
-            class="text-blue-600"
-          >
+        <:col :let={{_id, formula}} class="w-[3%] text-purple-600">
+          <.link navigate={~p"/formulas/copy/#{formula.id}"}>
+            <.icon name="hero-document-duplicate-solid" class="h-5 w-5" />
+          </.link>
+        </:col>
+
+        <:col :let={{_id, formula}} class="w-[3%] text-blue-600">
+          <.link target="_blank" href={~p"/formulas/print_multi?ids=#{formula.id}"}>
             <.icon name="hero-printer-solid" class="h-5 w-5" />
           </.link>
-          <.link
-            target="_blank"
-            navigate={~p"/formulas_premix/print_multi?ids=#{formula.id}"}
-            class="text-green-600"
-          >
+        </:col>
+        <:col :let={{_id, formula}} class="w-[3%] text-teal-600">
+          <.link target="_blank" href={~p"/formulas_premix/print_multi?ids=#{formula.id}"}>
             <.icon name="hero-printer-solid" class="h-5 w-5" />
           </.link>
+        </:col>
+        <:col :let={{id, formula}} class="w-[3%] text-rose-500">
           <.link
-            class="text-rose-500"
             phx-click={JS.push("delete", value: %{id: formula.id}) |> hide("##{id}")}
             data-confirm={"Are you sure? DELETE (#{formula.name})"}
           >
             <.icon name="hero-trash-solid" class="h-5 w-5" />
           </.link>
-        </:action>
+        </:col>
       </LeastCostFeedWeb.MyComponents.table>
       <LeastCostFeedWeb.MyComponents.infinite_scroll_footer ended={@end_of_timeline?} />
     </div>

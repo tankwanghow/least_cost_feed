@@ -379,6 +379,7 @@ defmodule LeastCostFeedWeb.CoreComponents do
         name={@name}
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        phx-debounce="blur"
         class={[
           "block w-full rounded-lg text-zinc-900 focus:ring-0 py-1 px-2 text-right",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
@@ -400,6 +401,7 @@ defmodule LeastCostFeedWeb.CoreComponents do
         type={@type}
         name={@name}
         id={@id}
+        phx-debounce="blur"
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
           "block w-full rounded-lg text-zinc-900 focus:ring-0 py-1 px-2",

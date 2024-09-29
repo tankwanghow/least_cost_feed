@@ -69,8 +69,6 @@ defmodule LeastCostFeedWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
-      live "/dashboard", DashboardLive
-
       live "/nutrients", NutrientLive.Index, :index
       live "/nutrients/new", NutrientLive.Form, :new
       live "/nutrients/:id/edit", NutrientLive.Form, :edit
@@ -83,6 +81,7 @@ defmodule LeastCostFeedWeb.Router do
       live "/formulas", FormulaLive.Index, :index
       live "/formulas/new", FormulaLive.Form, :new
       live "/formulas/:id/edit", FormulaLive.Form, :edit
+      live "/formulas/copy/:id", FormulaLive.Form, :copy
 
       live "/formula_premix/:id/edit", PremixLive.Form, :edit
 

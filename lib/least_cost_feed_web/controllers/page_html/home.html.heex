@@ -1,27 +1,79 @@
-<main class={if(assigns[:current_user], do: "mt-20", else: "")}>
-  <%= if @current_user do %>
-    <div class="grid justify-center w-full">
-      <span>
-        <.link
-          href={~p"/users/log_out"}
-          method="delete"
-          class="font-semibold text-brand hover:underline"
-        >
-          Log out
-        </.link>
-      </span>
+<main class={if(@current_user, do: "mt-20 px-36 text-lg", else: "px-36 text-lg")}>
+  <div :if={!@current_user} class="mx-auto text-center">
+    <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
+      Sign up
+    </.link>
+    OR
+    <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+      Log in
+    </.link>
+  </div>
+  <div class="text-3xl mb-4">
+    Welcome
+  </div>
+
+  <div class="px-4">
+    <span class="font-bold">Least Cost Feed(LCF)</span>
+    <span>
+      is a Web-Based Least Cost Formulation Software that helps Livestock Farmer, Nutritionist or anyone who like to optain the cheapest Diet for their Livestock or pets. It uses GNU Linear Programming Kit(GLPK) at the back end to find the least cost solutions for the nutrition specifications that the user provide.
+    </span>
+    <p>
+      I have a day job and I am running this web-app as a hobby of my. Hoping that Least Cost Feed can help people interested in livestock, animal or pets diet to produce cheaper and better feeds or products.
+    </p>
+    <p>
+      I am running the site for free and on a very tight budget. Please forgive me there are bugs or less pretty user interface, do send me emails, if you have any comments or suggestions. Thank You.
+    </p>
+  </div>
+
+  <div class="flex gap-2 m-4">
+    <div class="w-[25%] rounded-xl py-4 px-8 bg-gray-200">
+      <div class="font-bold text-xl">Ingredient</div>
+      An ingredient is a substance that forms part of a formula (in a general sense). For example, in cooking, recipes specify which ingredients are used to prepare a specific dish.
     </div>
-  <% else %>
-    <div class="grid justify-center w-full">
-      <span>
-        <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
-          Log in
-        </.link>
-        |
-        <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-          Register
-        </.link>
-      </span>
+
+    <div class="w-[25%] rounded-xl py-4 px-8 bg-gray-200">
+      <div class="font-bold text-xl">Nutrient</div>
+      Nutrients are the nutritious components in foods that an organism utilizes to survive and grow.
     </div>
-  <% end %>
+
+    <div class="w-[25%] rounded-xl py-4 px-8 bg-gray-200">
+      <div class="font-bold text-xl">Formula</div>
+      Formula is the mixture of ingredients that form a diet for animals.
+    </div>
+
+    <div class="w-[25%] rounded-xl py-4 px-8 bg-gray-200">
+      <div class="font-bold text-xl">Specification</div>
+      Specification is the nutrients content of a formula.
+    </div>
+  </div>
+
+  <div class="p-4">
+    <strong>
+      The MIT License (MIT)
+    </strong>
+    <p>Copyright (c) 2014 Tan Kwang How</p>
+    <p>
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+    </p>
+    <p class="my-4">
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+    </p>
+    <p class="my-4">
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+    </p>
+
+    <a class="text-green-600" href="mailto:tankwanghow@gmail.com">Click Here for any question</a>
+  </div>
 </main>

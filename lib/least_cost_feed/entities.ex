@@ -213,11 +213,16 @@ defmodule LeastCostFeed.Entities do
       select_merge: %{
         left_premix_bag_weight:
           fragment(
-            "?",
-            frm.premix_batch_weight / frm.premix_bag_make_qty * frm.premix_bag_usage_qty -
-              frm.target_premix_weight
+            "(? / (case ? when 0 then 1 else ? end) * (case ? when 0 then 1 else ? end)) - ?",
+            frm.premix_batch_weight,
+            frm.premix_bag_make_qty,
+            frm.premix_bag_make_qty,
+            frm.premix_bag_usage_qty,
+            frm.premix_bag_usage_qty,
+            frm.target_premix_weight
           ),
-        true_premix_bag_weight: fragment("?", frm.premix_batch_weight / frm.premix_bag_make_qty)
+        true_premix_bag_weight:
+          fragment("? / (case ? when 0 then 1 else ? end)", frm.premix_batch_weight, frm.premix_bag_make_qty, frm.premix_bag_make_qty)
       }
     )
     |> Repo.one!()

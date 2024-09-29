@@ -12,11 +12,26 @@
     <%= if @current_user do %>
       <div class="flex fixed top-0 z-10 w-full items-center justify-center text-white gap-4 bg-gray-800 py-2 px-5 shadow">
         <div class="text-3xl font-bold cursor-default w-[70%]">
-          Least Cost Feed
+          <.link navigate="/">Least Cost Feed</.link>
         </div>
-
-        <.link id="dashboard" navigate={~p"/dashboard"} class="rounded hover:bg-gray-400 p-2">
-          Dashboard
+        <.link navigate={~p"/nutrients"} class="rounded hover:bg-gray-400 p-2">
+          Nutrients
+        </.link>
+        <.link navigate={~p"/ingredients"} class="rounded hover:bg-gray-400 p-2">
+          Ingredients
+        </.link>
+        <.link navigate={~p"/formulas"} class="rounded hover:bg-gray-400 p-2">
+          Formulas
+        </.link>
+        <.link navigate={~p"/ingredient_usages"} class="rounded hover:bg-gray-400 p-2">
+          Usages
+        </.link>
+        <.link
+          :if={@current_user.is_admin}
+          navigate={~p"/transfer"}
+          class="rounded hover:bg-gray-400 p-2"
+        >
+          Transfer
         </.link>
 
         <ul>
@@ -27,18 +42,17 @@
 
             <div class="p-2 invisible absolute right-0 top-full transform opacity-0 transition-all duration-300 group-focus-within:visible group-focus-within:opacity-100">
               <ul class="mt-1 rounded-md border border-neutral-50 bg-gray-800 p-2 shadow backdrop-blur-sm">
+                <li class="w-50 font-bold mb-2 text-blue-400 overflow-clip text-center">
+                  <%= @current_user.email %>
+                </li>
                 <li class="my-5">
-                  <.link navigate={~p"/users/settings"} class="mb-2 p-3 hover:bg-emerald-400 flex">
+                  <.link navigate={~p"/users/settings"} class="mb-2 p-3 hover:bg-emerald-400">
                     User Settings
                   </.link>
                 </li>
 
                 <li class="my-5">
-                  <.link
-                    href={~p"/users/log_out"}
-                    method="delete"
-                    class="p-3 hover:bg-rose-400 flex"
-                  >
+                  <.link href={~p"/users/log_out"} method="delete" class="p-3 hover:bg-rose-400">
                     Log out
                   </.link>
                 </li>
@@ -49,9 +63,9 @@
       </div>
     <% else %>
       <%= if assigns[:page_title] != "Home" do %>
-        <div class="">
-          <img src="/images/logo.jpg" alt="LCF Logo" class="mx-auto w-1/6 h-1/6" />
-        </div>
+        <.link navigate="/">
+          <img src="/images/logo.jpg" alt="LCF Logo" class="mx-auto w-1/12 h-1/12" />
+        </.link>
 
         <h1 class="text-center text-3xl tracking-tighter mt-2">
           Feed Formulation Made Simple and Cost Effective

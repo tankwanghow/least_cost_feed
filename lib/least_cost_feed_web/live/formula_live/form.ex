@@ -47,6 +47,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               label={"Cost per 1000#{@form[:weight_unit].value}"}
               readonly
               value={Helpers.float_decimal(@form[:cost].value, 2)}
+              tabindex="-1"
             />
           </div>
           <div class="w-[27%]"><.input field={@form[:note]} type="text" label="Note" /></div>
@@ -109,10 +110,10 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               <.inputs_for :let={nt} field={@form[:formula_ingredients]}>
                 <div class={["flex", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[3%] mt-2">
-                    <.input type="checkbox" field={nt[:used]} />
+                    <.input type="checkbox" field={nt[:used]} tabindex="-1" />
                   </div>
                   <div class="w-[32%]">
-                    <.input field={nt[:ingredient_name]} readonly />
+                    <.input field={nt[:ingredient_name]} readonly tabindex="-1" />
                   </div>
                   <div class="w-[11%]">
                     <.input
@@ -143,6 +144,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       type="number"
                       field={nt[:actual]}
                       value={Helpers.float_decimal(nt[:actual].value, 6)}
+                      tabindex="-1"
                       readonly
                     />
                   </div>
@@ -151,6 +153,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       type="number"
                       field={nt[:weight]}
                       value={count_weight(@form[:batch_size].value, nt[:actual].value)}
+                      tabindex="-1"
                       readonly
                     />
                   </div>
@@ -159,6 +162,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       type="number"
                       field={nt[:shadow]}
                       value={Helpers.float_decimal(nt[:shadow].value)}
+                      tabindex="-1"
                       readonly
                     />
                   </div>
@@ -185,13 +189,15 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               <.inputs_for :let={nt} field={@form[:formula_nutrients]}>
                 <div class={["flex", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[3%] mt-2 mr-1">
-                    <.input type="checkbox" field={nt[:used]} />
+                    <.input type="checkbox" field={nt[:used]} tabindex="-1" />
                   </div>
                   <div class="w-[50%]">
                     <.input
-                      field={nt[:nutrient_name]}
+                      field={}
+                      name={}
                       value={"#{nt[:nutrient_name].value}(#{nt[:nutrient_unit].value})"}
                       readonly
+                      tabindex="-1"
                     />
                   </div>
                   <div class="w-[15%]">
@@ -201,7 +207,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                     <.input type="number" step="any" field={nt[:max]} />
                   </div>
                   <div class="w-[17%]">
-                    <.input type="number" field={nt[:actual]} readonly />
+                    <.input type="number" field={nt[:actual]} readonly tabindex="-1"/>
                   </div>
                   <.input type="hidden" field={nt[:delete]} value={"#{nt[:delete].value}"} />
                   <.input type="hidden" field={nt[:nutrient_id]} />
@@ -261,6 +267,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
       case socket.assigns.live_action do
         :new -> mount_new(socket)
         :edit -> mount_edit(socket, id)
+        :copy -> mount_copy(socket, id)
       end
 
     {:ok,
@@ -290,6 +297,32 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
     |> assign(page_title: "Edit Formula")
     |> assign_new(:form, fn ->
       to_form(changeset)
+    end)
+  end
+
+  defp mount_copy(socket, id) do
+    source = Entities.get_formula!(id)
+
+    dest = %Formula{
+      name: source.name <> " - COPY",
+      weight_unit: source.weight_unit,
+      batch_size: source.batch_size,
+      usage_per_day: source.usage_per_day,
+      target_premix_weight: source.target_premix_weight,
+      premix_bag_usage_qty: source.premix_bag_usage_qty,
+      premix_bag_make_qty: source.premix_bag_make_qty,
+      premix_batch_weight: source.premix_batch_weight,
+      formula_ingredients: source.formula_ingredients,
+      formula_nutrients: source.formula_nutrients
+    }
+
+    socket
+    |> assign(action: :new)
+    |> assign(live_action: :new)
+    |> assign(id: id)
+    |> assign(page_title: "Copying Formula")
+    |> assign_new(:form, fn ->
+      to_form(Entities.change_formula(dest))
     end)
   end
 
@@ -381,7 +414,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
     new_formula_nutrients = %{
       nutrient_id: nutrient.id,
-      nutrient_name: "#{nutrient.name} (#{nutrient.unit})",
+      nutrient_name: "#{nutrient.name}(#{nutrient.unit})",
       min: nil,
       max: nil,
       actual: 0.0,
@@ -501,7 +534,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
     cond do
       a == :error || bs == :error -> -99999.0
-      true -> LeastCostFeedWeb.Helpers.float_decimal(bs * a)
+      true -> LeastCostFeedWeb.Helpers.float_decimal(bs || 0 * a || 0)
     end
   end
 end

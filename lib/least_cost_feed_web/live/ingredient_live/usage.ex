@@ -18,23 +18,21 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
       <p class="w-full text-3xl text-center font-medium"><%= @page_title %></p>
       <div class="flex font-bold text-right border-y border-gray-600 p-2 bg-blue-200">
         <div
-          class="w-[20%] text-left hover:cursor-pointer hover:text-white"
+          class="w-[24%] text-left hover:cursor-pointer hover:text-white"
           phx-click="sort"
           phx-value-sort-by="ingredient_name"
         >
-          Ingredient <%= direction_icon(@sort_directions["ingredient_name"], assigns) %>
+          Ingredient<%= direction_icon(@sort_directions["ingredient_name"], assigns) %>
         </div>
-        <div class="w-[15%] text-center">Used In Formula</div>
+        <div class="w-[25%] text-center">Used In Formula</div>
         <div class="w-[6%]">Cost</div>
         <div
           class="w-[5%] hover:cursor-pointer hover:text-white"
           phx-click="sort"
           phx-value-sort-by="use_perc"
         >
-          Use % <%= direction_icon(@sort_directions["use_perc"], assigns) %>
+          Use%<%= direction_icon(@sort_directions["use_perc"], assigns) %>
         </div>
-        <div class="w-[7%]">Daily Use</div>
-        <div class="w-[7%]">Daily Cost</div>
         <div class="w-[8%]">7days Use</div>
         <div class="w-[8%]">7days Cost</div>
         <div class="w-[9%]">30days Use</div>
@@ -44,24 +42,22 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
           phx-click="sort"
           phx-value-sort-by="cost_perc"
         >
-          Cost % <%= direction_icon(@sort_directions["cost_prec"], assigns) %>
+          Cost%<%= direction_icon(@sort_directions["cost_perc"], assigns) %>
         </div>
       </div>
       <%= for i <- @ingredients do %>
         <div class="flex text-right border-b border-gray-400 px-2 bg-orange-200 hover:bg-orange-300">
-          <div class="w-[20%] text-left text-nowrap overflow-hidden"><%= i.ingredient_name %></div>
-          <div class="w-[15%] text-center">Used In Formula</div>
+          <div class="w-[24%] text-left text-nowrap overflow-hidden"><%= i.ingredient_name %></div>
+          <div class="w-[25%] text-center">
+            <%= for f <- formula_links(i.formula_list) do %>
+              <%= formula_link(f, assigns) %>
+            <% end %>
+          </div>
           <div class="w-[6%]">
             <%= Delimit.number_to_delimited(i.ingredient_cost, precision: 4) %>
           </div>
           <div class="w-[5%]">
             <%= Delimit.number_to_delimited(i.use_perc) %>%
-          </div>
-          <div class="w-[7%]">
-            <%= Delimit.number_to_delimited(i.ingredient_usage_weight) %>
-          </div>
-          <div class="w-[7%]">
-            <%= Delimit.number_to_delimited(i.day_use_cost) %>
           </div>
           <div class="w-[8%]">
             <%= Delimit.number_to_delimited(i.day_use_7) %>
@@ -81,12 +77,10 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
         </div>
       <% end %>
       <div class="flex font-bold text-right border-y border-gray-600 p-2 bg-blue-200 mb-5">
-        <div class="w-[20%]"></div>
-        <div class="w-[15%]"></div>
+        <div class="w-[24%]"></div>
+        <div class="w-[25%]"></div>
         <div class="w-[6%]"></div>
         <div class="w-[5%]"></div>
-        <div class="w-[7%]"><%= Delimit.number_to_delimited(@total_usage) %></div>
-        <div class="w-[7%]"><%= Delimit.number_to_delimited(@total_cost) %></div>
         <div class="w-[8%]"><%= Delimit.number_to_delimited(@total_usage_7 * 7) %></div>
         <div class="w-[8%]"><%= Delimit.number_to_delimited(@total_cost_7) %></div>
         <div class="w-[9%]"><%= Delimit.number_to_delimited(@total_usage_30 * 30) %></div>
@@ -160,8 +154,8 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
       |> Enum.map(fn i ->
         i
         |> Map.merge(%{
+          formula_list: i.formula_list,
           use_perc: i.ingredient_usage_weight / total_use * 100,
-          day_use_cost: i.ingredient_usage_weight * i.ingredient_cost,
           day_use_7: i.ingredient_usage_weight * 7,
           day_cost_7: i.ingredient_usage_weight * 7 * i.ingredient_cost,
           day_use_30: i.ingredient_usage_weight * 30,
@@ -172,15 +166,33 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
 
     socket
     |> assign(ingredients: objects)
-    |> assign(total_usage: total_use)
-    |> assign(total_cost: total_cost)
     |> assign(total_usage_7: total_use_7)
     |> assign(total_cost_7: total_cost_7)
     |> assign(total_usage_30: total_use_30)
     |> assign(total_cost_30: total_cost_30)
   end
 
-  def query(socket) do
+  defp formula_links(fl) do
+    String.split(fl, "|")
+    |> Enum.map(fn sf ->
+      [_all, code, id] = Regex.scan(~r/.+(\(.+\)).+\~(\d+)$/, sf) |> List.flatten()
+
+      [String.slice(code, 1..(String.length(code) - 2)), id]
+    end)
+    |> Enum.sort()
+  end
+
+  defp formula_link([code, id], assigns) do
+    assigns = assign(assigns, :code, code) |> assign(:id, id)
+
+    ~H"""
+    <.link class="text-blue-600 hover:underline" navigate={~p"/formulas/#{@id}/edit"}>
+      <%= @code %>
+    </.link>
+    """
+  end
+
+  defp query(socket) do
     Ecto.Query.from(f in Formula,
       join: fi in FormulaIngredient,
       on: f.id == fi.formula_id,
@@ -194,7 +206,8 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
         ingredient_id: i.id,
         ingredient_name: i.name,
         ingredient_cost: avg(fi.cost),
-        ingredient_usage_weight: sum(fi.actual * f.usage_per_day)
+        ingredient_usage_weight: sum(fi.actual * f.usage_per_day),
+        formula_list: fragment("string_agg(? || ' ~' || ?::varchar(15), '|')", f.name, f.id)
       }
     )
   end

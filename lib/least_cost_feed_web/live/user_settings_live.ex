@@ -5,6 +5,7 @@ defmodule LeastCostFeedWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
+    <div class="mx-auto max-w-sm">
     <.header class="text-center">
       Account Settings
       <:subtitle>Manage your account email address and password settings</:subtitle>
@@ -69,6 +70,7 @@ defmodule LeastCostFeedWeb.UserSettingsLive do
           </:actions>
         </.simple_form>
       </div>
+    </div>
     </div>
     """
   end
