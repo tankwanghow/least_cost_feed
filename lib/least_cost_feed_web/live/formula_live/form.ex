@@ -207,7 +207,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                     <.input type="number" step="any" field={nt[:max]} />
                   </div>
                   <div class="w-[17%]">
-                    <.input type="number" field={nt[:actual]} readonly tabindex="-1"/>
+                    <.input type="number" field={nt[:actual]} readonly tabindex="-1" />
                   </div>
                   <.input type="hidden" field={nt[:delete]} value={"#{nt[:delete].value}"} />
                   <.input type="hidden" field={nt[:nutrient_id]} />
@@ -534,7 +534,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
 
     cond do
       a == :error || bs == :error -> -99999.0
-      true -> LeastCostFeedWeb.Helpers.float_decimal(bs || 0 * a || 0)
+      true -> LeastCostFeedWeb.Helpers.float_decimal((bs || 0) * (a || 0))
     end
   end
 end
