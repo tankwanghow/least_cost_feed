@@ -81,7 +81,7 @@ defmodule LeastCostFeed.Entities.Formula do
     bz = Helpers.my_fetch_field!(changeset, :batch_size) |> LeastCostFeedWeb.Helpers.float_parse()
 
     if bz > 0.0 do
-      changeset |> force_change(:cost, sum / bz * 1000.0)
+      changeset |> force_change(:cost, (sum / bz * 1000.0) |> LeastCostFeedWeb.Helpers.float_decimal())
     else
       changeset
     end
@@ -113,11 +113,18 @@ defmodule LeastCostFeed.Entities.Formula do
       Helpers.my_fetch_field!(changeset, :premix_bag_usage_qty)
       |> LeastCostFeedWeb.Helpers.float_parse()
 
+    left = (target_premix_weight - current_bag_weight) |> LeastCostFeedWeb.Helpers.float_decimal()
+
+    batch =
+      (current_bag_weight * make_bag_qty / bag_use) |> LeastCostFeedWeb.Helpers.float_decimal()
+
+    tbagwei = (current_bag_weight / bag_use) |> LeastCostFeedWeb.Helpers.float_decimal()
+
     if bag_use > 0 do
       changeset
-      |> force_change(:left_premix_bag_weight, target_premix_weight - current_bag_weight)
-      |> force_change(:premix_batch_weight, current_bag_weight * make_bag_qty / bag_use)
-      |> force_change(:true_premix_bag_weight, current_bag_weight / bag_use)
+      |> force_change(:left_premix_bag_weight, left)
+      |> force_change(:premix_batch_weight, batch)
+      |> force_change(:true_premix_bag_weight, tbagwei)
     else
       changeset
     end
