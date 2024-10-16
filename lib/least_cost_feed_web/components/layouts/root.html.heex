@@ -27,7 +27,7 @@
           Usages
         </.link>
         <.link
-          :if={@current_user.is_admin}
+          :if={@current_user.user_type == "admin"}
           navigate={~p"/transfer"}
           class="rounded hover:bg-gray-400 p-2"
         >

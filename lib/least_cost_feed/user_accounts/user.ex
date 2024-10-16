@@ -8,7 +8,11 @@ defmodule LeastCostFeed.UserAccounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
-    field :is_admin, :boolean, default: false
+    field :user_type, :string, default: "user"
+
+    has_many :nutrients, LeastCostFeed.Entities.Nutrient, on_delete: :delete_all
+    has_many :ingredients, LeastCostFeed.Entities.Ingredient, on_delete: :delete_all
+    has_many :formulas, LeastCostFeed.Entities.Formula, on_delete: :delete_all
 
     timestamps(type: :utc_datetime)
   end
@@ -38,7 +42,7 @@ defmodule LeastCostFeed.UserAccounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :is_admin])
+    |> cast(attrs, [:email, :password, :user_type])
     |> validate_email(opts)
     |> validate_password(opts)
   end

@@ -9,7 +9,7 @@ defmodule LeastCostFeed.Entities.Ingredient do
     field :category, :string
     field :cost, :float
     belongs_to :user, LeastCostFeed.UserAccounts.User
-    has_many :ingredient_compositions, LeastCostFeed.Entities.IngredientComposition
+    has_many :ingredient_compositions, LeastCostFeed.Entities.IngredientComposition, on_delete: :delete_all
 
     timestamps(type: :utc_datetime)
   end

@@ -16,9 +16,9 @@ defmodule LeastCostFeed.Entities.Formula do
     field :premix_batch_weight, :float
 
     belongs_to :user, LeastCostFeed.UserAccounts.User
-    has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient
-    has_many :formula_nutrients, LeastCostFeed.Entities.FormulaNutrient
-    has_many :formula_premix_ingredients, LeastCostFeed.Entities.FormulaPremixIngredient
+    has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient, on_delete: :delete_all
+    has_many :formula_nutrients, LeastCostFeed.Entities.FormulaNutrient, on_delete: :delete_all
+    has_many :formula_premix_ingredients, LeastCostFeed.Entities.FormulaPremixIngredient, on_delete: :delete_all
 
     field :left_premix_bag_weight, :float, virtual: true
     field :true_premix_bag_weight, :float, virtual: true

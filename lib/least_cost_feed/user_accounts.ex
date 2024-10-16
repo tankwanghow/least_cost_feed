@@ -77,7 +77,7 @@ defmodule LeastCostFeed.UserAccounts do
   def register_user(attrs) do
     attrs =
       if from(u in User) |> Repo.all() |> Enum.count() == 0 do
-        attrs |> Map.merge(%{"is_admin" => true})
+        attrs |> Map.merge(%{"user_type" => "admin"})
       else
         attrs
       end

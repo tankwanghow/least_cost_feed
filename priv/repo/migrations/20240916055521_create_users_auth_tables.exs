@@ -8,7 +8,7 @@ defmodule LeastCostFeed.Repo.Migrations.CreateUsersAuthTables do
       add :email, :citext, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :utc_datetime
-      add :is_admin, :boolean, default: false
+      add :user_type, :string, default: "user"
 
       timestamps(type: :utc_datetime)
     end

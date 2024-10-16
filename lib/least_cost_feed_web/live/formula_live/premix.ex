@@ -65,6 +65,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
               type="number"
               label={"Premix Batch Weight(#{@form[:weight_unit].value})"}
               tabindex="-1"
+              value={Helpers.float_decimal(@form[:premix_batch_weight].value)}
               readonly
             />
           </div>
