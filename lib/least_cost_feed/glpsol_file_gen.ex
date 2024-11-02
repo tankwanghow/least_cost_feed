@@ -70,9 +70,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
 
     formula_nutrients =
       Helpers.get_list(formula, :formula_nutrients)
-      |> Enum.filter(fn x ->
-        !Helpers.my_fetch_field!(x, :delete) and Helpers.my_fetch_field!(x, :used)
-      end)
+      |> Enum.filter(fn x -> !Helpers.my_fetch_field!(x, :delete) end)
 
     file = File.open!(path, [:write])
 
@@ -171,7 +169,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
     formula_ingredients
     |> Enum.map(fn i -> nutrient_expression(formula_nutrient, i) end)
     |> Enum.filter(fn n -> !is_nil(n) end)
-    |> Enum.join(" ")
+    |> Enum.join("")
   end
 
   defp nutrient_expression(formula_nutrient, formula_ingredient) do
