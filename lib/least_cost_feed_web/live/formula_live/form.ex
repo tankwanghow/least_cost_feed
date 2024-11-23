@@ -532,9 +532,10 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
     bs = LeastCostFeedWeb.Helpers.float_parse(batch_size)
     a = LeastCostFeedWeb.Helpers.float_parse(actual)
 
-    cond do
-      a == :error || bs == :error -> -99999.0
-      true -> LeastCostFeedWeb.Helpers.float_decimal((bs || 0) * (a || 0))
+    if a == :error || bs == :error do
+      -99_999.0
+    else
+      LeastCostFeedWeb.Helpers.float_decimal((bs || 0) * (a || 0))
     end
   end
 end

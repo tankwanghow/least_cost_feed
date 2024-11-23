@@ -154,13 +154,11 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
           end)
 
         if fing do
-          if(
-            fing.formula_quantity !=
-              LeastCostFeed.Helpers.my_fetch_field!(fping, :formula_quantity)
-          ) do
-            Ecto.Changeset.change(fping, formula_quantity: Float.round(fing.formula_quantity, 6))
-          else
+          if fing.formula_quantity ==
+               LeastCostFeed.Helpers.my_fetch_field!(fping, :formula_quantity) do
             fping
+          else
+            Ecto.Changeset.change(fping, formula_quantity: Float.round(fing.formula_quantity, 6))
           end
         else
           Ecto.Changeset.change(fping, delete: true)

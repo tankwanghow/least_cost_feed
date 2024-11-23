@@ -62,7 +62,8 @@ defmodule LeastCostFeed.MixProject do
       {:bandit, "~> 1.5"},
       {:nimble_csv, "~> 1.2"},
       {:timex, "~> 3.0"},
-      {:number, "~> 1.0"}
+      {:number, "~> 1.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 

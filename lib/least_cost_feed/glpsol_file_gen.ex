@@ -104,8 +104,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
 
   defp printf_statement_for_ingredients(formula_ingredients) do
     (formula_ingredients
-     |> Enum.map(fn i -> printf_statement_for_ingredient(i) end)
-     |> Enum.join("\n")) <> "\n"
+     |> Enum.map_join("\n", fn i -> printf_statement_for_ingredient(i) end)) <> "\n"
   end
 
   defp printf_statement_for_nutrient(formula_nutrient) do
@@ -114,15 +113,14 @@ defmodule LeastCostFeed.GlpsolFileGen do
 
   defp printf_statement_for_nutrients(formula_nutrients) do
     (formula_nutrients
-     |> Enum.map(fn n -> printf_statement_for_nutrient(n) end)
-     |> Enum.join("\n")) <> "\n"
+     |> Enum.map_join("\n", fn n -> printf_statement_for_nutrient(n) end)) <> "\n"
   end
 
   defp constraint_100(formula_ingredients) do
     ("PERC: " <>
        (formula_ingredients
-        |> Enum.map(fn i -> "+p_#{Helpers.my_fetch_field!(i, :ingredient_id)}" end)
-        |> Enum.join(" "))) <> " = 1;\n"
+        |> Enum.map_join(" ", fn i -> "+p_#{Helpers.my_fetch_field!(i, :ingredient_id)}" end))) <>
+      " = 1;\n"
   end
 
   defp nutrient_expressions_constraints(formula_nutrients, formula_ingredients) do
@@ -176,12 +174,13 @@ defmodule LeastCostFeed.GlpsolFileGen do
     ingredient = Helpers.my_fetch_field!(formula_ingredient, :ingredient)
 
     ingredient_compositions =
-      if !is_nil(ingredient) do
-        Helpers.my_fetch_field!(ingredient, :ingredient_compositions)
-      else
+      if is_nil(ingredient) do
         id = Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)
         LeastCostFeed.Entities.get_ingredient!(id).ingredient_compositions
-      end
+      else
+
+        Helpers.my_fetch_field!(ingredient, :ingredient_compositions)
+        end
 
     innu =
       ingredient_compositions
@@ -190,13 +189,13 @@ defmodule LeastCostFeed.GlpsolFileGen do
           Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)
       end)
 
-    if !is_nil(innu) do
+    if is_nil(innu) do
+      ""
+    else
       if(innu.quantity > 0,
         do: "+#{innu.quantity}*p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}",
         else: ""
       )
-    else
-      ""
     end
   end
 
@@ -214,19 +213,19 @@ defmodule LeastCostFeed.GlpsolFileGen do
         "p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}"
       )
 
-    if !is_nil(constraint) do
+    if is_nil(constraint) do
+      ""
+    else
       "s.t.pc_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}: " <>
         constraint(
           formula_ingredient,
           "p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}"
         )
-    else
-      ""
     end
   end
 
   defp varibles(formula_ingredients) do
-    (formula_ingredients |> Enum.map(fn i -> varible(i) end) |> Enum.join("\n")) <> "\n"
+    (formula_ingredients |> Enum.map_join("\n", fn i -> varible(i) end)) <> "\n"
   end
 
   defp varible(formula_ingredient) do
@@ -235,8 +234,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
 
   def objective_function(formula_ingredients) do
     "minimize cost: " <>
-      (formula_ingredients |> Enum.map(fn i -> ingredient_expression(i) end) |> Enum.join(" ")) <>
-      ";\n"
+      (formula_ingredients |> Enum.map_join(" ", fn i -> ingredient_expression(i) end)) <> ";\n"
   end
 
   defp ingredient_expression(formula_ingredient) do

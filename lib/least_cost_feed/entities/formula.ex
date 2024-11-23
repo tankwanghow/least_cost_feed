@@ -16,9 +16,14 @@ defmodule LeastCostFeed.Entities.Formula do
     field :premix_batch_weight, :float
 
     belongs_to :user, LeastCostFeed.UserAccounts.User
-    has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient, on_delete: :delete_all
+
+    has_many :formula_ingredients, LeastCostFeed.Entities.FormulaIngredient,
+      on_delete: :delete_all
+
     has_many :formula_nutrients, LeastCostFeed.Entities.FormulaNutrient, on_delete: :delete_all
-    has_many :formula_premix_ingredients, LeastCostFeed.Entities.FormulaPremixIngredient, on_delete: :delete_all
+
+    has_many :formula_premix_ingredients, LeastCostFeed.Entities.FormulaPremixIngredient,
+      on_delete: :delete_all
 
     field :left_premix_bag_weight, :float, virtual: true
     field :true_premix_bag_weight, :float, virtual: true
@@ -68,20 +73,21 @@ defmodule LeastCostFeed.Entities.Formula do
     sum =
       Enum.reduce(dtls, 0.0, fn x, acc ->
         acc +
-          if(!Helpers.my_fetch_field!(x, :delete),
-            do:
+          if(Helpers.my_fetch_field!(x, :delete),
+            do: 0.0,
+            else:
               (Helpers.my_fetch_field!(x, :cost) |> LeastCostFeedWeb.Helpers.float_parse()) *
                 (Helpers.my_fetch_field!(x, :actual) |> LeastCostFeedWeb.Helpers.float_parse()) *
                 (Helpers.my_fetch_field!(changeset, :batch_size)
-                 |> LeastCostFeedWeb.Helpers.float_parse()),
-            else: 0.0
+                 |> LeastCostFeedWeb.Helpers.float_parse())
           )
       end)
 
     bz = Helpers.my_fetch_field!(changeset, :batch_size) |> LeastCostFeedWeb.Helpers.float_parse()
 
     if bz > 0.0 do
-      changeset |> force_change(:cost, (sum / bz * 1000.0) |> LeastCostFeedWeb.Helpers.float_decimal())
+      changeset
+      |> force_change(:cost, (sum / bz * 1000.0) |> LeastCostFeedWeb.Helpers.float_decimal())
     else
       changeset
     end
@@ -93,11 +99,11 @@ defmodule LeastCostFeed.Entities.Formula do
     current_bag_weight =
       Enum.reduce(dtls, 0.0, fn x, acc ->
         acc +
-          if(!Helpers.my_fetch_field!(x, :delete),
-            do:
+          if(Helpers.my_fetch_field!(x, :delete),
+            do: 0.0,
+            else:
               Helpers.my_fetch_field!(x, :premix_quantity)
-              |> LeastCostFeedWeb.Helpers.float_parse(),
-            else: 0.0
+              |> LeastCostFeedWeb.Helpers.float_parse()
           )
       end)
 
