@@ -39,7 +39,7 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
           </div>
 
           <%= formula_header(formula, assigns) %>
-          <div class="border p-4 border-black leading-[27px] rounded mb-2 text-xl">
+          <div class="border p-4 border-black leading-[27px] rounded mb-6 text-xl">
             <div class="flex font-bold border-b border-black">
               <div class="w-[50%] ">Ingredient</div>
               <div class="w-[25%] text-right">%</div>
@@ -55,11 +55,8 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
           <div class="border p-4 border-black leading-[27px] rounded text-xl">
             <div class="flex font-bold border-b border-black">
               <div class="w-[50%] ">Ingredient</div>
-              <div class="w-[14%] text-right">%</div>
-              <div class="w-[18%] text-right">
-                <%= formula.weight_unit %>/<%= formula.premix_bag_usage_qty %> bag
-              </div>
-              <div class="w-[18%] text-right"><%= formula.weight_unit %></div>
+              <div class="w-[25%] text-right">%</div>
+              <div class="w-[25%] text-right"><%= formula.weight_unit %></div>
             </div>
             <%= for dtl <- formula.formula_premix_ingredients do %>
               <%= premix_ingredient(dtl, formula, assigns) %>
@@ -89,13 +86,10 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     ~H"""
     <div :if={@precentage > 0} class="flex">
       <div class="w-[50%] text-nowrap overflow-hidden"><%= @i.ingredient_name %></div>
-      <div class="w-[14%] text-right">
+      <div class="w-[25%] text-right">
         <%= Number.Delimit.number_to_delimited(@precentage * 100, precision: 2) %>%
       </div>
-      <div class="w-[18%] text-right">
-        <%= Number.Delimit.number_to_delimited(@i.premix_quantity, precision: 2) %>
-      </div>
-      <div class="w-[18%] text-right">
+      <div class="w-[25%] text-right">
         <%= Number.Delimit.number_to_delimited(@precentage * @f.premix_batch_weight, precision: 2) %>
       </div>
     </div>
