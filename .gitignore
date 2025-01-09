@@ -40,3 +40,6 @@ npm-debug.log
 
 secret.txt
 
+deploy.conf
+/.elixir_ls
+deploy_to_linode
