@@ -6,7 +6,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
     {result, _} = System.shell("glpsol --math #{mod_file}")
     optimized = interpret_optimize_result(result)
 
-    if optimized != {:error, "!!mod file error!! #{result}"},
+    if optimized != {:error, "!!mod file error!!", result},
       do: System.shell("rm -rf #{mod_file}")
 
     optimized
@@ -178,9 +178,8 @@ defmodule LeastCostFeed.GlpsolFileGen do
         id = Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)
         LeastCostFeed.Entities.get_ingredient!(id).ingredient_compositions
       else
-
         Helpers.my_fetch_field!(ingredient, :ingredient_compositions)
-        end
+      end
 
     innu =
       ingredient_compositions
@@ -207,21 +206,11 @@ defmodule LeastCostFeed.GlpsolFileGen do
   end
 
   defp ingredient_constraint(formula_ingredient) do
-    constraint =
+    "s.t.pc_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}: " <>
       constraint(
         formula_ingredient,
         "p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}"
       )
-
-    if is_nil(constraint) do
-      ""
-    else
-      "s.t.pc_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}: " <>
-        constraint(
-          formula_ingredient,
-          "p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}"
-        )
-    end
   end
 
   defp varibles(formula_ingredients) do
