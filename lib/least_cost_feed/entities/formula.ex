@@ -37,7 +37,6 @@ defmodule LeastCostFeed.Entities.Formula do
     formula
     |> cast(attrs, [:name, :batch_size, :note, :weight_unit, :cost, :usage_per_day, :user_id])
     |> validate_required([:name, :weight_unit, :batch_size, :user_id, :usage_per_day])
-    |> validate_number(:batch_size, greater_than: 0)
     |> validate_number(:batch_size, greater_than_or_equal_to: 0)
     |> cast_assoc(:formula_ingredients)
     |> cast_assoc(:formula_nutrients)

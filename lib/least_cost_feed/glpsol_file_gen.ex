@@ -84,7 +84,8 @@ defmodule LeastCostFeed.GlpsolFileGen do
   end
 
   defp printf_statement_for_ingredient(formula_ingredient) do
-    "printf 'p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)},%.6f,%.6f|', p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}.val, p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}.dual;"
+    id = Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)
+    "printf 'p_#{id},%.6f,%.6f|', p_#{id}.val, p_#{id}.dual;"
   end
 
   defp printf_statement_for_ingredients(formula_ingredients) do
