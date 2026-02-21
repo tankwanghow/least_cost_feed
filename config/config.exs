@@ -39,9 +39,9 @@ config :esbuild,
         --chunk-names=chunks/[name]-[hash] --splitting
         --bundle --target=es2017 --format=esm
         --outdir=../priv/static/assets --external:/fonts/* --external:/images/*
-        --external:/sample_data/* ),
+        --external:/sample_data/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__) <> ":" <> Mix.Project.build_path()}
   ]
 
 # Configure tailwind (the version is required)

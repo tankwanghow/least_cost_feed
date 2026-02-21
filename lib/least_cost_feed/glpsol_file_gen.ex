@@ -1,15 +1,10 @@
 defmodule LeastCostFeed.GlpsolFileGen do
   alias LeastCostFeed.Helpers
 
-  def optimize(formula, user_id) do
-    mod_file = create_file(formula, user_id)
-    {result, _} = System.shell("glpsol --math #{mod_file}")
-    optimized = interpret_optimize_result(result)
-
-    if optimized != {:error, "!!mod file error!!", result},
-      do: System.shell("rm -rf #{mod_file}")
-
-    optimized
+  def optimize(formula, _user_id) do
+    content = build_mod_content(formula)
+    {result, _} = System.shell("glpsol --math /dev/stdin <<'GLPEOF'\n#{content}\nGLPEOF")
+    interpret_optimize_result(result)
   end
 
   defp interpret_optimize_result(result) do
@@ -58,45 +53,35 @@ defmodule LeastCostFeed.GlpsolFileGen do
     end
   end
 
-  defp create_file(formula, user_id) do
-    filename = "#{user_id}_#{gen_temp_id()}.mod"
-    path = Path.join([Application.app_dir(:least_cost_feed, "priv"), "mod_files", filename])
 
-    formula_ingredients =
-      Helpers.get_list(formula, :formula_ingredients)
-      |> Enum.filter(fn x ->
-        !Helpers.my_fetch_field!(x, :delete) and Helpers.my_fetch_field!(x, :used)
-      end)
+  defp build_mod_content(formula) do
+    formula_ingredients = filter_formula_ingredients(formula)
+    formula_nutrients = filter_formula_nutrients(formula)
 
-    formula_nutrients =
-      Helpers.get_list(formula, :formula_nutrients)
-      |> Enum.filter(fn x -> !Helpers.my_fetch_field!(x, :delete) end)
-
-    file = File.open!(path, [:write])
-
-    IO.write(file, varibles(formula_ingredients))
-    IO.write(file, objective_function(formula_ingredients))
-    IO.write(file, nutrient_expressions_constraints(formula_nutrients, formula_ingredients))
-    IO.write(file, constraint_100(formula_ingredients))
-    IO.write(file, ingredients_constraints(formula_ingredients))
-    IO.write(file, "solve;")
-    IO.write(file, "printf 'FORMULA_START';\n")
-    IO.write(file, printf_statement_for_ingredients(formula_ingredients))
-    IO.write(file, "printf 'FORMULA_END';\n")
-    IO.write(file, "printf 'SPECS_START';\n")
-    IO.write(file, printf_statement_for_nutrients(formula_nutrients))
-    IO.write(file, "printf 'SPECS_END';\n")
-    IO.write(file, "end;")
-
-    File.close(file)
-    path
+    varibles(formula_ingredients) <>
+      objective_function(formula_ingredients) <>
+      nutrient_expressions_constraints(formula_nutrients, formula_ingredients) <>
+      constraint_100(formula_ingredients) <>
+      ingredients_constraints(formula_ingredients) <>
+      "solve;" <>
+      "printf 'FORMULA_START';\n" <>
+      printf_statement_for_ingredients(formula_ingredients) <>
+      "printf 'FORMULA_END';\n" <>
+      "printf 'SPECS_START';\n" <>
+      printf_statement_for_nutrients(formula_nutrients) <>
+      "printf 'SPECS_END';\n" <>
+      "end;"
   end
 
-  defp gen_temp_id(val \\ 6),
-    do:
-      :crypto.strong_rand_bytes(val)
-      |> Base.encode32(case: :lower, padding: false)
-      |> binary_part(0, val)
+  defp filter_formula_ingredients(formula) do
+    Helpers.get_list(formula, :formula_ingredients)
+    |> Enum.filter(fn x -> !Helpers.my_fetch_field!(x, :delete) and Helpers.my_fetch_field!(x, :used) end)
+  end
+
+  defp filter_formula_nutrients(formula) do
+    Helpers.get_list(formula, :formula_nutrients)
+    |> Enum.filter(fn x -> !Helpers.my_fetch_field!(x, :delete) end)
+  end
 
   defp printf_statement_for_ingredient(formula_ingredient) do
     "printf 'p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)},%.6f,%.6f|', p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}.val, p_#{Helpers.my_fetch_field!(formula_ingredient, :ingredient_id)}.dual;"
@@ -124,42 +109,31 @@ defmodule LeastCostFeed.GlpsolFileGen do
   end
 
   defp nutrient_expressions_constraints(formula_nutrients, formula_ingredients) do
-    (formula_nutrients
-     |> Enum.map(fn n -> nutrient_expressions_constraint(n, formula_ingredients) end)
-     |> Enum.filter(fn n -> !is_nil(n) end)
-     |> Enum.join("\n")) <> "\n"
+    formula_nutrients
+    |> Enum.map(fn n -> nutrient_expressions_constraint(n, formula_ingredients) end)
+    |> Enum.filter(fn n -> !is_nil(n) end)
+    |> Enum.join("\n")
   end
 
   defp nutrient_expressions_constraint(formula_nutrient, formula_ingredients) do
-    ingredients_selected_has_this_nutrient? =
-      nutrient_expressions(formula_nutrient, formula_ingredients) |> String.trim() != ""
+    ingredients_selected_has_this_nutrient? = nutrient_expressions(formula_nutrient, formula_ingredients) |> String.trim() != ""
 
     if ingredients_selected_has_this_nutrient? do
-      if(Helpers.my_fetch_field!(formula_nutrient, :used)) do
+      if Helpers.my_fetch_field!(formula_nutrient, :used) do
         "n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}: " <>
           constraint(
             formula_nutrient,
-            nutrient_expressions(
-              formula_nutrient,
-              formula_ingredients
-            )
+            nutrient_expressions(formula_nutrient, formula_ingredients)
           )
       else
         "n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}: " <>
           gt_zero_constraint(
-            nutrient_expressions(
-              formula_nutrient,
-              formula_ingredients
-            )
+            nutrient_expressions(formula_nutrient, formula_ingredients)
           )
       end
     else
-      id =
-        (Enum.at(formula_ingredients, 0) || %{ingredient_id: 0})
-        |> Helpers.my_fetch_field!(:ingredient_id)
-
-      "n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}: " <>
-        constraint(formula_nutrient, "+0*p_#{id}")
+      id = Enum.at(formula_ingredients, 0) |> Helpers.my_fetch_field!(:ingredient_id)
+      "n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}: " <> constraint(formula_nutrient, "+0*p_#{id}")
     end
   end
 

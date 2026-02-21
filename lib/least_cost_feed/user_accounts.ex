@@ -6,6 +6,12 @@ defmodule LeastCostFeed.UserAccounts do
   import Ecto.Query, warn: false
   alias LeastCostFeed.Repo
 
+  @dialyzer {:nowarn_function,
+             user_email_multi: 3,
+             update_user_password: 3,
+             confirm_user_multi: 1,
+             reset_user_password: 2}
+
   alias LeastCostFeed.UserAccounts.{User, UserToken, UserNotifier}
 
   ## Database getters
