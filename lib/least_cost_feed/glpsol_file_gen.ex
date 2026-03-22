@@ -40,7 +40,11 @@ defmodule LeastCostFeed.GlpsolFileGen do
           |> Enum.filter(fn x -> x != "" end)
           |> Enum.map(fn x -> String.split(x, ",") end)
           |> Enum.map(fn x ->
-            %{id: Enum.at(x, 0) |> String.split("_") |> Enum.at(1), actual: Enum.at(x, 1)}
+            %{
+              id: Enum.at(x, 0) |> String.split("_") |> Enum.at(1),
+              actual: Enum.at(x, 1),
+              shadow: Enum.at(x, 2)
+            }
           end)
 
         {:ok, optimize_ingredients, optimize_nutrients}
@@ -94,7 +98,7 @@ defmodule LeastCostFeed.GlpsolFileGen do
   end
 
   defp printf_statement_for_nutrient(formula_nutrient) do
-    "printf 'n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)},%.6f|', n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}.val;"
+    "printf 'n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)},%.6f,%.6f|', n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}.val, n_#{Helpers.my_fetch_field!(formula_nutrient, :nutrient_id)}.dual;"
   end
 
   defp printf_statement_for_nutrients(formula_nutrients) do

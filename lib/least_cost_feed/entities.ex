@@ -330,11 +330,13 @@ defmodule LeastCostFeed.Entities do
 
       if update_source do
         Ecto.Changeset.change(to_update, %{
-          actual: LeastCostFeedWeb.Helpers.float_decimal(update_source.actual)
+          actual: LeastCostFeedWeb.Helpers.float_decimal(update_source.actual),
+          shadow: LeastCostFeedWeb.Helpers.float_decimal(update_source.shadow)
         })
       else
         Ecto.Changeset.change(to_update, %{
-          actual: "0.0"
+          actual: "0.0",
+          shadow: "0.0"
         })
       end
     end)

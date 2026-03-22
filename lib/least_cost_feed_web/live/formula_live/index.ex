@@ -43,7 +43,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           <%= Helpers.float_decimal(formula.batch_size) %><%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Cost" class="w-[15%]" sort="cost">
-          <%= Helpers.float_decimal(formula.cost * 1000, 2) %>/1000<%= formula.weight_unit %>
+          <%= Helpers.float_decimal((formula.cost || 0.0) * 1000, 2) %>/1000<%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Usage/Day" class="w-[10%]" sort="usage_per_day">
           <input

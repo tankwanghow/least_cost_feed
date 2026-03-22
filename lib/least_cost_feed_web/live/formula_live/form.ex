@@ -159,9 +159,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                   </div>
                   <div class="w-[10%]">
                     <.input
-                      type="number"
                       field={nt[:shadow]}
-                      value={Helpers.float_decimal(nt[:shadow].value)}
+                      value={Helpers.signed_float(nt[:shadow].value)}
                       tabindex="-1"
                       readonly
                     />
@@ -179,10 +178,11 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           <div class="w-[40%]">
             <div class="font-bold flex text-center">
               <div class="w-[4%]" />
-              <div class="w-[50%]">Nutrient</div>
-              <div class="w-[15%]">Min</div>
-              <div class="w-[15%]">Max</div>
+              <div class="w-[40%]">Nutrient</div>
+              <div class="w-[14%]">Min</div>
+              <div class="w-[14%]">Max</div>
               <div class="w-[16%]">Actual</div>
+              <div class="w-[16%]">Shadow</div>
             </div>
             <%!-- h-[580px] overflow-y-auto border bg-sky-200 p-1 rounded-xl border-sky-500--%>
             <div class="">
@@ -191,7 +191,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                   <div class="w-[3%] mt-2 mr-1">
                     <.input type="checkbox" field={nt[:used]} tabindex="-1" />
                   </div>
-                  <div class="w-[50%]">
+                  <div class="w-[40%]">
                     <.input
                       field={}
                       name={}
@@ -200,14 +200,17 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                       tabindex="-1"
                     />
                   </div>
-                  <div class="w-[15%]">
+                  <div class="w-[14%]">
                     <.input type="number" step="any" field={nt[:min]} />
                   </div>
-                  <div class="w-[15%]">
+                  <div class="w-[14%]">
                     <.input type="number" step="any" field={nt[:max]} />
                   </div>
-                  <div class="w-[17%]">
+                  <div class="w-[16%]">
                     <.input type="number" field={nt[:actual]} readonly tabindex="-1" />
+                  </div>
+                  <div class="w-[16%]">
+                    <.input field={nt[:shadow]} value={Helpers.signed_float(nt[:shadow].value)} readonly tabindex="-1" />
                   </div>
                   <.input type="hidden" field={nt[:delete]} value={"#{nt[:delete].value}"} />
                   <.input type="hidden" field={nt[:nutrient_id]} />

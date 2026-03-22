@@ -67,4 +67,17 @@ defmodule LeastCostFeedWeb.Helpers do
     float = if(is_float(value), do: value, else: float_parse(value))
     :erlang.float_to_binary(float, [:compact, decimals: decimal])
   end
+
+  def signed_float(nil), do: nil
+  def signed_float(""), do: nil
+
+  def signed_float(value) do
+    float = if(is_float(value), do: value, else: float_parse(value))
+
+    if float >= 0 do
+      "+" <> float_decimal(float)
+    else
+      float_decimal(float)
+    end
+  end
 end

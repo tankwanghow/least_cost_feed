@@ -6,6 +6,7 @@ defmodule LeastCostFeed.Entities.FormulaNutrient do
     field :min, :float
     field :max, :float
     field :actual, :float
+    field :shadow, :float
     field :used, :boolean, default: true
     belongs_to :nutrient, LeastCostFeed.Entities.Nutrient
     belongs_to :formula, LeastCostFeed.Entities.Formula
@@ -22,6 +23,7 @@ defmodule LeastCostFeed.Entities.FormulaNutrient do
       :min,
       :max,
       :actual,
+      :shadow,
       :used,
       :nutrient_id,
       :formula_id,
