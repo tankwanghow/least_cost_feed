@@ -57,7 +57,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           <.button phx-disable-with="Saving...">Save Formula</.button>
           <.link
             :if={!@optimizing?}
-            class="blue button font-bold w-[30%]"
+            class="blue button font-bold w-[25%]"
             phx-click="optimize_formula"
           >
             Try Optimize
@@ -75,6 +75,13 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
             class="red button w-[15%]"
           >
             Cancel
+          </.link>
+          <.link
+            :if={@form.source.changes == %{} and @live_action != :new}
+            navigate={~p"/formulas/#{@form[:id].value}/nutrient_relax"}
+            class="green button w-[15%]"
+          >
+            Nutrient Relax
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}

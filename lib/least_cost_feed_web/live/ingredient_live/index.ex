@@ -33,17 +33,28 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
         id="ingredients"
         rows={@streams.ingredients}
         end_of_data?={@end_of_timeline?}
-        row_click={fn {_id, ingredient} -> JS.navigate(~p"/ingredients/#{ingredient}/edit") end}
         sort_directions={@sort_directions}
       >
         <:col :let={{_id, ingredient}} label="Name" class="w-[35%]" sort="name">
-          <%= ingredient.name %>
+          <.link class="text-blue-600 hover:font-bold" navigate={~p"/ingredients/#{ingredient}/edit"}>
+            <%= ingredient.name %>
+          </.link>
         </:col>
         <:col :let={{_id, ingredient}} label="Category" class="w-[25%]" sort="category">
           <%= ingredient.category %>
         </:col>
         <:col :let={{_id, ingredient}} label="Cost" class="w-[10%]" sort="cost">
-          <%= ingredient.cost %>
+          <form phx-change="update_cost" phx-value-id={ingredient.id} class="m-0">
+            <input
+              type="number"
+              name="cost"
+              value={ingredient.cost}
+              step="any"
+              phx-debounce="blur"
+
+              class="w-full text-right border-gray-300 rounded px-1 py-0.5 text-sm"
+            />
+          </form>
         </:col>
         <:col :let={{_id, ingredient}} label="Dry Matter%" class="w-[10%]" sort="dry_matter">
           <%= ingredient.dry_matter %>
@@ -78,6 +89,20 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
      |> assign(page_title: "Ingredient Listing")
      |> LeastCostFeedWeb.Helpers.sort("updated_at", &query/1, @empty_sort_directions)
      |> filter(true, 1)}
+  end
+
+  @impl true
+  def handle_event("update_cost", %{"id" => id, "cost" => cost}, socket) do
+    ingredient = Entities.get_ingredient!(id)
+
+    case Entities.update_ingredient(ingredient, %{cost: cost}) do
+      {:ok, _} ->
+        updated = Entities.get_ingredient!(id)
+        {:noreply, stream_insert(socket, :ingredients, updated)}
+
+      {:error, _} ->
+        {:noreply, socket}
+    end
   end
 
   @impl true

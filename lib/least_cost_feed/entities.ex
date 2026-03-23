@@ -79,6 +79,15 @@ defmodule LeastCostFeed.Entities do
     Ingredient.changeset(ingredient, attrs)
   end
 
+  def list_user_formulas(user_id) do
+    from(f in Formula,
+      where: f.user_id == ^user_id,
+      order_by: f.name,
+      select: %{id: f.id, name: f.name, usage_per_day: f.usage_per_day}
+    )
+    |> Repo.all()
+  end
+
   def get_formula!(id) do
     frm_nut =
       from(fnt in FormulaNutrient,

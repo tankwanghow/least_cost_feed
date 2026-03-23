@@ -7,6 +7,80 @@ defmodule LeastCostFeed.GlpsolFileGen do
     interpret_optimize_result(result)
   end
 
+  def optimize_with_ranges(formula, _user_id) do
+    content = build_mod_content(formula)
+    ranges_file = "/tmp/glpk_ranges_#{System.unique_integer([:positive])}.txt"
+
+    {result, _} =
+      System.shell(
+        "glpsol --math /dev/stdin --ranges '#{ranges_file}' <<'GLPEOF'\n#{content}\nGLPEOF"
+      )
+
+    ranges_text =
+      case File.read(ranges_file) do
+        {:ok, data} ->
+          File.rm(ranges_file)
+          data
+
+        _ ->
+          ""
+      end
+
+    case interpret_optimize_result(result) do
+      {:ok, ingredients, nutrients} ->
+        ranges = parse_ranges(ranges_text)
+
+        nutrients_with_ranges =
+          Enum.map(nutrients, fn n ->
+            case Enum.find(ranges, fn r -> r.id == n.id end) do
+              nil -> Map.merge(n, %{status: nil, range_low: nil, range_high: nil})
+              r -> Map.merge(n, %{status: r.status, range_low: r.range_low, range_high: r.range_high})
+            end
+          end)
+
+        {:ok, ingredients, nutrients_with_ranges}
+
+      error ->
+        error
+    end
+  end
+
+  defp parse_ranges(ranges_text) do
+    lines = String.split(ranges_text, "\n")
+
+    lines
+    |> Enum.with_index()
+    |> Enum.reduce([], fn {line, idx}, acc ->
+      if Regex.match?(~r/^\s+\d+\s+n_\d+/, line) do
+        line2 = Enum.at(lines, idx + 1, "")
+        parts1 = String.split(String.trim(line))
+        parts2 = String.split(String.trim(line2))
+
+        id = Enum.at(parts1, 1) |> String.replace_prefix("n_", "")
+        status = Enum.at(parts1, 2)
+        range_low = parse_glpk_number(Enum.at(parts1, 6))
+        range_high = parse_glpk_number(Enum.at(parts2, 2))
+
+        [%{id: id, status: status, range_low: range_low, range_high: range_high} | acc]
+      else
+        acc
+      end
+    end)
+    |> Enum.reverse()
+  end
+
+  defp parse_glpk_number(nil), do: nil
+  defp parse_glpk_number("."), do: 0.0
+  defp parse_glpk_number("+Inf"), do: :infinity
+  defp parse_glpk_number("-Inf"), do: :neg_infinity
+
+  defp parse_glpk_number(str) do
+    case Float.parse(str) do
+      {f, _} -> f
+      :error -> nil
+    end
+  end
+
   defp interpret_optimize_result(result) do
     cond do
       String.match?(result, ~r/OPTIMAL(.+?)SOLUTION FOUND/) ->

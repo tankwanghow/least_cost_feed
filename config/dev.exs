@@ -19,10 +19,10 @@ config :least_cost_feed, LeastCostFeed.Repo,
 config :least_cost_feed, LeastCostFeedWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {0, 0, 0, 0}, port: 4000],
+  http: [ip: {0, 0, 0, 0}, port: 5001],
   https: [
     ip: {0, 0, 0, 0},
-    port: 4001,
+    port: 5002,
     cipher_suite: :strong,
     certfile: "priv/cert/selfsigned.pem",
     keyfile: "priv/cert/selfsigned_key.pem"
