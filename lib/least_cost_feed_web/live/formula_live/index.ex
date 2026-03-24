@@ -38,7 +38,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         sort_directions={@sort_directions}
       >
         <:col :let={{_id, formula}} label="Name" class="w-[30%]" sort="name">
-          <.link class="text-blue-600 hover:font-bold" navigate={~p"/formulas/#{formula}/edit"}>
+          <.link class="text-info hover:font-bold" navigate={~p"/formulas/#{formula}/edit"}>
             <%= formula.name %>
           </.link>
         </:col>
@@ -52,7 +52,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           <input
             type="number"
             step="any"
-            class="py-0 px-2 w-[80%] border rounded border-gray-600"
+            class="py-0 px-2 w-[80%] input input-sm input-bordered"
             id={"formula_#{formula.id}"}
             phx-value-id={formula.id}
             phx-blur="update_usage"
@@ -63,23 +63,23 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           <%= Timex.from_now(formula.updated_at) %>
         </:col>
 
-        <:col :let={{_id, formula}} class="w-[3%] text-purple-600">
+        <:col :let={{_id, formula}} class="w-[3%] text-secondary">
           <.link navigate={~p"/formulas/copy/#{formula.id}"}>
             <.icon name="hero-document-duplicate-solid" class="h-5 w-5" />
           </.link>
         </:col>
 
-        <:col :let={{_id, formula}} class="w-[3%] text-blue-600">
+        <:col :let={{_id, formula}} class="w-[3%] text-info">
           <.link target="_blank" href={~p"/formulas/print_multi?ids=#{formula.id}"}>
             <.icon name="hero-printer-solid" class="h-5 w-5" />
           </.link>
         </:col>
-        <:col :let={{_id, formula}} class="w-[3%] text-teal-600">
+        <:col :let={{_id, formula}} class="w-[3%] text-accent">
           <.link target="_blank" href={~p"/formulas_premix/print_multi?ids=#{formula.id}"}>
             <.icon name="hero-printer-solid" class="h-5 w-5" />
           </.link>
         </:col>
-        <:col :let={{id, formula}} class="w-[3%] text-rose-500">
+        <:col :let={{id, formula}} class="w-[3%] text-error">
           <.link
             phx-click={JS.push("delete", value: %{id: formula.id}) |> hide("##{id}")}
             data-confirm={"Are you sure? DELETE (#{formula.name})"}

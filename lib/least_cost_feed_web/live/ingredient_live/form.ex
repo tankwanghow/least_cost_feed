@@ -28,10 +28,10 @@ defmodule LeastCostFeedWeb.IngredientLive.Form do
             />
             <span
               :if={@live_action == :edit and Ecto.Changeset.changed?(@form.source, :cost)}
-              class="text-amber-700 font-bold"
+              class="text-warning font-bold"
             >
               Waring!! changing the COST here, will effect COST in all Formulas.
-              <p class="text-sm text-green-600">
+              <p class="text-sm text-success">
                 You can change COST in Formula, which will NOT effect others Formulas.
               </p>
             </span>
@@ -42,7 +42,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Form do
             </div>
           </div>
           <div class="w-[50%] -mt-11">
-            <div class="button blue mb-0.5" phx-click="show_select_nutrients">
+            <div class="btn btn-info  mb-0.5" phx-click="show_select_nutrients">
               Add/Remove Nutrients
             </div>
             <div class="font-bold flex">
@@ -52,7 +52,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Form do
             </div>
             <div class="h-[720px] overflow-y-auto">
               <.inputs_for :let={ing_com} field={@form[:ingredient_compositions]}>
-                <div class={["flex", ing_com[:delete].value == true && "hidden"]}>
+                <div class={["flex -mb-2", ing_com[:delete].value == true && "hidden"]}>
                   <div class="w-[50%]">
                     <.input field={ing_com[:nutrient_name]} readonly />
                   </div>

@@ -36,7 +36,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
         sort_directions={@sort_directions}
       >
         <:col :let={{_id, ingredient}} label="Name" class="w-[35%]" sort="name">
-          <.link class="text-blue-600 hover:font-bold" navigate={~p"/ingredients/#{ingredient}/edit"}>
+          <.link class="text-info hover:font-bold" navigate={~p"/ingredients/#{ingredient}/edit"}>
             <%= ingredient.name %>
           </.link>
         </:col>
@@ -52,7 +52,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
               step="any"
               phx-debounce="blur"
 
-              class="w-full text-right border-gray-300 rounded px-1 py-0.5 text-sm"
+              class="w-full text-right input input-sm input-bordered"
             />
           </form>
         </:col>
@@ -63,7 +63,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
           <%= Timex.from_now(ingredient.updated_at) %>
         </:col>
 
-        <:action :let={{id, ingredient}} class="w-[5%] text-rose-500">
+        <:action :let={{id, ingredient}} class="w-[5%] text-error">
           <.link
             phx-click={JS.push("delete", value: %{id: ingredient.id}) |> hide("##{id}")}
             data-confirm={"Are you sure? DELETE (#{ingredient.name})"}

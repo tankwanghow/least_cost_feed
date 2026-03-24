@@ -16,7 +16,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
     ~H"""
     <div class="w-8/12 mx-auto">
       <p class="w-full text-3xl text-center font-medium"><%= @page_title %></p>
-      <div class="flex font-bold text-right border-y border-gray-600 p-2 bg-blue-200">
+      <div class="flex font-bold text-right border-y border-base-300 p-2 bg-primary text-primary-content">
         <div
           class="w-[24%] text-left hover:cursor-pointer hover:text-white"
           phx-click="sort"
@@ -46,7 +46,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
         </div>
       </div>
       <%= for i <- @ingredients do %>
-        <div class="flex text-right border-b border-gray-400 px-2 bg-orange-200 hover:bg-orange-300">
+        <div class="flex text-right border-b border-base-300 px-2 bg-base-200 hover:bg-base-300">
           <div class="w-[24%] text-left text-nowrap overflow-hidden"><%= i.ingredient_name %></div>
           <div class="w-[25%] text-center">
             <%= for f <- formula_links(i.formula_list) do %>
@@ -76,7 +76,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
           </div>
         </div>
       <% end %>
-      <div class="flex font-bold text-right border-y border-gray-600 p-2 bg-blue-200 mb-5">
+      <div class="flex font-bold text-right border-y border-base-300 p-2 bg-primary text-primary-content mb-5">
         <div class="w-[24%]"></div>
         <div class="w-[25%]"></div>
         <div class="w-[6%]"></div>
@@ -186,7 +186,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
     assigns = assign(assigns, :code, code) |> assign(:id, id)
 
     ~H"""
-    <.link class="text-blue-600 hover:underline" navigate={~p"/formulas/#{@id}/edit"}>
+    <.link class="text-info hover:underline" navigate={~p"/formulas/#{@id}/edit"}>
       <%= @code %>
     </.link>
     """

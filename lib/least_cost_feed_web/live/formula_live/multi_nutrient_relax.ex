@@ -13,12 +13,12 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
       <div class="font-bold text-3xl mb-4">Multi-Formula Nutrient Relax</div>
 
       <div :if={@status == :selecting}>
-        <div class="mb-4 text-gray-600">
+        <div class="mb-4 text-base-content/60">
           Select formulas to optimize together. Suggestions are ranked by total daily cost impact.
         </div>
         <table class="w-full text-sm mb-4">
           <thead>
-            <tr class="border-b-2 border-gray-300 text-left">
+            <tr class="border-b-2 border-base-300 text-left">
               <th class="py-1 px-2 w-[5%]">
                 <input type="checkbox" phx-click="toggle_all" checked={@all_selected?} />
               </th>
@@ -27,7 +27,7 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
             </tr>
           </thead>
           <tbody>
-            <tr :for={f <- @formulas} class="border-b border-gray-200 hover:bg-gray-50">
+            <tr :for={f <- @formulas} class="border-b border-base-200 hover:bg-base-200">
               <td class="py-1 px-2">
                 <input
                   type="checkbox"
@@ -37,7 +37,7 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
                 />
               </td>
               <td class="py-1 px-2">
-                <.link class="text-blue-600 hover:font-bold" navigate={~p"/formulas/#{f.id}/edit"}>
+                <.link class="text-info hover:font-bold" navigate={~p"/formulas/#{f.id}/edit"}>
                   {f.name}
                 </.link>
               </td>
@@ -48,17 +48,17 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
         <button
           phx-click="run_optimize"
           disabled={@selected_ids == []}
-          class="blue button font-bold w-[20%]"
+          class="btn btn-info  font-bold w-[20%]"
         >
           Optimize Selected ({length(@selected_ids)})
         </button>
       </div>
 
       <div :if={@status == :running} class="text-center py-20">
-        <div class="text-xl font-bold text-blue-600 animate-pulse">
+        <div class="text-xl font-bold text-info animate-pulse">
           Analyzing {length(@selected_ids)} formulas...
         </div>
-        <div class="text-gray-500 mt-2">
+        <div class="text-base-content/50 mt-2">
           This may take a while with multiple formulas.
         </div>
       </div>
@@ -71,21 +71,21 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
           </div>
         </div>
 
-        <div :for={fr <- @results.formula_results} class="mb-4 p-3 border rounded bg-gray-50">
-          <.link class="font-bold text-lg mb-1 text-blue-600 hover:underline" navigate={~p"/formulas/#{fr.formula_id}/edit"}>
+        <div :for={fr <- @results.formula_results} class="mb-4 p-3 border rounded bg-base-200">
+          <.link class="font-bold text-lg mb-1 text-info hover:underline" navigate={~p"/formulas/#{fr.formula_id}/edit"}>
             {fr.formula_name}
           </.link>
-          <div class="text-sm text-gray-600">Usage/Day: {Helpers.float_decimal(fr.usage_per_day)}</div>
+          <div class="text-sm text-base-content/60">Usage/Day: {Helpers.float_decimal(fr.usage_per_day)}</div>
           <%= case fr.result do %>
             <% {:ok, baseline_cost, _suggestions, combined} -> %>
               <div class="text-sm">
                 Cost/1000: <span class="font-bold">{Helpers.float_decimal(baseline_cost * 1000, 2)}</span>
-                <span :if={combined} class="ml-4 text-green-700">
+                <span :if={combined} class="ml-4 text-success">
                   Combined Savings: {Helpers.float_decimal(combined.combined_savings, 2)}/1000
                 </span>
               </div>
             <% {:error, reason} -> %>
-              <div class="text-sm text-red-600">{reason}</div>
+              <div class="text-sm text-error">{reason}</div>
           <% end %>
         </div>
 
@@ -95,7 +95,7 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
           </div>
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b-2 border-gray-300 text-left">
+              <tr class="border-b-2 border-base-300 text-left">
                 <th class="py-1 px-2 w-[3%]">
                   <input
                     type="checkbox"
@@ -128,7 +128,7 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
               </tr>
             </thead>
             <tbody>
-              <tr :for={s <- @sorted_suggestions} class="border-b border-gray-200 hover:bg-gray-50">
+              <tr :for={s <- @sorted_suggestions} class="border-b border-base-200 hover:bg-base-200">
                 <td class="py-1 px-2">
                   <input
                     type="checkbox"
@@ -139,23 +139,23 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
                   />
                 </td>
                 <td class="py-1 px-2">
-                  <.link class="text-blue-600 hover:font-bold" navigate={~p"/formulas/#{s.formula_id}/edit"}>
+                  <.link class="text-info hover:font-bold" navigate={~p"/formulas/#{s.formula_id}/edit"}>
                     {s.formula_name}
                   </.link>
                 </td>
                 <td class="py-1 px-2">{s.nutrient_name} ({s.nutrient_unit})</td>
                 <td class="py-1 px-2">{s.field}</td>
                 <td class="py-1 px-2 text-right">{Helpers.float_decimal(s.current)}</td>
-                <td class="py-1 px-2 text-right font-bold text-blue-700">
+                <td class="py-1 px-2 text-right font-bold text-info">
                   {Helpers.float_decimal(s.suggested)}
                 </td>
-                <td class="py-1 px-2 text-right text-gray-500">
+                <td class="py-1 px-2 text-right text-base-content/50">
                   {format_pct_change(s.current, s.suggested)}
                 </td>
-                <td class="py-1 px-2 text-right text-green-700">
+                <td class="py-1 px-2 text-right text-success">
                   {Helpers.float_decimal(s.individual_savings, 2)}
                 </td>
-                <td class="py-1 px-2 text-right font-bold text-green-700">
+                <td class="py-1 px-2 text-right font-bold text-success">
                   {Helpers.float_decimal(s.daily_savings, 2)}
                 </td>
               </tr>
@@ -163,7 +163,7 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
           </table>
         </div>
 
-        <div :if={@sorted_suggestions == []} class="text-center py-10 text-gray-500 text-lg">
+        <div :if={@sorted_suggestions == []} class="text-center py-10 text-base-content/50 text-lg">
           No binding constraints found across selected formulas.
         </div>
 
@@ -171,14 +171,14 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
           <button
             phx-click="apply_selected"
             disabled={MapSet.size(@checked_suggestions) == 0}
-            class="green button font-bold w-[20%]"
+            class="btn btn-success  font-bold w-[20%]"
           >
             Apply Selected ({MapSet.size(@checked_suggestions)})
           </button>
-          <button phx-click="apply_all" class="blue button font-bold w-[20%]">
+          <button phx-click="apply_all" class="btn btn-info  font-bold w-[20%]">
             Apply All
           </button>
-          <button phx-click="reset" class="gray button w-[15%]">
+          <button phx-click="reset" class="btn btn-neutral  w-[15%]">
             Back to Selection
           </button>
         </div>
@@ -197,7 +197,7 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
   defp sort_th(assigns) do
     ~H"""
     <th
-      class={"py-1 px-2 cursor-pointer select-none hover:bg-gray-100 #{@class}"}
+      class={"py-1 px-2 cursor-pointer select-none hover:bg-base-200 #{@class}"}
       phx-click={@click}
       phx-value-col={@col}
     >

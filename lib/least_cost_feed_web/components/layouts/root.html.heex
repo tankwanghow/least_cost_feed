@@ -4,62 +4,76 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <script>
+      (() => {
+        const setTheme = (theme) => {
+          if (theme === "system") {
+            localStorage.removeItem("phx:theme");
+            document.documentElement.removeAttribute("data-theme");
+          } else {
+            localStorage.setItem("phx:theme", theme);
+            document.documentElement.setAttribute("data-theme", theme);
+          }
+        };
+        if (!document.documentElement.hasAttribute("data-theme")) {
+          setTheme(localStorage.getItem("phx:theme") || "system");
+        }
+        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
+        window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
+        document.addEventListener("DOMContentLoaded", () => {
+          const el = document.getElementById("theme-toggle");
+          if (el) el.checked = (localStorage.getItem("phx:theme") || "light") === "dark";
+        });
+      })();
+    </script>
     <script type="module" defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body class="bg-green-50">
+  <body>
     <%= if @current_user do %>
-      <div class="flex fixed top-0 z-10 w-full items-center justify-center text-white gap-4 bg-gray-800 py-2 px-5 shadow">
-        <div class="text-3xl font-bold cursor-default w-[70%]">
-          <.link navigate="/">Least Cost Feed</.link>
+      <div class="navbar bg-neutral text-neutral-content fixed top-0 z-10 shadow-lg">
+        <div class="flex-1">
+          <.link navigate="/" class="btn btn-ghost text-xl">Least Cost Feed</.link>
         </div>
-        <.link navigate={~p"/nutrients"} class="rounded hover:bg-gray-400 p-2">
-          Nutrients
-        </.link>
-        <.link navigate={~p"/ingredients"} class="rounded hover:bg-gray-400 p-2">
-          Ingredients
-        </.link>
-        <.link navigate={~p"/formulas"} class="rounded hover:bg-gray-400 p-2">
-          Formulas
-        </.link>
-        <.link navigate={~p"/ingredient_usages"} class="rounded hover:bg-gray-400 p-2">
-          Usages
-        </.link>
-        <.link
-          :if={@current_user.user_type == "admin"}
-          navigate={~p"/transfer"}
-          class="rounded hover:bg-gray-400 p-2"
-        >
-          Transfer
-        </.link>
-
-        <ul>
-          <li class="group relative" tabindex="-1">
-            <button class="rounded-md hover:bg-gray-400 p-2">
+        <div class="flex-none gap-1">
+          <.link navigate={~p"/nutrients"} class="btn btn-ghost ">Nutrients</.link>
+          <.link navigate={~p"/ingredients"} class="btn btn-ghost ">Ingredients</.link>
+          <.link navigate={~p"/formulas"} class="btn btn-ghost ">Formulas</.link>
+          <.link navigate={~p"/ingredient_usages"} class="btn btn-ghost ">Usages</.link>
+          <.link
+            :if={@current_user.user_type == "admin"}
+            navigate={~p"/transfer"}
+            class="btn btn-ghost "
+          >
+            Transfer
+          </.link>
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost ">
               <.icon name="hero-bars-4" class="w-5 h-5" />
-            </button>
-
-            <div class="p-2 invisible absolute right-0 top-full transform opacity-0 transition-all duration-300 group-focus-within:visible group-focus-within:opacity-100">
-              <ul class="mt-1 rounded-md border border-neutral-50 bg-gray-800 p-2 shadow backdrop-blur-sm">
-                <li class="w-50 font-bold mb-2 text-blue-400 overflow-clip text-center">
-                  <%= @current_user.email %>
-                </li>
-                <li class="my-5">
-                  <.link navigate={~p"/users/settings"} class="mb-2 p-3 hover:bg-emerald-400">
-                    User Settings
-                  </.link>
-                </li>
-
-                <li class="my-5">
-                  <.link href={~p"/users/log_out"} method="delete" class="p-3 hover:bg-rose-400">
-                    Log out
-                  </.link>
-                </li>
-              </ul>
             </div>
-          </li>
-        </ul>
+            <ul tabindex="0" class="dropdown-content menu bg-base-200 text-base-content rounded-box z-10 w-56 p-2 shadow-lg mt-2">
+              <li class="menu-title text-primary text-center"><%= @current_user.email %></li>
+              <li>
+                <.link navigate={~p"/users/settings"}>User Settings</.link>
+              </li>
+              <li>
+                <label class="flex justify-between cursor-pointer">
+                  <span>Dark Mode</span>
+                  <input
+                    id="theme-toggle"
+                    type="checkbox"
+                    class="toggle toggle-sm"
+                    onclick="const t = this.checked ? 'dark' : 'light'; localStorage.setItem('phx:theme', t); document.documentElement.setAttribute('data-theme', t);"
+                  />
+                </label>
+              </li>
+              <li>
+                <.link href={~p"/users/log_out"} method="delete">Log out</.link>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     <% else %>
       <%= if assigns[:page_title] != "Home" do %>
@@ -70,7 +84,7 @@
         <h1 class="text-center text-3xl tracking-tighter mt-2">
           Feed Formulation Made Simple and Cost Effective
         </h1>
-        <div class="text-gray-400 text-center tracking-tighter">
+        <div class="text-base-content/50 text-center tracking-tighter">
           Version 0.1.0
         </div>
       <% end %>

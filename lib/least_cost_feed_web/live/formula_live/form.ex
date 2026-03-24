@@ -57,12 +57,12 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           <.button phx-disable-with="Saving...">Save Formula</.button>
           <.link
             :if={!@optimizing?}
-            class="blue button font-bold w-[25%]"
+            class="btn btn-info font-bold w-[25%]"
             phx-click="optimize_formula"
           >
             Try Optimize
           </.link>
-          <div :if={@optimizing?} class="hover:cursor-wait gray button font-bold w-[30%]">
+          <div :if={@optimizing?} class="btn btn-disabled  font-bold w-[30%]">
             Optimizing....
           </div>
           <.link
@@ -72,28 +72,28 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                 else: ~p"/formulas/#{@form[:id].value}/edit"
               )
             }
-            class="red button w-[10%]"
+            class="btn btn-error  w-[10%]"
           >
             Cancel
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
             navigate={~p"/formulas/#{@form[:id].value}/nutrient_relax"}
-            class="green button w-[15%]"
+            class="btn btn-success  w-[15%]"
           >
             Nutrient Relax
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
             navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
-            class="teal button w-[10%]"
+            class="btn btn-accent  w-[10%]"
           >
             Premix
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
             navigate={~p"/formulas/#{@form[:id].value}/versions"}
-            class="gray button w-[10%]"
+            class="btn btn-neutral  w-[10%]"
           >
             Versions
           </.link>
@@ -101,7 +101,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
             :if={@form.source.changes == %{} and @live_action != :new}
             target="_blank"
             navigate={~p"/formulas/print_multi?ids=#{@form[:id].value}"}
-            class="blue button w-[10%]"
+            class="btn btn-info  w-[10%]"
           >
             Print
           </.link>
@@ -120,9 +120,9 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
               <div class="w-[10%]">Shadow</div>
             </div>
             <%!-- h-[580px] overflow-y-auto border bg-teal-200 p-1 rounded-xl border-teal-500 --%>
-            <div class="">
+
               <.inputs_for :let={nt} field={@form[:formula_ingredients]}>
-                <div class={["flex", nt[:delete].value == true && "hidden"]}>
+                <div class={["flex -mb-2", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[3%] mt-2">
                     <.input type="checkbox" field={nt[:used]} tabindex="-1" />
                   </div>
@@ -183,8 +183,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                   <.input type="hidden" field={nt[:ingredient_id]} />
                 </div>
               </.inputs_for>
-            </div>
-            <div class="button teal mb-0.5 w-[30%] mt-1" phx-click="show_select_ingredients">
+
+            <div class="btn btn-accent  mb-0.5 w-[30%] mt-1" phx-click="show_select_ingredients">
               Add/Remove Ingredients
             </div>
           </div>
@@ -201,7 +201,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
             <%!-- h-[580px] overflow-y-auto border bg-sky-200 p-1 rounded-xl border-sky-500--%>
             <div class="">
               <.inputs_for :let={nt} field={@form[:formula_nutrients]}>
-                <div class={["flex", nt[:delete].value == true && "hidden"]}>
+                <div class={["flex -mb-2", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[3%] mt-2 mr-1">
                     <.input type="checkbox" field={nt[:used]} tabindex="-1" />
                   </div>
@@ -231,7 +231,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                 </div>
               </.inputs_for>
             </div>
-            <div class="button blue mb-0.5 w-[40%] mt-1" phx-click="show_select_nutrients">
+            <div class="btn btn-info  mb-0.5 w-[40%] mt-1" phx-click="show_select_nutrients">
               Add/Remove Nutrients
             </div>
           </div>

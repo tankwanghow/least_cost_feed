@@ -10,7 +10,7 @@ defmodule LeastCostFeedWeb.IngredientLive.SelectComponent do
     ~H"""
     <div>
       <span class="text-l font-semibold">Please Select Ingredients</span>
-      <span class="text-l text-emerald-700">(finished press ESC or click away)</span>
+      <span class="text-l text-success">(finished press ESC or click away)</span>
       <div class="h-[40rem] overflow-y-scroll border p-2">
         <div
           :for={ingredient <- @ingredients}

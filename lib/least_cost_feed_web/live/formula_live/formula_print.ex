@@ -111,7 +111,7 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
     assigns = assigns |> assign(:formula, formula)
 
     ~H"""
-    <div class="text-sm text-gray-400">
+    <div class="text-sm text-[#9ca3af]">
       Formula optimized by LeastCostFeed (<%= @formula.updated_at %>)
     </div>
     """
@@ -121,7 +121,7 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
     assigns = assigns |> assign(:formula, formula)
 
     ~H"""
-    <div class="text-sm text-gray-400">
+    <div class="text-sm text-[#9ca3af]">
       Formula optimized by LeastCostFeed (<%= @formula.updated_at %>)
     </div>
     """

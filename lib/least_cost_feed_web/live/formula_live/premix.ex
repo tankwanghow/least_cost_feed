@@ -75,7 +75,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
           <.link
             :if={@form.source.changes != %{}}
             navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
-            class="red button"
+            class="btn btn-error "
           >
             Cancel
           </.link>
@@ -83,7 +83,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
             :if={@form.source.changes == %{} and @live_action != :new}
             target="_blank"
             navigate={~p"/formulas_premix/print_multi?ids=#{@form[:id].value}"}
-            class="blue button w-[15%]"
+            class="btn btn-info  w-[15%]"
           >
             Print
           </.link>
@@ -99,7 +99,7 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
             <%!-- h-[580px] overflow-y-auto border bg-teal-200 p-1 rounded-xl border-teal-500 --%>
             <div class="">
               <.inputs_for :let={nt} field={@form[:formula_premix_ingredients]}>
-                <div class={["flex", nt[:delete].value == true && "hidden"]}>
+                <div class={["flex -mb-1.5", nt[:delete].value == true && "hidden"]}>
                   <div class="w-[30%]">
                     <.input field={nt[:ingredient_name]} readonly tabindex="-1" />
                   </div>

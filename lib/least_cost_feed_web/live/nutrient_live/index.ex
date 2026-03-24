@@ -37,7 +37,7 @@ defmodule LeastCostFeedWeb.NutrientLive.Index do
           <%= Timex.from_now(nutrient.updated_at) %>
         </:col>
 
-        <:action :let={{id, nutrient}} class="w-[10%] text-rose-500">
+        <:action :let={{id, nutrient}} class="w-[10%] text-error">
           <.link
             phx-click={JS.push("delete", value: %{id: nutrient.id}) |> hide("##{id}")}
             data-confirm={"Are you sure? DELETE (#{nutrient.name})"}

@@ -33,18 +33,18 @@ defmodule LeastCostFeedWeb.MyComponents do
       end
 
     ~H"""
-    <div class="flex flex-row font-medium bg-blue-400 text-center border-y border-blue-800 p-2 text-l">
+    <div class="flex flex-row font-medium bg-primary text-primary-content text-center border-y border-primary/70 p-2 text-l">
       <div
         :for={col <- @col}
         class={[
           col[:class],
           col[:h_class],
-          col[:sort] && "hover:font-extrabold hover:text-white hover:cursor-pointer"
+          col[:sort] && "hover:font-extrabold hover:opacity-80 hover:cursor-pointer"
         ]}
         phx-click={col[:sort] && "sort"}
         phx-value-sort-by={col[:sort]}
       >
-        <span><%= col[:label] %></span>
+        <span>{col[:label]}</span>
         <span :if={@sort_directions[col[:sort]] == :asc}>&uarr;</span>
         <span :if={@sort_directions[col[:sort]] == :desc}>&darr;</span>
       </div>
@@ -61,18 +61,18 @@ defmodule LeastCostFeedWeb.MyComponents do
         phx-click={@row_click && @row_click.(row)}
         id={@row_id && @row_id.(row)}
         class={[
-          "flex flex-row text-center hover:bg-amber-300 p-1 border-b border-gray-600 bg-amber-200",
+          "flex flex-row text-center hover:bg-base-300 p-1 border-b border-base-300 bg-base-200",
           @row_click && "hover:cursor-pointer"
         ]}
       >
         <div :for={{col, _i} <- Enum.with_index(@col)} class={[col[:class], col[:b_class]]}>
-          <%= render_slot(col, @row_item.(row)) %>
+          {render_slot(col, @row_item.(row))}
         </div>
 
         <div :if={@action != []}>
           <div :for={action <- @action}>
             <div class={action[:class]}>
-              <%= render_slot(action, @row_item.(row)) %>
+              {render_slot(action, @row_item.(row))}
             </div>
           </div>
         </div>
@@ -85,11 +85,11 @@ defmodule LeastCostFeedWeb.MyComponents do
 
   def infinite_scroll_footer(assigns) do
     ~H"""
-    <div :if={@ended} class="mt-2 mb-2 text-center border-y-2 bg-orange-200 border-orange-400 p-2">
+    <div :if={@ended} class="mt-2 mb-2 text-center border-y-2 bg-warning/20 border-warning p-2">
       No More.
     </div>
 
-    <div :if={!@ended} class="mt-2 mb-2 text-center border-y-2 bg-blue-200 border-blue-400 p-2">
+    <div :if={!@ended} class="mt-2 mb-2 text-center border-y-2 bg-info/20 border-info p-2">
       Loading...<.icon name="hero-arrow-path" class="ml-1 h-3 w-3 animate-spin" />
     </div>
     """

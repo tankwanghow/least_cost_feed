@@ -13,44 +13,44 @@ defmodule LeastCostFeedWeb.FormulaLive.VersionHistory do
         Version History — {@formula_name}
       </div>
 
-      <div :if={@versions == []} class="text-center py-10 text-gray-500 text-lg">
+      <div :if={@versions == []} class="text-center py-10 text-base-content/50 text-lg">
         No saved versions yet.
       </div>
 
-      <table :if={@versions != []} class="w-full text-sm">
+      <table :if={@versions != []} class="table table-zebra w-full text-sm">
         <thead>
-          <tr class="border-b-2 border-gray-300 text-left">
-            <th class="py-1 px-2 w-[8%]">Version</th>
-            <th class="py-1 px-2 w-[20%]">Date</th>
-            <th class="py-1 px-2">Note</th>
-            <th class="py-1 px-2 w-[15%] text-right">Cost/1000</th>
-            <th class="py-1 px-2 w-[10%] text-right">Ingredients</th>
-            <th class="py-1 px-2 w-[10%] text-right">Nutrients</th>
-            <th class="py-1 px-2 w-[15%] text-right">Actions</th>
+          <tr>
+            <th class="w-[8%]">Version</th>
+            <th class="w-[20%]">Date</th>
+            <th>Note</th>
+            <th class="w-[15%] text-right">Cost/1000</th>
+            <th class="w-[10%] text-right">Ingredients</th>
+            <th class="w-[10%] text-right">Nutrients</th>
+            <th class="w-[15%] text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr :for={v <- @versions} class="border-b border-gray-200 hover:bg-gray-50">
-            <td class="py-1 px-2 font-bold">v{v.version}</td>
-            <td class="py-1 px-2 text-gray-600">
+          <tr :for={v <- @versions}>
+            <td class="font-bold">v{v.version}</td>
+            <td class="text-base-content/60">
               {Calendar.strftime(v.inserted_at, "%Y-%m-%d %H:%M")}
             </td>
-            <td class="py-1 px-2">{v.note || "—"}</td>
-            <td class="py-1 px-2 text-right">
+            <td>{v.note || "—"}</td>
+            <td class="text-right">
               {snapshot_cost(v.snapshot)}
             </td>
-            <td class="py-1 px-2 text-right">
+            <td class="text-right">
               {length(v.snapshot["formula_ingredients"] || [])}
             </td>
-            <td class="py-1 px-2 text-right">
+            <td class="text-right">
               {length(v.snapshot["formula_nutrients"] || [])}
             </td>
-            <td class="py-1 px-2 text-right flex gap-1 justify-end">
+            <td class="text-right flex gap-1 justify-end">
               <button
                 phx-click="restore"
                 phx-value-id={v.id}
                 data-confirm={"Restore version #{v.version}? This will overwrite the current formula."}
-                class="text-blue-600 hover:font-bold"
+                class="btn btn-info btn-xs"
               >
                 Restore
               </button>
@@ -58,7 +58,7 @@ defmodule LeastCostFeedWeb.FormulaLive.VersionHistory do
                 phx-click="delete"
                 phx-value-id={v.id}
                 data-confirm={"Delete version #{v.version}?"}
-                class="text-red-600 hover:font-bold"
+                class="btn btn-error btn-xs"
               >
                 Delete
               </button>

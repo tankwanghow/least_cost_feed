@@ -34,7 +34,7 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
       id="object-form"
       phx-change="validate"
       phx-submit="start_transfer"
-      class="p-4 mb-1 border rounded-lg border-blue-500 bg-blue-200"
+      class="p-4 mb-1 border rounded-lg border-base-300 bg-base-200"
     >
       <div class="flex flex-row flex-nowarp mb-2">
         <div class="p-2">Seed</div>
