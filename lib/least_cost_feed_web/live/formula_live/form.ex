@@ -72,7 +72,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
                 else: ~p"/formulas/#{@form[:id].value}/edit"
               )
             }
-            class="red button w-[15%]"
+            class="red button w-[10%]"
           >
             Cancel
           </.link>
@@ -86,15 +86,22 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
             navigate={~p"/formula_premix/#{@form[:id].value}/edit"}
-            class="teal button w-[15%]"
+            class="teal button w-[10%]"
           >
             Premix
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
+            navigate={~p"/formulas/#{@form[:id].value}/versions"}
+            class="gray button w-[10%]"
+          >
+            Versions
+          </.link>
+          <.link
+            :if={@form.source.changes == %{} and @live_action != :new}
             target="_blank"
             navigate={~p"/formulas/print_multi?ids=#{@form[:id].value}"}
-            class="blue button w-[15%]"
+            class="blue button w-[10%]"
           >
             Print
           </.link>
@@ -513,8 +520,12 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   end
 
   defp save_formula(socket, :edit, formula_params) do
-    case Entities.update_formula(socket.assigns.form.source.data, formula_params) do
+    formula_data = socket.assigns.form.source.data
+
+    case Entities.update_formula(formula_data, formula_params) do
       {:ok, formula} ->
+        Entities.save_formula_version(formula, "auto-save")
+
         {:noreply,
          socket
          |> put_flash(:info, "Formula updated successfully")

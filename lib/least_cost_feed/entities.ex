@@ -3,6 +3,7 @@ defmodule LeastCostFeed.Entities do
   alias LeastCostFeed.Repo
   alias LeastCostFeed.Entities.{Formula, Nutrient, FormulaIngredient, FormulaNutrient}
   alias LeastCostFeed.Entities.{Ingredient, IngredientComposition, FormulaPremixIngredient}
+  alias LeastCostFeed.Entities.FormulaVersion
 
   def list_entities(query, page: page, per_page: per_page) do
     from(q in query,
@@ -350,5 +351,156 @@ defmodule LeastCostFeed.Entities do
       end
     end)
     |> Enum.sort_by(&LeastCostFeed.Helpers.my_fetch_field!(&1, :nutrient_name))
+  end
+
+  # Formula Versions
+
+  def save_formula_version(%Formula{} = formula, note \\ nil) do
+    formula = get_formula!(formula.id)
+    premix_ingredients = get_formula_premix_ingredient_list(formula.id)
+
+    next_version =
+      (from(v in FormulaVersion,
+         where: v.formula_id == ^formula.id,
+         select: max(v.version)
+       )
+       |> Repo.one()) || 0
+
+    snapshot = build_formula_snapshot(formula, premix_ingredients)
+
+    %FormulaVersion{}
+    |> FormulaVersion.changeset(%{
+      formula_id: formula.id,
+      version: next_version + 1,
+      note: note,
+      snapshot: snapshot
+    })
+    |> Repo.insert()
+  end
+
+  defp get_formula_premix_ingredient_list(formula_id) do
+    from(fpi in FormulaPremixIngredient,
+      where: fpi.formula_id == ^formula_id
+    )
+    |> Repo.all()
+  end
+
+  def list_formula_versions(formula_id) do
+    from(v in FormulaVersion,
+      where: v.formula_id == ^formula_id,
+      order_by: [desc: v.version]
+    )
+    |> Repo.all()
+  end
+
+  def get_formula_version!(id) do
+    Repo.get!(FormulaVersion, id)
+  end
+
+  def delete_formula_version(%FormulaVersion{} = version) do
+    Repo.delete(version)
+  end
+
+  def restore_formula_version(%FormulaVersion{} = version) do
+    formula = get_formula!(version.formula_id)
+    snapshot = version.snapshot
+
+    Repo.transaction(fn ->
+      # Delete existing associations and re-create from snapshot
+      Repo.delete_all(from fi in FormulaIngredient, where: fi.formula_id == ^formula.id)
+      Repo.delete_all(from fn_ in FormulaNutrient, where: fn_.formula_id == ^formula.id)
+      Repo.delete_all(from fpi in FormulaPremixIngredient, where: fpi.formula_id == ^formula.id)
+
+      # Restore formula fields
+      formula
+      |> Formula.changeset(%{
+        name: snapshot["name"],
+        batch_size: snapshot["batch_size"],
+        weight_unit: snapshot["weight_unit"],
+        note: snapshot["note"],
+        usage_per_day: snapshot["usage_per_day"]
+      })
+      |> Repo.update!()
+
+      # Restore ingredients
+      Enum.each(snapshot["formula_ingredients"] || [], fn fi ->
+        Repo.insert!(%FormulaIngredient{
+          formula_id: formula.id,
+          ingredient_id: fi["ingredient_id"],
+          cost: fi["cost"],
+          min: fi["min"],
+          max: fi["max"],
+          actual: fi["actual"],
+          shadow: fi["shadow"],
+          used: fi["used"]
+        })
+      end)
+
+      # Restore nutrients
+      Enum.each(snapshot["formula_nutrients"] || [], fn fn_ ->
+        Repo.insert!(%FormulaNutrient{
+          formula_id: formula.id,
+          nutrient_id: fn_["nutrient_id"],
+          min: fn_["min"],
+          max: fn_["max"],
+          actual: fn_["actual"],
+          shadow: fn_["shadow"],
+          used: fn_["used"]
+        })
+      end)
+
+      # Restore premix ingredients
+      Enum.each(snapshot["formula_premix_ingredients"] || [], fn fpi ->
+        Repo.insert!(%FormulaPremixIngredient{
+          formula_id: formula.id,
+          ingredient_id: fpi["ingredient_id"],
+          formula_quantity: fpi["formula_quantity"],
+          premix_quantity: fpi["premix_quantity"]
+        })
+      end)
+
+      get_formula!(formula.id)
+    end)
+  end
+
+  defp build_formula_snapshot(%Formula{} = formula, premix_ingredients) do
+    %{
+      name: formula.name,
+      batch_size: formula.batch_size,
+      weight_unit: formula.weight_unit,
+      note: formula.note,
+      usage_per_day: formula.usage_per_day,
+      formula_ingredients:
+        Enum.map(formula.formula_ingredients, fn fi ->
+          %{
+            ingredient_id: fi.ingredient_id,
+            cost: fi.cost,
+            min: fi.min,
+            max: fi.max,
+            actual: fi.actual,
+            shadow: fi.shadow,
+            used: fi.used
+          }
+        end),
+      formula_nutrients:
+        Enum.map(formula.formula_nutrients, fn fn_ ->
+          %{
+            nutrient_id: fn_.nutrient_id,
+            min: fn_.min,
+            max: fn_.max,
+            actual: fn_.actual,
+            shadow: fn_.shadow,
+            used: fn_.used
+          }
+        end),
+      formula_premix_ingredients:
+        Enum.map(premix_ingredients, fn fpi ->
+          %{
+            ingredient_id: fpi.ingredient_id,
+            formula_quantity: fpi.formula_quantity,
+            premix_quantity: fpi.premix_quantity
+          }
+        end)
+    }
   end
 end

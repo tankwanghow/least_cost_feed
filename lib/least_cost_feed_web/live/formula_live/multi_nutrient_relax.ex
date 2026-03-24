@@ -390,8 +390,19 @@ defmodule LeastCostFeedWeb.FormulaLive.MultiNutrientRelax do
 
       suggestions = socket.assigns.sorted_suggestions
 
-      suggestions
-      |> Enum.filter(fn s -> MapSet.member?(keys, {s.formula_id, s.nutrient_id}) end)
+      to_apply =
+        suggestions
+        |> Enum.filter(fn s -> MapSet.member?(keys, {s.formula_id, s.nutrient_id}) end)
+
+      to_apply
+      |> Enum.map(& &1.formula_id)
+      |> Enum.uniq()
+      |> Enum.each(fn fid ->
+        formula = Entities.get_formula!(fid)
+        Entities.save_formula_version(formula, "before multi nutrient relax")
+      end)
+
+      to_apply
       |> Enum.each(fn s ->
         from(fn_ in LeastCostFeed.Entities.FormulaNutrient,
           where: fn_.formula_id == ^s.formula_id and fn_.nutrient_id == ^s.nutrient_id

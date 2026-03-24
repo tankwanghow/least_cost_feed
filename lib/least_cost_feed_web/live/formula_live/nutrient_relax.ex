@@ -206,6 +206,8 @@ defmodule LeastCostFeedWeb.FormulaLive.NutrientRelax do
     if combined do
       import Ecto.Query
 
+      Entities.save_formula_version(formula, "before nutrient relax")
+
       Enum.each(combined.suggestions, fn s ->
         from(fn_ in LeastCostFeed.Entities.FormulaNutrient,
           where: fn_.formula_id == ^formula.id and fn_.nutrient_id == ^s.nutrient_id
