@@ -96,6 +96,7 @@ defmodule LeastCostFeedWeb.Router do
       root_layout: {LeastCostFeedWeb.Layouts, :print_root} do
       live "/formulas/print_multi", FormulaLive.FormulaPrint, :print
       live "/formulas_premix/print_multi", FormulaLive.PremixPrint, :print
+      live "/formulas/nutrition_guide", FormulaLive.NutritionGuide, :guide
     end
   end
 

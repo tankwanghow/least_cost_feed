@@ -63,9 +63,9 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
           <%= Timex.from_now(ingredient.updated_at) %>
         </:col>
 
-        <:action :let={{id, ingredient}} class="w-[5%] text-error">
+        <:action :let={{_id, ingredient}} class="w-[5%] text-error">
           <.link
-            phx-click={JS.push("delete", value: %{id: ingredient.id}) |> hide("##{id}")}
+            phx-click={JS.push("delete", value: %{id: ingredient.id})}
             data-confirm={"Are you sure? DELETE (#{ingredient.name})"}
           >
             <.icon name="hero-trash-solid" class="h-5 w-5" />
@@ -108,9 +108,14 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     ingredient = Entities.get_ingredient!(id)
-    {:ok, _} = Entities.delete_ingredient(ingredient)
 
-    {:noreply, stream_delete(socket, :ingredients, ingredient)}
+    case Entities.delete_ingredient(ingredient) do
+      {:ok, _} ->
+        {:noreply, stream_delete(socket, :ingredients, ingredient)}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Cannot delete \"#{ingredient.name}\" — remove it from all formulas first.")}
+    end
   end
 
   @impl true

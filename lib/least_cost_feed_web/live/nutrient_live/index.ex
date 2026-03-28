@@ -37,9 +37,9 @@ defmodule LeastCostFeedWeb.NutrientLive.Index do
           <%= Timex.from_now(nutrient.updated_at) %>
         </:col>
 
-        <:action :let={{id, nutrient}} class="w-[10%] text-error">
+        <:action :let={{_id, nutrient}} class="w-[10%] text-error">
           <.link
-            phx-click={JS.push("delete", value: %{id: nutrient.id}) |> hide("##{id}")}
+            phx-click={JS.push("delete", value: %{id: nutrient.id})}
             data-confirm={"Are you sure? DELETE (#{nutrient.name})"}
           >
             <.icon name="hero-trash-solid" class="h-5 w-5" />
@@ -68,9 +68,14 @@ defmodule LeastCostFeedWeb.NutrientLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     nutrient = Entities.get_nutrient!(id)
-    {:ok, _} = Entities.delete_nutrient(nutrient)
 
-    {:noreply, stream_delete(socket, :nutrients, nutrient)}
+    case Entities.delete_nutrient(nutrient) do
+      {:ok, _} ->
+        {:noreply, stream_delete(socket, :nutrients, nutrient)}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Cannot delete \"#{nutrient.name}\" — remove it from all formulas first.")}
+    end
   end
 
   @impl true

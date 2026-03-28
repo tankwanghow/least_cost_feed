@@ -114,14 +114,23 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
         n = get_nutrient_by_name_email(a.nutrient_name, a.email)
         f = get_formula_by_name_email(a.formula_name, a.email)
 
-        r.insert!(%FormulaNutrient{
-          nutrient_id: n.id,
-          formula_id: f.id,
-          min: LeastCostFeedWeb.Helpers.float_parse(a.min),
-          max: LeastCostFeedWeb.Helpers.float_parse(a.max),
-          actual: LeastCostFeedWeb.Helpers.float_parse(a.actual),
-          used: if(a.used == "true", do: true, else: false)
-        })
+        r.insert!(
+          %FormulaNutrient{
+            nutrient_id: n.id,
+            formula_id: f.id,
+            min: LeastCostFeedWeb.Helpers.float_parse(a.min),
+            max: LeastCostFeedWeb.Helpers.float_parse(a.max),
+            actual: LeastCostFeedWeb.Helpers.float_parse(a.actual),
+            used: if(a.used == "true", do: true, else: false)
+          },
+          on_conflict: [set: [
+            min: LeastCostFeedWeb.Helpers.float_parse(a.min),
+            max: LeastCostFeedWeb.Helpers.float_parse(a.max),
+            actual: LeastCostFeedWeb.Helpers.float_parse(a.actual),
+            used: if(a.used == "true", do: true, else: false)
+          ]],
+          conflict_target: [:formula_id, :nutrient_id]
+        )
       end)
     end)
   end

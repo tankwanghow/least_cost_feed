@@ -29,6 +29,8 @@ defmodule LeastCostFeed.Entities do
 
   def delete_nutrient(%Nutrient{} = nutrient) do
     Repo.delete(nutrient)
+  rescue
+    Postgrex.Error -> {:error, :referenced}
   end
 
   def change_nutrient(%Nutrient{} = nutrient, attrs \\ %{}) do
@@ -74,6 +76,8 @@ defmodule LeastCostFeed.Entities do
 
   def delete_ingredient(%Ingredient{} = ingredient) do
     Repo.delete(ingredient)
+  rescue
+    Postgrex.Error -> {:error, :referenced}
   end
 
   def change_ingredient(%Ingredient{} = ingredient, attrs \\ %{}) do
@@ -380,7 +384,11 @@ defmodule LeastCostFeed.Entities do
 
   defp get_formula_premix_ingredient_list(formula_id) do
     from(fpi in FormulaPremixIngredient,
-      where: fpi.formula_id == ^formula_id
+      join: ing in Ingredient,
+      on: ing.id == fpi.ingredient_id,
+      where: fpi.formula_id == ^formula_id,
+      select: fpi,
+      select_merge: %{ingredient_name: ing.name}
     )
     |> Repo.all()
   end

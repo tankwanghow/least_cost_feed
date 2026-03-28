@@ -105,6 +105,13 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           >
             Print
           </.link>
+          <.link
+            target="_blank"
+            navigate={~p"/formulas/nutrition_guide"}
+            class="btn btn-warning  w-[10%]"
+          >
+            Guide
+          </.link>
         </div>
 
         <div class="flex gap-5">
