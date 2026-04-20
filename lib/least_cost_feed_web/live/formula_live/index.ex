@@ -29,6 +29,9 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         <.link navigate={~p"/formulas/multi_nutrient_relax"} id="multi_nutrient_relax" class="ml-2">
           <.button>Multi-Formula Nutrient Relax</.button>
         </.link>
+        <.link navigate={~p"/formulas/efc_optimizer"} id="efc_optimizer" class="ml-2">
+          <.button>EFC Optimizer</.button>
+        </.link>
       </div>
       <%!-- row_click={fn {_id, formula} -> JS.navigate(~p"/formulas/#{formula}/edit") end} --%>
       <LeastCostFeedWeb.MyComponents.table

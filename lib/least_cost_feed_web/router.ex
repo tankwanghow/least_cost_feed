@@ -85,6 +85,7 @@ defmodule LeastCostFeedWeb.Router do
       live "/formulas/:id/versions", FormulaLive.VersionHistory, :versions
       live "/formulas/:id/nutrient_relax", FormulaLive.NutrientRelax, :nutrient_relax
       live "/formulas/multi_nutrient_relax", FormulaLive.MultiNutrientRelax, :multi_nutrient_relax
+      live "/formulas/efc_optimizer", FormulaLive.EfcForm, :efc
 
       live "/formula_premix/:id/edit", PremixLive.Form, :edit
 

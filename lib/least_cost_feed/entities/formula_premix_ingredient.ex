@@ -30,10 +30,15 @@ defmodule LeastCostFeed.Entities.FormulaPremixIngredient do
   end
 
   defp validate_formula_premit_qty(cs) do
-    if fetch_field!(cs, :premix_quantity) > fetch_field!(cs, :formula_quantity) do
-      add_error(cs, :premix_quantity, "need to be smaller")
-    else
-      cs
+    cond do
+      fetch_field!(cs, :delete) ->
+        cs
+
+      fetch_field!(cs, :premix_quantity) > fetch_field!(cs, :formula_quantity) ->
+        add_error(cs, :premix_quantity, "need to be smaller")
+
+      true ->
+        cs
     end
   end
 

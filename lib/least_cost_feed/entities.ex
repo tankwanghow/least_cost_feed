@@ -115,7 +115,7 @@ defmodule LeastCostFeed.Entities do
       )
 
     from(frm in Formula,
-      join: frming in FormulaIngredient,
+      left_join: frming in FormulaIngredient,
       on: frm.id == frming.formula_id,
       preload: [formula_ingredients: ^frm_ing],
       preload: [formula_nutrients: ^frm_nut],
@@ -124,7 +124,7 @@ defmodule LeastCostFeed.Entities do
       select: frm,
       select_merge: %{
         cost:
-          fragment("?/?*1000", sum(frm.batch_size * frming.actual * frming.cost), frm.batch_size)
+          fragment("coalesce(?/?*1000, 0)", sum(frm.batch_size * frming.actual * frming.cost), frm.batch_size)
       }
     )
     |> Repo.one!()
