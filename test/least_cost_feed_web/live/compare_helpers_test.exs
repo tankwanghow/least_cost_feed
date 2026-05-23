@@ -46,4 +46,68 @@ defmodule LeastCostFeedWeb.CompareHelpersTest do
       refute Enum.any?(rows, &(&1.name == "Glycine"))
     end
   end
+
+  describe "cell_value/3 for formulas" do
+    test "min and max set renders as a range" do
+      f = %Formula{formula_nutrients: [
+        %FormulaNutrient{nutrient_id: 1, min: 17.5, max: 18.0, actual: nil, used: true}
+      ]}
+      n = %Nutrient{id: 1, name: "Crude Protein", unit: "%"}
+      assert %{text: "17.5 – 18.0", strike: false} = CompareHelpers.cell_value(f, n, :formula, [])
+    end
+
+    test "min only renders with ≥ prefix" do
+      f = %Formula{formula_nutrients: [
+        %FormulaNutrient{nutrient_id: 1, min: 0.92, max: nil, actual: nil, used: true}
+      ]}
+      n = %Nutrient{id: 1, name: "Lysine", unit: "%"}
+      assert %{text: "≥ 0.92"} = CompareHelpers.cell_value(f, n, :formula, [])
+    end
+
+    test "max only renders with ≤ prefix" do
+      f = %Formula{formula_nutrients: [
+        %FormulaNutrient{nutrient_id: 1, min: nil, max: 6.0, actual: nil, used: true}
+      ]}
+      n = %Nutrient{id: 1, name: "Crude Fiber", unit: "%"}
+      assert %{text: "≤ 6.0"} = CompareHelpers.cell_value(f, n, :formula, [])
+    end
+
+    test "missing on this formula renders as dash" do
+      f = %Formula{formula_nutrients: []}
+      n = %Nutrient{id: 99, name: "X", unit: "%"}
+      assert %{text: "—"} = CompareHelpers.cell_value(f, n, :formula, [])
+    end
+
+    test "disabled constraint sets strike true" do
+      f = %Formula{formula_nutrients: [
+        %FormulaNutrient{nutrient_id: 1, min: 0.3, max: nil, actual: nil, used: false}
+      ]}
+      n = %Nutrient{id: 1, name: "Phytate Phos.", unit: "%"}
+      assert %{text: "≥ 0.3", strike: true} = CompareHelpers.cell_value(f, n, :formula, [])
+    end
+
+    test "show_actuals: true adds actual when present" do
+      f = %Formula{formula_nutrients: [
+        %FormulaNutrient{nutrient_id: 1, min: 0.92, max: nil, actual: 1.05, used: true}
+      ]}
+      n = %Nutrient{id: 1, name: "Lysine", unit: "%"}
+      assert %{actual: "1.05"} = CompareHelpers.cell_value(f, n, :formula, show_actuals: true)
+    end
+  end
+
+  describe "cell_value/3 for ingredients" do
+    test "renders quantity with unit" do
+      i = %Ingredient{ingredient_compositions: [
+        %IngredientComposition{nutrient_id: 1, quantity: 44.0}
+      ]}
+      n = %Nutrient{id: 1, name: "Crude Protein", unit: "%"}
+      assert %{text: "44.0 %"} = CompareHelpers.cell_value(i, n, :ingredient, [])
+    end
+
+    test "missing composition renders as dash" do
+      i = %Ingredient{ingredient_compositions: []}
+      n = %Nutrient{id: 99, name: "X", unit: "%"}
+      assert %{text: "—"} = CompareHelpers.cell_value(i, n, :ingredient, [])
+    end
+  end
 end
