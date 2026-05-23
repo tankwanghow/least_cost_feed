@@ -32,6 +32,14 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         <.link navigate={~p"/formulas/efc_optimizer"} id="efc_optimizer" class="ml-2">
           <.button>EFC Optimizer</.button>
         </.link>
+        <.link
+          :if={MapSet.size(@selected_ids) in 2..4}
+          navigate={"/formulas/compare?ids=" <> Enum.join(@selected_ids, ",")}
+          id="compare_formulas"
+          class="ml-2"
+        >
+          <.button>Compare ({MapSet.size(@selected_ids)})</.button>
+        </.link>
       </div>
       <%!-- row_click={fn {_id, formula} -> JS.navigate(~p"/formulas/#{formula}/edit") end} --%>
       <LeastCostFeedWeb.MyComponents.table
@@ -40,6 +48,14 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         end_of_data?={@end_of_timeline?}
         sort_directions={@sort_directions}
       >
+        <:col :let={{_id, formula}} class="w-[3%]">
+          <input
+            type="checkbox"
+            phx-click="toggle_select"
+            phx-value-id={formula.id}
+            checked={formula.id in @selected_ids}
+          />
+        </:col>
         <:col :let={{_id, formula}} label="Name" class="w-[30%]" sort="name">
           <.link class="text-info hover:font-bold" navigate={~p"/formulas/#{formula}/edit"}>
             <%= formula.name %>
@@ -102,12 +118,26 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
       socket
       |> assign(search: %{terms: ""})
       |> assign(sort_directions: @empty_sort_directions |> Map.merge(%{"updated_at" => :asc}))
+      |> assign(selected_ids: MapSet.new())
 
     {:ok,
      socket
      |> assign(page_title: "Formula Listing")
      |> LeastCostFeedWeb.Helpers.sort("updated_at", &query/1, @empty_sort_directions)
      |> filter(true, 1)}
+  end
+
+  @impl true
+  def handle_event("toggle_select", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+    selected = socket.assigns.selected_ids
+
+    selected =
+      if MapSet.member?(selected, id),
+        do: MapSet.delete(selected, id),
+        else: MapSet.put(selected, id)
+
+    {:noreply, assign(socket, selected_ids: selected)}
   end
 
   @impl true
