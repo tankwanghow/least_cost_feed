@@ -193,4 +193,49 @@ defmodule LeastCostFeed.EntitiesTest do
       assert %Ecto.Changeset{} = Entities.change_formula(formula)
     end
   end
+
+  describe "list_formulas_for_compare/2" do
+    alias LeastCostFeed.Entities
+
+    test "returns only formulas matching ids and user, preloaded" do
+      user = LeastCostFeed.UserAccountsFixtures.user_fixture()
+      other = LeastCostFeed.UserAccountsFixtures.user_fixture()
+
+      {:ok, f1} = Entities.create_formula(%{
+        name: "F1", batch_size: 1000.0, weight_unit: "KG", usage_per_day: 0.0, user_id: user.id
+      })
+      {:ok, f2} = Entities.create_formula(%{
+        name: "F2", batch_size: 1000.0, weight_unit: "KG", usage_per_day: 0.0, user_id: user.id
+      })
+      {:ok, fother} = Entities.create_formula(%{
+        name: "X", batch_size: 1000.0, weight_unit: "KG", usage_per_day: 0.0, user_id: other.id
+      })
+
+      result = Entities.list_formulas_for_compare(user.id, [f1.id, f2.id, fother.id])
+
+      ids = Enum.map(result, & &1.id) |> Enum.sort()
+      assert ids == Enum.sort([f1.id, f2.id])
+
+      assert Enum.all?(result, fn f ->
+        Ecto.assoc_loaded?(f.formula_nutrients)
+      end)
+    end
+  end
+
+  describe "list_ingredients_for_compare/2" do
+    alias LeastCostFeed.Entities
+
+    test "returns only ingredients matching ids and user, with compositions preloaded" do
+      user = LeastCostFeed.UserAccountsFixtures.user_fixture()
+
+      {:ok, i1} = Entities.create_ingredient(%{
+        name: "I1", cost: 1.0, dry_matter: 90.0, category: "x", description: "", user_id: user.id
+      })
+
+      result = Entities.list_ingredients_for_compare(user.id, [i1.id])
+      assert length(result) == 1
+      [i] = result
+      assert Ecto.assoc_loaded?(i.ingredient_compositions)
+    end
+  end
 end

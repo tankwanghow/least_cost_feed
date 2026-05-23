@@ -93,6 +93,22 @@ defmodule LeastCostFeed.Entities do
     |> Repo.all()
   end
 
+  def list_formulas_for_compare(user_id, ids) when is_list(ids) do
+    from(f in Formula,
+      where: f.user_id == ^user_id and f.id in ^ids,
+      preload: [formula_nutrients: :nutrient]
+    )
+    |> Repo.all()
+  end
+
+  def list_ingredients_for_compare(user_id, ids) when is_list(ids) do
+    from(i in Ingredient,
+      where: i.user_id == ^user_id and i.id in ^ids,
+      preload: [ingredient_compositions: :nutrient]
+    )
+    |> Repo.all()
+  end
+
   def get_formula!(id) do
     frm_nut =
       from(fnt in FormulaNutrient,
