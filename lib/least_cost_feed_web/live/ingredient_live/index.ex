@@ -27,6 +27,14 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
         <.link navigate={~p"/ingredients/new"} id="new_ingredient">
           <.button>New Ingredient</.button>
         </.link>
+        <.link
+          :if={MapSet.size(@selected_ids) in 2..4}
+          navigate={"/ingredients/compare?ids=" <> Enum.join(@selected_ids, ",")}
+          id="compare_ingredients"
+          class="ml-2"
+        >
+          <.button>Compare ({MapSet.size(@selected_ids)})</.button>
+        </.link>
       </div>
 
       <LeastCostFeedWeb.MyComponents.table
@@ -35,6 +43,14 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
         end_of_data?={@end_of_timeline?}
         sort_directions={@sort_directions}
       >
+        <:col :let={{_id, ingredient}} class="w-[3%]">
+          <input
+            type="checkbox"
+            phx-click="toggle_select"
+            phx-value-id={ingredient.id}
+            checked={ingredient.id in @selected_ids}
+          />
+        </:col>
         <:col :let={{_id, ingredient}} label="Name" class="w-[35%]" sort="name">
           <.link class="text-info hover:font-bold" navigate={~p"/ingredients/#{ingredient}/edit"}>
             <%= ingredient.name %>
@@ -83,12 +99,26 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
       socket
       |> assign(search: %{terms: ""})
       |> assign(sort_directions: @empty_sort_directions |> Map.merge(%{"updated_at" => :asc}))
+      |> assign(selected_ids: MapSet.new())
 
     {:ok,
      socket
      |> assign(page_title: "Ingredient Listing")
      |> LeastCostFeedWeb.Helpers.sort("updated_at", &query/1, @empty_sort_directions)
      |> filter(true, 1)}
+  end
+
+  @impl true
+  def handle_event("toggle_select", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+    selected = socket.assigns.selected_ids
+
+    selected =
+      if MapSet.member?(selected, id),
+        do: MapSet.delete(selected, id),
+        else: MapSet.put(selected, id)
+
+    {:noreply, assign(socket, selected_ids: selected)}
   end
 
   @impl true
