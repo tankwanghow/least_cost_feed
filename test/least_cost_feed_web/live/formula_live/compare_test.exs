@@ -159,4 +159,43 @@ defmodule LeastCostFeedWeb.FormulaLive.CompareTest do
     refute render(view) =~ "Crude Protein"
     assert render(view) =~ "Lysine"
   end
+
+  test "Show actuals toggle reveals the optimized actual under each spec", %{conn: conn, user: user} do
+    {:ok, n_cp} = Entities.create_nutrient(%{name: "Crude Protein", unit: "%", user_id: user.id})
+
+    {:ok, f1} =
+      Entities.create_formula(%{
+        name: "F1",
+        batch_size: 1000.0,
+        weight_unit: "KG",
+        usage_per_day: 0.0,
+        user_id: user.id,
+        formula_nutrients: [
+          %{nutrient_id: n_cp.id, min: 17.5, max: 18.0, actual: 17.43, used: true}
+        ]
+      })
+
+    {:ok, f2} =
+      Entities.create_formula(%{
+        name: "F2",
+        batch_size: 1000.0,
+        weight_unit: "KG",
+        usage_per_day: 0.0,
+        user_id: user.id,
+        formula_nutrients: [
+          %{nutrient_id: n_cp.id, min: 17.5, max: 18.0, actual: 17.55, used: true}
+        ]
+      })
+
+    {:ok, view, html} = live(conn, "/formulas/compare?ids=#{f1.id},#{f2.id}")
+    # Initially hidden
+    refute html =~ "17.43"
+    refute html =~ "17.55"
+
+    view |> element("input[phx-click=toggle_show_actuals]") |> render_click()
+
+    rendered = render(view)
+    assert rendered =~ "17.43"
+    assert rendered =~ "17.55"
+  end
 end

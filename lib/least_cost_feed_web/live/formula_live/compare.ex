@@ -117,6 +117,9 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
                   >
                     ●
                   </span>
+                  <div :if={cell.actual} class="text-xs text-base-content/60">
+                    actual: {cell.actual}
+                  </div>
                 </td>
               <% end %>
             </tr>
