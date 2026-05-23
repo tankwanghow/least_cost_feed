@@ -82,6 +82,15 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
         />
       </div>
 
+      <div class="flex items-center gap-4 mb-3 text-sm">
+        <label class="flex items-center gap-1">
+          <input type="checkbox" phx-click="toggle_only_diff" checked={@only_differences?} /> Only differences
+        </label>
+        <label class="flex items-center gap-1">
+          <input type="checkbox" phx-click="toggle_show_actuals" checked={@show_actuals?} /> Show actuals
+        </label>
+      </div>
+
       <div class="overflow-x-auto">
         <table class="w-full text-sm border-collapse">
           <thead>
@@ -132,6 +141,16 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
       {:noreply,
        push_patch(socket, to: "/formulas/compare?ids=" <> Enum.join(remaining, ","))}
     end
+  end
+
+  @impl true
+  def handle_event("toggle_only_diff", _params, socket) do
+    {:noreply, update(socket, :only_differences?, &(!&1))}
+  end
+
+  @impl true
+  def handle_event("toggle_show_actuals", _params, socket) do
+    {:noreply, update(socket, :show_actuals?, &(!&1))}
   end
 
   @impl true

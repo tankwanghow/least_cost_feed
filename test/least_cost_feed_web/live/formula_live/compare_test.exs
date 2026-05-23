@@ -146,4 +146,17 @@ defmodule LeastCostFeedWeb.FormulaLive.CompareTest do
 
     assert_patch(view, "/formulas/compare?ids=#{f1.id},#{f2.id},#{f3.id}")
   end
+
+  test "Only differences hides rows where all non-anchor cells match anchor", %{conn: conn, user: user} do
+    {f1, f2} = setup_two_formulas(user)
+    # CP is the same on both (17.5–18.0), Lysine differs (0.90 vs 0.92)
+    {:ok, view, html} = live(conn, "/formulas/compare?ids=#{f1.id},#{f2.id}")
+    assert html =~ "Crude Protein"
+    assert html =~ "Lysine"
+
+    view |> element("input[phx-click=toggle_only_diff]") |> render_click()
+
+    refute render(view) =~ "Crude Protein"
+    assert render(view) =~ "Lysine"
+  end
 end
