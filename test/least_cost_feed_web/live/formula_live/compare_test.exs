@@ -98,4 +98,52 @@ defmodule LeastCostFeedWeb.FormulaLive.CompareTest do
 
     assert flash["error"] =~ "limited to 4"
   end
+
+  test "clicking ✕ on a chip drops that formula and updates the URL", %{conn: conn, user: user} do
+    {f1, f2} = setup_two_formulas(user)
+
+    {:ok, f3} =
+      Entities.create_formula(%{
+        name: "F3",
+        batch_size: 1000.0,
+        weight_unit: "KG",
+        usage_per_day: 0.0,
+        user_id: user.id
+      })
+
+    {:ok, view, _html} = live(conn, "/formulas/compare?ids=#{f1.id},#{f2.id},#{f3.id}")
+    view |> element("[phx-click=drop][phx-value-id='#{f3.id}']") |> render_click()
+
+    assert_patch(view, "/formulas/compare?ids=#{f1.id},#{f2.id}")
+    # F3 should no longer be a comparison column
+    refute render(view) =~ ~r/<th[^>]*>\s*F3\s*<\/th>/
+  end
+
+  test "dropping below 2 redirects to /formulas with flash", %{conn: conn, user: user} do
+    {f1, f2} = setup_two_formulas(user)
+    {:ok, view, _html} = live(conn, "/formulas/compare?ids=#{f1.id},#{f2.id}")
+    view |> element("[phx-click=drop][phx-value-id='#{f2.id}']") |> render_click()
+    assert_redirected(view, "/formulas")
+  end
+
+  test "adding via the picker patches the URL with the new id", %{conn: conn, user: user} do
+    {f1, f2} = setup_two_formulas(user)
+
+    {:ok, f3} =
+      Entities.create_formula(%{
+        name: "F3",
+        batch_size: 1000.0,
+        weight_unit: "KG",
+        usage_per_day: 0.0,
+        user_id: user.id
+      })
+
+    {:ok, view, _html} = live(conn, "/formulas/compare?ids=#{f1.id},#{f2.id}")
+
+    view
+    |> form("form[phx-submit=add]", id: to_string(f3.id))
+    |> render_submit()
+
+    assert_patch(view, "/formulas/compare?ids=#{f1.id},#{f2.id},#{f3.id}")
+  end
 end

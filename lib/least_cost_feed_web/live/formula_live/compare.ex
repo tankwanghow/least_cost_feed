@@ -61,9 +61,25 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
       <div class="font-bold text-3xl mb-4">Compare Formulas</div>
 
       <div class="flex flex-wrap gap-2 mb-4 items-center">
-        <span :for={f <- @formulas} class="px-3 py-1 rounded bg-primary text-primary-content text-sm">
+        <span
+          :for={f <- @formulas}
+          class="px-3 py-1 rounded bg-primary text-primary-content text-sm flex items-center gap-1"
+        >
           {f.name}
+          <button
+            phx-click="drop"
+            phx-value-id={f.id}
+            class="ml-1 text-primary-content/80 hover:text-primary-content"
+            aria-label={"Remove " <> f.name}
+          >✕</button>
         </span>
+        <.live_component
+          :if={length(@formulas) < 4}
+          module={LeastCostFeedWeb.FormulaLive.Compare.AddPicker}
+          id="compare-add-picker"
+          current_user={@current_user}
+          current_ids={Enum.map(@formulas, & &1.id)}
+        />
       </div>
 
       <div class="overflow-x-auto">
@@ -102,6 +118,27 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
     """
   end
 
+  @impl true
+  def handle_event("drop", %{"id" => id}, socket) do
+    drop_id = String.to_integer(id)
+    remaining = socket.assigns.formulas |> Enum.map(& &1.id) |> Enum.reject(&(&1 == drop_id))
+
+    if length(remaining) < 2 do
+      {:noreply,
+       socket
+       |> put_flash(:info, "Compare closed — fewer than 2 formulas remained.")
+       |> push_navigate(to: ~p"/formulas")}
+    else
+      {:noreply,
+       push_patch(socket, to: "/formulas/compare?ids=" <> Enum.join(remaining, ","))}
+    end
+  end
+
+  @impl true
+  def handle_info({:patch_compare_ids, ids}, socket) do
+    {:noreply, push_patch(socket, to: "/formulas/compare?ids=" <> Enum.join(ids, ","))}
+  end
+
   defp parse_ids(s) do
     s
     |> String.split(",", trim: true)
@@ -126,5 +163,52 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
       end)
 
     if only_diff?, do: CompareHelpers.filter_differing_rows(rows), else: rows
+  end
+end
+
+defmodule LeastCostFeedWeb.FormulaLive.Compare.AddPicker do
+  use LeastCostFeedWeb, :live_component
+
+  alias LeastCostFeed.Entities
+  import Ecto.Query
+
+  @impl true
+  def update(assigns, socket) do
+    all_ids = list_all_ids(assigns.current_user.id)
+
+    candidates =
+      Entities.list_formulas_for_compare(assigns.current_user.id, all_ids)
+      |> Enum.reject(&(&1.id in assigns.current_ids))
+      |> Enum.sort_by(& &1.name)
+
+    {:ok, socket |> assign(assigns) |> assign(candidates: candidates)}
+  end
+
+  defp list_all_ids(user_id) do
+    from(f in LeastCostFeed.Entities.Formula, where: f.user_id == ^user_id, select: f.id)
+    |> LeastCostFeed.Repo.all()
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <form phx-submit="add" phx-target={@myself} class="flex items-center gap-1">
+      <select name="id" class="select select-sm select-bordered">
+        <option value="">+ Add formula…</option>
+        <option :for={f <- @candidates} value={f.id}>{f.name}</option>
+      </select>
+      <button type="submit" class="btn btn-sm">Add</button>
+    </form>
+    """
+  end
+
+  @impl true
+  def handle_event("add", %{"id" => ""}, socket), do: {:noreply, socket}
+
+  def handle_event("add", %{"id" => id}, socket) do
+    new_id = String.to_integer(id)
+    new_ids = socket.assigns.current_ids ++ [new_id]
+    send(self(), {:patch_compare_ids, new_ids})
+    {:noreply, socket}
   end
 end
