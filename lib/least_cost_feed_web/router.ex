@@ -75,6 +75,7 @@ defmodule LeastCostFeedWeb.Router do
 
       live "/ingredients", IngredientLive.Index, :index
       live "/ingredients/new", IngredientLive.Form, :new
+      live "/ingredients/compare", IngredientLive.Compare, :compare
       live "/ingredients/:id/edit", IngredientLive.Form, :edit
       live "/ingredient_usages", IngredientLive.Usage, :index
 
@@ -86,6 +87,7 @@ defmodule LeastCostFeedWeb.Router do
       live "/formulas/:id/nutrient_relax", FormulaLive.NutrientRelax, :nutrient_relax
       live "/formulas/multi_nutrient_relax", FormulaLive.MultiNutrientRelax, :multi_nutrient_relax
       live "/formulas/efc_optimizer", FormulaLive.EfcForm, :efc
+      live "/formulas/compare", FormulaLive.Compare, :compare
 
       live "/formula_premix/:id/edit", PremixLive.Form, :edit
 
