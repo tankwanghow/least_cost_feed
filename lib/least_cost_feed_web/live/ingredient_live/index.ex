@@ -28,7 +28,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
           <.button>New Ingredient</.button>
         </.link>
         <.link
-          :if={MapSet.size(@selected_ids) in 2..4}
+          :if={MapSet.size(@selected_ids) in 2..6}
           navigate={"/ingredients/compare?ids=" <> Enum.join(@selected_ids, ",")}
           id="compare_ingredients"
           class="ml-2"

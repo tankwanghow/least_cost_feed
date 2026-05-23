@@ -4,11 +4,11 @@ defmodule LeastCostFeedWeb.IngredientLive.Compare do
   alias LeastCostFeed.Entities
   alias LeastCostFeedWeb.CompareHelpers
 
-  @max 4
+  @max 6
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(page_title: "Compare Ingredients", only_differences?: false)}
+    {:ok, socket |> assign(page_title: "Compare Ingredients", only_differences?: false, max: @max)}
   end
 
   @impl true
@@ -24,14 +24,14 @@ defmodule LeastCostFeedWeb.IngredientLive.Compare do
          socket
          |> put_flash(
            :error,
-           "Compare needs 2–4 ingredients (you gave #{length(ingredients)} valid)."
+           "Compare needs 2–#{@max} ingredients (you gave #{length(ingredients)} valid)."
          )
          |> push_navigate(to: ~p"/ingredients")}
 
       length(ingredients) > @max ->
         {:noreply,
          socket
-         |> put_flash(:error, "Compare is limited to 4 ingredients.")
+         |> put_flash(:error, "Compare is limited to #{@max} ingredients.")
          |> push_navigate(to: ~p"/ingredients")}
 
       true ->
@@ -76,7 +76,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Compare do
           >✕</button>
         </span>
         <.live_component
-          :if={length(@ingredients) < 4}
+          :if={length(@ingredients) < @max}
           module={LeastCostFeedWeb.IngredientLive.Compare.AddPicker}
           id="compare-add-picker"
           current_user={@current_user}

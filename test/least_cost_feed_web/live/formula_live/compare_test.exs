@@ -61,42 +61,29 @@ defmodule LeastCostFeedWeb.FormulaLive.CompareTest do
     assert flash["error"] =~ "needs 2"
   end
 
-  test "redirects with flash when more than 4 ids", %{conn: conn, user: user} do
+  test "redirects with flash when more than 6 ids", %{conn: conn, user: user} do
     {f1, f2} = setup_two_formulas(user)
 
-    {:ok, f3} =
-      Entities.create_formula(%{
-        name: "F3",
-        batch_size: 1000.0,
-        weight_unit: "KG",
-        usage_per_day: 0.0,
-        user_id: user.id
-      })
+    extras =
+      for n <- 3..7 do
+        {:ok, f} =
+          Entities.create_formula(%{
+            name: "F#{n}",
+            batch_size: 1000.0,
+            weight_unit: "KG",
+            usage_per_day: 0.0,
+            user_id: user.id
+          })
 
-    {:ok, f4} =
-      Entities.create_formula(%{
-        name: "F4",
-        batch_size: 1000.0,
-        weight_unit: "KG",
-        usage_per_day: 0.0,
-        user_id: user.id
-      })
+        f
+      end
 
-    {:ok, f5} =
-      Entities.create_formula(%{
-        name: "F5",
-        batch_size: 1000.0,
-        weight_unit: "KG",
-        usage_per_day: 0.0,
-        user_id: user.id
-      })
-
-    ids = [f1.id, f2.id, f3.id, f4.id, f5.id] |> Enum.join(",")
+    ids = [f1.id, f2.id | Enum.map(extras, & &1.id)] |> Enum.join(",")
 
     assert {:error, {:live_redirect, %{flash: flash, to: "/formulas"}}} =
              live(conn, "/formulas/compare?ids=#{ids}")
 
-    assert flash["error"] =~ "limited to 4"
+    assert flash["error"] =~ "limited to 6"
   end
 
   test "clicking ✕ on a chip drops that formula and updates the URL", %{conn: conn, user: user} do

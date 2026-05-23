@@ -33,7 +33,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           <.button>EFC Optimizer</.button>
         </.link>
         <.link
-          :if={MapSet.size(@selected_ids) in 2..4}
+          :if={MapSet.size(@selected_ids) in 2..6}
           navigate={"/formulas/compare?ids=" <> Enum.join(@selected_ids, ",")}
           id="compare_formulas"
           class="ml-2"

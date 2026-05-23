@@ -4,7 +4,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
   alias LeastCostFeed.Entities
   alias LeastCostFeedWeb.CompareHelpers
 
-  @max 4
+  @max 6
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,7 +13,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
      |> assign(
        page_title: "Compare Formulas",
        only_differences?: false,
-       show_actuals?: false
+       show_actuals?: false,
+       max: @max
      )}
   end
 
@@ -28,14 +29,14 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
          socket
          |> put_flash(
            :error,
-           "Compare needs 2–4 formulas (you gave #{length(formulas)} valid)."
+           "Compare needs 2–#{@max} formulas (you gave #{length(formulas)} valid)."
          )
          |> push_navigate(to: ~p"/formulas")}
 
       length(formulas) > @max ->
         {:noreply,
          socket
-         |> put_flash(:error, "Compare is limited to 4 formulas.")
+         |> put_flash(:error, "Compare is limited to #{@max} formulas.")
          |> push_navigate(to: ~p"/formulas")}
 
       true ->
@@ -74,7 +75,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Compare do
           >✕</button>
         </span>
         <.live_component
-          :if={length(@formulas) < 4}
+          :if={length(@formulas) < @max}
           module={LeastCostFeedWeb.FormulaLive.Compare.AddPicker}
           id="compare-add-picker"
           current_user={@current_user}
