@@ -50,4 +50,5 @@ deploy_to_linode
 /.claude/
 /autoresearch/
 /efc_data/
-/docs/
+/docs/*
+!/docs/superpowers/
