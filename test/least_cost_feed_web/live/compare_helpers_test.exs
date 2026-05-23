@@ -110,4 +110,40 @@ defmodule LeastCostFeedWeb.CompareHelpersTest do
       assert %{text: "—"} = CompareHelpers.cell_value(i, n, :ingredient, [])
     end
   end
+
+  describe "differs_from_anchor?/2" do
+    test "true when text differs" do
+      a = %{text: "0.90", strike: false, actual: nil}
+      b = %{text: "0.92", strike: false, actual: nil}
+      assert CompareHelpers.differs_from_anchor?(b, a)
+    end
+
+    test "false when text equal" do
+      a = %{text: "0.90", strike: false, actual: nil}
+      b = %{text: "0.90", strike: false, actual: nil}
+      refute CompareHelpers.differs_from_anchor?(b, a)
+    end
+  end
+
+  describe "filter_differing_rows/1" do
+    test "drops rows where every non-anchor cell equals anchor" do
+      n1 = %{id: 1, name: "A"}
+      n2 = %{id: 2, name: "B"}
+
+      same_row = {n1, [
+        %{text: "x", strike: false, actual: nil},
+        %{text: "x", strike: false, actual: nil},
+        %{text: "x", strike: false, actual: nil}
+      ]}
+
+      diff_row = {n2, [
+        %{text: "x", strike: false, actual: nil},
+        %{text: "y", strike: false, actual: nil},
+        %{text: "x", strike: false, actual: nil}
+      ]}
+
+      kept = CompareHelpers.filter_differing_rows([same_row, diff_row])
+      assert kept == [diff_row]
+    end
+  end
 end

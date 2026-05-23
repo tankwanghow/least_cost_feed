@@ -77,4 +77,17 @@ defmodule LeastCostFeedWeb.CompareHelpers do
     |> Enum.uniq_by(& &1.id)
     |> Enum.sort_by(& &1.name)
   end
+
+  @doc "True when `cell.text` is not equal to `anchor.text`."
+  def differs_from_anchor?(%{text: ct}, %{text: at}), do: ct != at
+
+  @doc """
+  Given a list of `{nutrient, [cell1, cell2, ...]}` tuples (anchor is cell1),
+  keep only the rows where at least one non-anchor cell differs from the anchor.
+  """
+  def filter_differing_rows(rows) do
+    Enum.filter(rows, fn {_n, [anchor | rest]} ->
+      Enum.any?(rest, &differs_from_anchor?(&1, anchor))
+    end)
+  end
 end
