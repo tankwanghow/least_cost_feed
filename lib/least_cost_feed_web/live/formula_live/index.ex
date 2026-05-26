@@ -4,6 +4,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
 
   alias LeastCostFeed.Entities
   alias LeastCostFeed.Entities.Formula
+  alias LeastCostFeed.Repo
   alias LeastCostFeedWeb.Helpers
   import Ecto.Query, warn: false
 
@@ -40,6 +41,24 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         >
           <.button>Compare ({MapSet.size(@selected_ids)})</.button>
         </.link>
+        <.link
+          :if={MapSet.size(@selected_ids) >= 1}
+          href={"/formulas/print_multi?ids=" <> Enum.join(@selected_ids, ",")}
+          onclick="event.preventDefault(); window.printViaIframe(this.href);"
+          id="print_formulas"
+          class="btn btn-info ml-2"
+        >
+          Print Formulas ({MapSet.size(@selected_ids)})
+        </.link>
+        <.link
+          :if={MapSet.size(@selected_ids) >= 1}
+          href={"/formulas_premix/print_multi?ids=" <> Enum.join(@selected_ids, ",")}
+          onclick="event.preventDefault(); window.printViaIframe(this.href);"
+          id="print_premixes"
+          class="btn btn-accent ml-2"
+        >
+          Print Premixes ({MapSet.size(@selected_ids)})
+        </.link>
       </div>
       <%!-- row_click={fn {_id, formula} -> JS.navigate(~p"/formulas/#{formula}/edit") end} --%>
       <LeastCostFeedWeb.MyComponents.table
@@ -48,7 +67,16 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         end_of_data?={@end_of_timeline?}
         sort_directions={@sort_directions}
       >
-        <:col :let={{_id, formula}} class="w-[3%]">
+        <:col
+          :let={{_id, formula}}
+          class="w-[3%]"
+          header={
+            Phoenix.HTML.raw(
+              ~s|<input type="checkbox" phx-click="toggle_select_all"| <>
+                if(MapSet.size(@selected_ids) > 0, do: " checked", else: "") <> " />"
+            )
+          }
+        >
           <input
             type="checkbox"
             phx-click="toggle_select"
@@ -89,12 +117,18 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         </:col>
 
         <:col :let={{_id, formula}} class="w-[3%] text-info">
-          <.link target="_blank" href={~p"/formulas/print_multi?ids=#{formula.id}"}>
+          <.link
+            href={~p"/formulas/print_multi?ids=#{formula.id}"}
+            onclick="event.preventDefault(); window.printViaIframe(this.href);"
+          >
             <.icon name="hero-printer-solid" class="h-5 w-5" />
           </.link>
         </:col>
         <:col :let={{_id, formula}} class="w-[3%] text-accent">
-          <.link target="_blank" href={~p"/formulas_premix/print_multi?ids=#{formula.id}"}>
+          <.link
+            href={~p"/formulas_premix/print_multi?ids=#{formula.id}"}
+            onclick="event.preventDefault(); window.printViaIframe(this.href);"
+          >
             <.icon name="hero-printer-solid" class="h-5 w-5" />
           </.link>
         </:col>
@@ -138,6 +172,28 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
         else: MapSet.put(selected, id)
 
     {:noreply, assign(socket, selected_ids: selected)}
+  end
+
+  @impl true
+  def handle_event("toggle_select_all", _, socket) do
+    if MapSet.size(socket.assigns.selected_ids) > 0 do
+      {:noreply,
+       socket
+       |> assign(selected_ids: MapSet.new())
+       |> push_event("sync_selected", %{ids: []})}
+    else
+      ids =
+        socket.assigns.query
+        |> exclude(:select)
+        |> exclude(:order_by)
+        |> select([frm], frm.id)
+        |> Repo.all()
+
+      {:noreply,
+       socket
+       |> assign(selected_ids: MapSet.new(ids))
+       |> push_event("sync_selected", %{ids: ids})}
+    end
   end
 
   @impl true

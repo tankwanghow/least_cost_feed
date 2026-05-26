@@ -81,8 +81,8 @@ defmodule LeastCostFeedWeb.PremixLive.Form do
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
-            target="_blank"
-            navigate={~p"/formulas_premix/print_multi?ids=#{@form[:id].value}"}
+            href={~p"/formulas_premix/print_multi?ids=#{@form[:id].value}"}
+            onclick="event.preventDefault(); window.printViaIframe(this.href);"
             class="btn btn-info  w-[15%]"
           >
             Print

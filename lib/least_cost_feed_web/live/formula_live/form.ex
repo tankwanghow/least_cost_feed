@@ -99,8 +99,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           </.link>
           <.link
             :if={@form.source.changes == %{} and @live_action != :new}
-            target="_blank"
-            navigate={~p"/formulas/print_multi?ids=#{@form[:id].value}"}
+            href={~p"/formulas/print_multi?ids=#{@form[:id].value}"}
+            onclick="event.preventDefault(); window.printViaIframe(this.href);"
             class="btn btn-info  w-[10%]"
           >
             Print

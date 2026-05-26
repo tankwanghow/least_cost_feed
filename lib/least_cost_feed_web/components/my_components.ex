@@ -16,6 +16,7 @@ defmodule LeastCostFeedWeb.MyComponents do
 
   slot :col, required: true do
     attr :label, :string
+    attr :header, :any, doc: "custom header content (HEEx/rendered); overrides label when set"
     attr :class, :string
     attr :h_class, :string
     attr :sort, :any, doc: "the function for handling phx-click event sort on each header col"
@@ -44,9 +45,13 @@ defmodule LeastCostFeedWeb.MyComponents do
         phx-click={col[:sort] && "sort"}
         phx-value-sort-by={col[:sort]}
       >
-        <span>{col[:label]}</span>
-        <span :if={@sort_directions[col[:sort]] == :asc}>&uarr;</span>
-        <span :if={@sort_directions[col[:sort]] == :desc}>&darr;</span>
+        <%= if col[:header] do %>
+          {col[:header]}
+        <% else %>
+          <span>{col[:label]}</span>
+          <span :if={@sort_directions[col[:sort]] == :asc}>&uarr;</span>
+          <span :if={@sort_directions[col[:sort]] == :desc}>&darr;</span>
+        <% end %>
       </div>
     </div>
 
