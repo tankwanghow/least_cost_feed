@@ -2,6 +2,8 @@ defmodule LeastCostFeedWeb.MyComponents do
   use Phoenix.Component
   import LeastCostFeedWeb.CoreComponents
 
+  alias Phoenix.LiveView.JS
+
   attr :id, :string, required: true
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
@@ -129,5 +131,31 @@ defmodule LeastCostFeedWeb.MyComponents do
       </.form>
     </div>
     """
+  end
+
+  @doc """
+  Returns a LiveView JS command that dispatches the "print-via-iframe" event.
+
+  This is the recommended way to trigger direct (hidden-iframe) printing.
+
+  IMPORTANT (this Phoenix LiveView version):
+  When attaching this to a <.link> that also has an `href`, you must add
+  `onclick="event.preventDefault()"` to prevent the browser from navigating
+  to the print page.
+
+  Recommended usage:
+
+      <.link
+        href={~p"/formulas/print_multi?ids=\#{id}"}
+        onclick="event.preventDefault()"
+        phx-click={LeastCostFeedWeb.MyComponents.print_via_iframe(~p"/formulas/print_multi?ids=\#{id}")}
+      >
+        Print
+      </.link>
+
+  The `href` is still useful for right-click → "Open in new tab" (review mode).
+  """
+  def print_via_iframe(js \\ %JS{}, url) when is_binary(url) do
+    JS.dispatch(js, "print-via-iframe", detail: %{url: url})
   end
 end

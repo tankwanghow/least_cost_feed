@@ -40,24 +40,87 @@ window.addEventListener("phx:sync_selected", (e) => {
   })
 })
 
+// Reusable LiveView JS command entry point for direct-to-print-preview
+window.addEventListener("phx:print-via-iframe", (e) => {
+  const url = e.detail?.url
+  if (url && typeof window.printViaIframe === "function") {
+    window.printViaIframe(url)
+  }
+})
+
+// --- Print preparation indicator (shown while hidden iframe is loading content) ---
+function showPrintPreparing() {
+  const el = document.getElementById("print-preparing")
+  if (el) el.classList.remove("hidden")
+}
+
+function hidePrintPreparing() {
+  const el = document.getElementById("print-preparing")
+  if (el) el.classList.add("hidden")
+}
+
+window.addEventListener("phx:print-preparing", showPrintPreparing)
+window.addEventListener("phx:print-done", hidePrintPreparing)
+
 window.printViaIframe = function(url) {
+  // Show user feedback immediately
+  window.dispatchEvent(new CustomEvent("phx:print-preparing"))
+
   const iframe = document.createElement("iframe")
   iframe.style.cssText = "position:fixed;left:-10000px;top:0;width:0;height:0;border:0;"
   iframe.src = url
+
+  let cleaned = false
+  const cleanup = () => {
+    if (cleaned) return
+    cleaned = true
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe)
+    window.removeEventListener("message", onMessage, false)
+    if (fallbackTimer) clearTimeout(fallbackTimer)
+    window.dispatchEvent(new CustomEvent("phx:print-done"))
+  }
+
+  let fallbackTimer = null
+
+  const onMessage = (event) => {
+    const data = event.data || {}
+    if (data.type === "print-ready") {
+      triggerPrint()
+    }
+    if (data.type === "before-print") {
+      // Hide the "Preparing print…" indicator as soon as the browser print dialog appears.
+      // We do NOT remove the iframe yet — we still need to receive the afterprint event for cleanup.
+      window.dispatchEvent(new CustomEvent("phx:print-done"))
+    }
+    if (data.type === "after-print") {
+      cleanup()
+    }
+  }
+
+  const triggerPrint = () => {
+    const win = iframe.contentWindow
+    if (!win) { cleanup(); return }
+    // Hide the preparing indicator right before calling print — the dialog is about to appear
+    window.dispatchEvent(new CustomEvent("phx:print-done"))
+    win.focus()
+    if (typeof win.printElement === "function") {
+      win.printElement("print-me")
+    } else {
+      win.print()
+    }
+    // Safety cleanup if afterprint never fires
+    fallbackTimer = setTimeout(cleanup, 60000)
+  }
+
   iframe.addEventListener("load", () => {
-    setTimeout(() => {
-      const win = iframe.contentWindow
-      win.focus()
-      if (typeof win.printElement === "function") {
-        win.printElement("print-me")
-      } else {
-        win.print()
-      }
-      const cleanup = () => { if (iframe.parentNode) iframe.parentNode.removeChild(iframe) }
-      win.addEventListener("afterprint", cleanup)
-      setTimeout(cleanup, 60000)
-    }, 200)
+    window.addEventListener("message", onMessage, false)
+
+    // Fallback: if we never receive a readiness message, still try after a generous timeout.
+    fallbackTimer = setTimeout(() => {
+      triggerPrint()
+    }, 2400)
   })
+
   document.body.appendChild(iframe)
 }
 

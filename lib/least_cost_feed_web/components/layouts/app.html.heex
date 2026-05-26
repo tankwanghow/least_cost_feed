@@ -1,4 +1,11 @@
 <main class={if(@current_user, do: "mt-20", else: "")}>
   <.flash_group flash={@flash} />
   <%= @inner_content %>
+
+  <%!-- Global indicator shown while a direct (hidden-iframe) print is being prepared --%>
+  <div id="print-preparing"
+       class="hidden fixed bottom-4 right-4 z-[9999] rounded-lg border border-base-300 bg-base-100 px-4 py-2 text-sm shadow-lg">
+    <span class="loading loading-spinner loading-sm mr-2 align-middle"></span>
+    <span>Preparing print…</span>
+  </div>
 </main>

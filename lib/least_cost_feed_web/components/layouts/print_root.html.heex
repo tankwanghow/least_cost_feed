@@ -52,6 +52,55 @@
         window.print();
         document.body.innerHTML = originalContents;
       }
+
+      // --- Readiness signaling for hidden-iframe direct print (parent page) ---
+      (function announcePrintReadiness() {
+        const isInIframe = window.self !== window.top;
+        if (!isInIframe) return;
+
+        function notifyReady() {
+          try {
+            window.parent.postMessage({ type: "print-ready" }, "*");
+          } catch (e) {}
+        }
+
+        // Best effort: wait for LiveView to finish its initial render cycle
+        // and at least one paint to have occurred.
+        const notifyWhenStable = () => {
+          // Wait for LiveView page loading to settle if present
+          const onLoadingStop = () => {
+            document.removeEventListener("phx:page-loading-stop", onLoadingStop);
+            // One more animation frame + small delay for layout/fonts to settle
+            requestAnimationFrame(() => {
+              setTimeout(notifyReady, 80);
+            });
+          };
+
+          if (document.readyState === "complete") {
+            // Already loaded — still give LiveView a moment
+            setTimeout(() => {
+              document.addEventListener("phx:page-loading-stop", onLoadingStop, { once: true });
+              // Fallback in case the event never fires (static or fast path)
+              setTimeout(notifyReady, 250);
+            }, 50);
+          } else {
+            window.addEventListener("load", () => {
+              document.addEventListener("phx:page-loading-stop", onLoadingStop, { once: true });
+              setTimeout(notifyReady, 300);
+            }, { once: true });
+          }
+        };
+
+        notifyWhenStable();
+
+        // Forward print lifecycle events to the parent so it can manage indicators etc.
+        window.addEventListener("beforeprint", () => {
+          try { window.parent.postMessage({ type: "before-print" }, "*"); } catch (e) {}
+        });
+        window.addEventListener("afterprint", () => {
+          try { window.parent.postMessage({ type: "after-print" }, "*"); } catch (e) {}
+        });
+      })();
     </script>
   </body>
 </html>
