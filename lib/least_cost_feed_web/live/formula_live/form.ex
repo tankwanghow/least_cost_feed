@@ -114,6 +114,55 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           </.link>
         </div>
 
+        <div
+          :if={@infeasibility_violations.nutrients != [] or @infeasibility_violations.ingredients != []}
+          class="my-2 p-3 bg-red-50 border border-red-300 rounded"
+        >
+          <div class="font-bold text-red-700 mb-1">
+            Infeasible — these constraints cannot all be met:
+          </div>
+
+          <div :if={@infeasibility_violations.nutrients != []}>
+            <div class="text-red-700 font-semibold mt-1">Nutrient constraints</div>
+            <ul class="text-sm text-red-800 list-disc list-inside">
+              <%= for v <- @infeasibility_violations.nutrients do %>
+                <li>
+                  <span class="font-semibold"><%= v.name %></span>
+                  <%= cond do %>
+                    <% v.shortfall > 0 -> %>
+                      short by <%= Helpers.float_decimal(v.shortfall, 3) %> <%= v.unit %>
+                      (actual <%= Helpers.float_decimal(v.actual, 3) %>, min <%= Helpers.float_decimal(v.min, 3) %>)
+                    <% v.excess > 0 -> %>
+                      over by <%= Helpers.float_decimal(v.excess, 3) %> <%= v.unit %>
+                      (actual <%= Helpers.float_decimal(v.actual, 3) %>, max <%= Helpers.float_decimal(v.max, 3) %>)
+                    <% true -> %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+
+          <div :if={@infeasibility_violations.ingredients != []}>
+            <div class="text-red-700 font-semibold mt-2">Ingredient bounds</div>
+            <ul class="text-sm text-red-800 list-disc list-inside">
+              <%= for v <- @infeasibility_violations.ingredients do %>
+                <li>
+                  <span class="font-semibold"><%= v.name %></span>
+                  <%= cond do %>
+                    <% v.shortfall > 0 -> %>
+                      min would need to drop by <%= Helpers.float_decimal(v.shortfall, 4) %>
+                      (proportion <%= Helpers.float_decimal(v.actual, 4) %>, min <%= Helpers.float_decimal(v.min, 4) %>)
+                    <% v.excess > 0 -> %>
+                      max would need to rise by <%= Helpers.float_decimal(v.excess, 4) %>
+                      (proportion <%= Helpers.float_decimal(v.actual, 4) %>, max <%= Helpers.float_decimal(v.max, 4) %>)
+                    <% true -> %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+
         <div class="flex gap-5">
           <div class="w-[60%]">
             <div class="font-bold flex text-center">
@@ -300,7 +349,8 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
      |> assign(show_select_ingredients?: false)
      |> assign(selected_ingredient_ids: selected_ingredients(socket))
      |> assign(selected_nutrient_ids: selected_nutrients(socket))
-     |> assign(optimizing?: false)}
+     |> assign(optimizing?: false)
+     |> assign(infeasibility_violations: empty_violations())}
   end
 
   defp mount_new(socket) do
@@ -353,7 +403,10 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
   @impl true
   def handle_info("start_optimize", socket) do
     {:noreply,
-     socket |> put_flash(:error, nil) |> put_flash(:info, nil) |> assign(optimizing?: true)}
+     socket
+     |> put_flash(:error, nil)
+     |> put_flash(:info, nil)
+     |> assign(optimizing?: true, infeasibility_violations: empty_violations())}
   end
 
   @impl true
@@ -373,12 +426,96 @@ defmodule LeastCostFeedWeb.FormulaLive.Form do
           |> assign(form: to_form(cs, action: :validate))
           |> put_flash(:info, "Formula OPTIMIZED successfully")
           |> put_flash(:error, nil)
+          |> assign(infeasibility_violations: empty_violations())
+
+        {:error, "!!Not Feasible!!" = title, _msg} ->
+          violations = diagnose_violations(socket)
+
+          socket
+          |> put_flash(:error, title)
+          |> put_flash(:info, nil)
+          |> assign(infeasibility_violations: violations)
 
         {:error, title, _msg} ->
-          socket |> put_flash(:error, title) |> put_flash(:info, nil)
+          socket
+          |> put_flash(:error, title)
+          |> put_flash(:info, nil)
+          |> assign(infeasibility_violations: empty_violations())
       end
 
     {:noreply, socket |> assign(optimizing?: false)}
+  end
+
+  defp empty_violations, do: %{nutrients: [], ingredients: []}
+
+  defp diagnose_violations(socket) do
+    formula = socket.assigns.form.source
+    user_id = socket.assigns.current_user.id
+
+    case LeastCostFeed.GlpsolFileGen.diagnose_infeasibility(formula, user_id) do
+      {:ok, %{nutrients: ns, ingredients: is}} ->
+        %{
+          nutrients: annotate_nutrient_violations(ns, formula),
+          ingredients: annotate_ingredient_violations(is, formula)
+        }
+
+      _ ->
+        empty_violations()
+    end
+  end
+
+  defp annotate_nutrient_violations(violations, formula) do
+    fetch = &LeastCostFeed.Helpers.my_fetch_field!/2
+
+    index =
+      formula
+      |> fetch.(:formula_nutrients)
+      |> Enum.reduce(%{}, fn fn_, acc ->
+        nid = fetch.(fn_, :nutrient_id)
+        nutrient = fetch.(fn_, :nutrient)
+
+        info = %{
+          name: (nutrient && fetch.(nutrient, :name)) || "Nutrient #{nid}",
+          unit: (nutrient && fetch.(nutrient, :unit)) || "",
+          min: fetch.(fn_, :min),
+          max: fetch.(fn_, :max)
+        }
+
+        Map.put(acc, to_string(nid), info)
+      end)
+
+    Enum.map(violations, fn v ->
+      info = Map.get(index, v.id, %{name: "Nutrient #{v.id}", unit: "", min: nil, max: nil})
+      Map.merge(v, info)
+    end)
+  end
+
+  defp annotate_ingredient_violations(violations, formula) do
+    fetch = &LeastCostFeed.Helpers.my_fetch_field!/2
+
+    index =
+      formula
+      |> fetch.(:formula_ingredients)
+      |> Enum.reduce(%{}, fn fi, acc ->
+        iid = fetch.(fi, :ingredient_id)
+        ingredient = fetch.(fi, :ingredient)
+
+        info = %{
+          name:
+            fetch.(fi, :ingredient_name) ||
+              (ingredient && fetch.(ingredient, :name)) ||
+              "Ingredient #{iid}",
+          min: fetch.(fi, :min),
+          max: fetch.(fi, :max)
+        }
+
+        Map.put(acc, to_string(iid), info)
+      end)
+
+    Enum.map(violations, fn v ->
+      info = Map.get(index, v.id, %{name: "Ingredient #{v.id}", min: nil, max: nil})
+      Map.merge(v, info)
+    end)
   end
 
   @impl true
