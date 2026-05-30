@@ -25,7 +25,7 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 ### Domain Layer (`lib/least_cost_feed/`)
 
 - **`entities.ex`** — Core context module with all CRUD operations, queries, and cost-sync logic. All data is **user-scoped** (isolated per user).
-- **`entities/`** — Ecto schemas: `Formula`, `FormulaIngredient`, `FormulaNutrient`, `FormulaPremixIngredient`, `Ingredient`, `IngredientComposition`, `Nutrient`.
+- **`entities/`** — Ecto schemas: `Formula`, `FormulaIngredient`, `FormulaNutrient`, `FormulaPremixIngredient`, `FormulaVersion`, `Ingredient`, `IngredientComposition`, `Nutrient`.
 - **`glpsol_file_gen.ex`** — Generates MathProg `.mod` content and pipes it to `glpsol --math /dev/stdin`. Parses solver output to extract optimized ingredient proportions, actual nutrient values, and shadow prices. Returns `{:ok, ingredients, nutrients}` or `{:error, reason, output}`.
 - **`user_accounts.ex` / `user_accounts/`** — Authentication context (bcrypt, session tokens, email confirmation).
 
@@ -53,6 +53,15 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 - Formulas compute cost per 1000 weight units via SQL fragment in queries.
 - LiveView forms use `inputs_for` for managing nested association lists.
 - Pagination uses cursor-based infinite scroll with Phoenix streams.
+
+### Documentation Drift Detection
+
+A `PostToolUse` hook (`.claude/hooks/check-doc-drift.sh`) runs after each
+`git commit` made through Claude's Bash tool. If the commit changed
+`lib/**/*.ex` or a migration but did not update `CLAUDE.md` or
+`.claude/skills/codebase-map/SKILL.md`, the hook asks Claude to review for
+drift and request permission before updating the docs. It only fires for
+commits made via Claude Code (not the user's own terminal).
 
 ## Tech Stack
 
