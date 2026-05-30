@@ -25,7 +25,7 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 ### Domain Layer (`lib/least_cost_feed/`)
 
 - **`entities.ex`** — Core context module with all CRUD operations, queries, and cost-sync logic. All data is **user-scoped** (isolated per user).
-- **`entities/`** — Ecto schemas: `Formula`, `FormulaIngredient`, `FormulaNutrient`, `FormulaPremixIngredient`, `Ingredient`, `IngredientComposition`, `Nutrient`.
+- **`entities/`** — Ecto schemas: `Formula`, `FormulaIngredient`, `FormulaNutrient`, `FormulaPremixIngredient`, `FormulaVersion`, `Ingredient`, `IngredientComposition`, `Nutrient`.
 - **`glpsol_file_gen.ex`** — Generates MathProg `.mod` content and pipes it to `glpsol --math /dev/stdin`. Parses solver output to extract optimized ingredient proportions, actual nutrient values, and shadow prices. Returns `{:ok, ingredients, nutrients}` or `{:error, reason, output}`.
 - **`user_accounts.ex` / `user_accounts/`** — Authentication context (bcrypt, session tokens, email confirmation).
 
