@@ -4,16 +4,17 @@
 # This script is a detector only — it never edits files.
 set -uo pipefail
 
-CODE_RE='^(lib/.*\.ex|priv/repo/migrations/.*)$'
+CODE_RE='^(lib/.*\.ex|priv/repo/migrations/.*\.exs)$'
 DOC_RE='^(CLAUDE\.md|\.claude/skills/codebase-map/SKILL\.md)$'
 
 input="$(cat)"
 
 command="$(printf '%s' "$input" | jq -r '.tool_input.command // ""')"
-case "$command" in
-  *"git commit"*) ;;
-  *) exit 0 ;;
-esac
+# Match the `commit` subcommand for both `git commit ...` and
+# `git -C <path> commit ...`; ignore everything else (e.g. `git log`).
+if ! [[ "$command" =~ git([[:space:]]+-C[[:space:]]+[^[:space:]]+)?[[:space:]]+commit([[:space:]]|$) ]]; then
+  exit 0
+fi
 
 cwd="$(printf '%s' "$input" | jq -r '.cwd // ""')"
 [ -n "$cwd" ] && cd "$cwd" 2>/dev/null
