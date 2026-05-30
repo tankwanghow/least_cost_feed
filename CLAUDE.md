@@ -54,6 +54,15 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 - LiveView forms use `inputs_for` for managing nested association lists.
 - Pagination uses cursor-based infinite scroll with Phoenix streams.
 
+### Documentation Drift Detection
+
+A `PostToolUse` hook (`.claude/hooks/check-doc-drift.sh`) runs after each
+`git commit` made through Claude's Bash tool. If the commit changed
+`lib/**/*.ex` or a migration but did not update `CLAUDE.md` or
+`.claude/skills/codebase-map/SKILL.md`, the hook asks Claude to review for
+drift and request permission before updating the docs. It only fires for
+commits made via Claude Code (not the user's own terminal).
+
 ## Tech Stack
 
 - Elixir ~> 1.19, Phoenix 1.8, Phoenix LiveView 1.1, Ecto/PostgreSQL
