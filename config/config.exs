@@ -7,6 +7,15 @@
 # General application configuration
 import Config
 
+workspace_assets_config = Path.expand("../../shared_config/assets.exs", __DIR__)
+
+if File.exists?(workspace_assets_config) do
+  import_config workspace_assets_config
+else
+  config :esbuild, version: "0.28.1"
+  config :tailwind, version: "4.3.1"
+end
+
 config :least_cost_feed,
   ecto_repos: [LeastCostFeed.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -31,9 +40,8 @@ config :least_cost_feed, LeastCostFeedWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :least_cost_feed, LeastCostFeed.Mailer, adapter: Swoosh.Adapters.Local
 
-# Configure esbuild (the version is required)
+# Configure esbuild
 config :esbuild,
-  version: "0.23.1",
   least_cost_feed: [
     args: ~w(js/app.js
         --chunk-names=chunks/[name]-[hash] --splitting
@@ -44,9 +52,8 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__) <> ":" <> Mix.Project.build_path()}
   ]
 
-# Configure tailwind (the version is required)
+# Configure tailwind
 config :tailwind,
-  version: "4.1.12",
   least_cost_feed: [
     args: ~w(
       --input=assets/css/app.css
