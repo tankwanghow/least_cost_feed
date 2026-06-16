@@ -1,45 +1,29 @@
-# This file excludes paths from the Docker build context.
-#
-# By default, Docker's build context includes all files (and folders) in the
-# current directory. Even if a file isn't copied into the container it is still sent to
-# the Docker daemon.
-#
-# There are multiple reasons to exclude files from the build context:
-#
-# 1. Prevent nested folders from being copied into the container (ex: exclude
-#    /assets/node_modules when copying /assets)
-# 2. Reduce the size of the build context and improve build time (ex. /build, /deps, /doc)
-# 3. Avoid sending files containing sensitive information
-#
-# More information on using .dockerignore is available here:
-# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+# Docker build context is the elixir monorepo root (see deploy_to_linode/deploy.sh).
 
-.dockerignore
+argus/
+full_circle/
+orgmind/
+peggy/
+pou_con/
+usbboot/
 
-# Ignore git, but keep git HEAD and refs to access current commit hash if needed:
-#
-# $ cat .git/HEAD | awk '{print ".git/"$2}' | xargs cat
-# d0b8727759e1e0e7aa3d41707d12376e373d5ecc
-.git
-!.git/HEAD
-!.git/refs
+least_cost_feed/_build/
+least_cost_feed/deps/
+least_cost_feed/cover/
+least_cost_feed/doc/
+least_cost_feed/test/
+least_cost_feed/tmp/
+least_cost_feed/.elixir_ls/
+least_cost_feed/.git/
+least_cost_feed/assets/node_modules/
+least_cost_feed/priv/static/assets/
+least_cost_feed/priv/static/cache_manifest.json
+least_cost_feed/deploy_to_linode/
+least_cost_feed/autoresearch/
+least_cost_feed/*.tar
+least_cost_feed/secret.txt
+least_cost_feed/deploy.conf
 
-# Common development/test artifacts
-/cover/
-/doc/
-/test/
-/tmp/
-.elixir_ls
+.global_assets/heroicons/.git/
 
-# Mix artifacts
-/_build/
-/deps/
-*.ez
-
-# Generated on crash by the VM
-erl_crash.dump
-
-# Static artifacts - These should be fetched and built inside the Docker image
-/assets/node_modules/
-/priv/static/assets/
-/priv/static/cache_manifest.json
+.git/
