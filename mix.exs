@@ -35,7 +35,7 @@ defmodule LeastCostFeed.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
-      {:phoenix, "~> 1.8.5"},
+      {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
@@ -45,7 +45,7 @@ defmodule LeastCostFeed.MixProject do
       {:lazy_html, ">= 0.0.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.5", runtime: Mix.env() == :dev},
       heroicons_dep(),
       {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},
@@ -59,7 +59,7 @@ defmodule LeastCostFeed.MixProject do
       {:timex, "~> 3.0"},
       {:number, "~> 1.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:tidewave, "~> 0.5", only: :dev}
+      {:tidewave, "~> 0.6", only: :dev}
     ]
   end
 
