@@ -45,7 +45,6 @@ Dockerfile
 
 deploy.conf
 /.elixir_ls
-deploy_to_linode
 
 /.claude/
 /autoresearch/
