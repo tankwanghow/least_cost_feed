@@ -41,13 +41,6 @@ npm-debug.log
 
 secret.txt
 
-Dockerfile
-
-deploy.conf
-/.elixir_ls
-
-/.claude/
 /autoresearch/
 /efc_data/
 /docs/*
-!/docs/superpowers/
