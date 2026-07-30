@@ -12,8 +12,6 @@ defmodule LeastCostFeed.Application do
       LeastCostFeed.Repo,
       {DNSCluster, query: Application.get_env(:least_cost_feed, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LeastCostFeed.PubSub},
-      # Start the Finch HTTP client for sending emails
-      {Finch, name: LeastCostFeed.Finch},
       # Start a worker by calling: LeastCostFeed.Worker.start_link(arg)
       # {LeastCostFeed.Worker, arg},
       # Start to serve requests, typically the last entry

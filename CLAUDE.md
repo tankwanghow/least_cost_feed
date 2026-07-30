@@ -82,5 +82,5 @@ commits made via Claude Code (not the user's own terminal).
 
 - Elixir ~> 1.19, Phoenix 1.8, Phoenix LiveView 1.1, Ecto/PostgreSQL
 - Tailwind CSS, esbuild, Heroicons
-- Swoosh + Mailjet for email delivery
+- Swoosh + SMTP (gen_smtp) for email delivery, configured via `MAIL_*` env vars
 - Docker multi-stage build (includes `glpk-utils` for solver)

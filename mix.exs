@@ -48,7 +48,7 @@ defmodule LeastCostFeed.MixProject do
       {:tailwind, "~> 0.5", runtime: Mix.env() == :dev},
       heroicons_dep(),
       {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.13"},
+      {:gen_smtp, "~> 1.2"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
