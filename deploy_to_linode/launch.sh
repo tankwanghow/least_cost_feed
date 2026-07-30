@@ -70,6 +70,13 @@ do
     declare "$key=$value"
 done < "$SETUP_FILE"
 
+# Fail fast if deploy.conf is missing any mail setting. Without this the values
+# are passed through as empty strings and the deployed app crashes at boot.
+: "${MAIL_HOST:?not set in deploy.conf}"
+: "${MAIL_PORT:?not set in deploy.conf}"
+: "${MAIL_USERNAME:?not set in deploy.conf}"
+: "${MAIL_FROM:?not set in deploy.conf}"
+
 stty -echo
 echo -n "Please enter password of the server: "
 read LINODE_PWD
