@@ -44,3 +44,6 @@ secret.txt
 /autoresearch/
 /efc_data/
 /docs/*
+!/docs/superpowers/
+
+deploy.conf
