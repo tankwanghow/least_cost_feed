@@ -24,7 +24,8 @@ the live secrets from the repository, and makes this app consistent with full_ci
 | `MAIL_PASSWORD` delivery | Interactive prompt in `launch.sh` | Matches how `LINODE_PWD` and `DB_PWD` are already handled; keeps the secret out of `deploy.conf`. |
 | Dev mailer | Opt-in SMTP | `MAIL_HOST` present in dev → SMTP; otherwise `Swoosh.Adapters.Local` and `/dev/mailbox`. Allows local smoke-testing of real delivery. |
 | Finch | Removed | It exists solely as Swoosh's HTTP client for the Mailjet API. SMTP does not need it, and nothing else in the app uses it. |
-| Missing prod env vars | Raise at boot | A loud failed deploy beats silently dropping password-reset emails. Mirrors full_circle. |
+| Missing prod env vars | Raise at boot | A loud failed deploy beats silently dropping password-reset emails. Mirrors full_circle. An **empty** value raises too — `""` is truthy in Elixir, so a bare `||` guard would let a blank through. |
+| Peer verification | `verify_peer` + `:https` match fun | `customize_hostname_check` with `:public_key.pkix_verify_hostname_match_fun(:https)` is required for wildcard-SAN relays (Mailgun, Zoho, Yahoo). Without it only literal-SAN hosts like Gmail connect, which would defeat the provider-agnostic goal. |
 
 ## Changes
 
@@ -119,7 +120,7 @@ Then deploy as usual.
 | Variable | Example | Notes |
 |---|---|---|
 | `MAIL_HOST` | `smtp.gmail.com` | SMTP relay hostname. |
-| `MAIL_PORT` | `587` | `465` selects implicit SSL; anything else uses STARTTLS. |
+| `MAIL_PORT` | `587` | `465` selects implicit SSL (TLS options are passed via `:sockopts` and STARTTLS is skipped); anything else uses STARTTLS. |
 | `MAIL_USERNAME` | `tankwanghow@gmail.com` | SMTP auth user. |
 | `MAIL_PASSWORD` | — | For Gmail this must be an App Password; a normal account password will not authenticate. |
 | `MAIL_FROM` | `tankwanghow@gmail.com` | Envelope/display from-address, paired with the name `LeastCostFeed`. |

@@ -616,22 +616,39 @@ already handled; the other four values come from deploy.conf."
 
 These are not code changes and are not part of any task, but the migration is not complete without them.
 
-1. **Add the four keys to your local `deploy.conf`** (gitignored, not in the repo):
+1. **Add these keys to your local `deploy.conf`** (gitignored, not in the repo):
 
    ```
    MAIL_HOST=smtp.gmail.com
    MAIL_PORT=587
    MAIL_USERNAME=tankwanghow@gmail.com
    MAIL_FROM=tankwanghow@gmail.com
+   SECRET_KEY_BASE=<generate with: mix phx.gen.secret>
    ```
 
-   For Gmail, `MAIL_PASSWORD` must be an **App Password** — a normal account password will not authenticate.
+   `launch.sh` refuses to run if any of these is absent. `MAIL_PASSWORD` is
+   prompted for interactively and must NOT go in this file.
+
+   For Gmail, `MAIL_PASSWORD` must be an **App Password** — a normal account
+   password will not authenticate — and `MAIL_FROM` should match
+   `MAIL_USERNAME`, or Gmail will rewrite the From header.
 
 2. **Update the live server before deploying.** `deploy.sh` does *not* regenerate the compose file — `deploy_at_server.sh` only runs `docker compose down/up` against the file already on disk. The server's `/home/least_cost_feed/docker-compose-least_cost_feed.yml` still contains `MAILJET_*`, so deploying the new image against it will crash the app on boot at `raise "environment variable MAIL_HOST is missing."`
 
    Either re-run `./deploy_to_linode/launch.sh deploy.conf`, or hand-edit the compose file on the server to replace the two `MAILJET_*` entries with the five `MAIL_*` entries, **then** deploy.
 
-3. **Rotate the exposed Mailjet credentials.** The API key and secret were committed to this repository in plaintext and remain in git history. Deleting them from the working tree does not un-expose them.
+3. **Rotate the exposed credentials — this repository is public.** Confirmed:
+   `api.github.com/repos/tankwanghow/least_cost_feed` answers 200 unauthenticated,
+   and the commit that first tracked `generate_files_at_server.sh` is an ancestor
+   of `origin/main`. Two secrets are therefore readable by anyone right now:
+
+   - the **Mailjet API key and secret** — revoke them at Mailjet;
+   - the **`SECRET_KEY_BASE`** — this signs session cookies and `Phoenix.Token`
+     values, so exposure means sessions can be forged. Generate a new one with
+     `mix phx.gen.secret` and put it in `deploy.conf`.
+
+   Removing these from the working tree does not un-publish them; only rotation
+   invalidates the old values. Rewriting history is optional after rotating.
 
 4. **Smoke-test real delivery in dev** before deploying:
 
