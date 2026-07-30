@@ -468,11 +468,12 @@ Indices are `$9`–`${13}`, contiguous with `$8`. full_circle's copy starts at `
 
 - [ ] **Step 3: Replace the Mailjet env lines in the generated compose file**
 
-In the same file, replace:
+In the same file, replace the two `MAILJET_*` lines (the literal key and secret
+values are deliberately not reproduced here — they are what this task removes):
 
 ```bash
-      - MAILJET_API_KEY=135721f0f369c66a2a181e096cd61505
-      - MAILJET_SECRET=dd53cb5862212dcbe5610bc8aee8371f
+      - MAILJET_API_KEY=<literal key in the script>
+      - MAILJET_SECRET=<literal secret in the script>
 ```
 
 with:
@@ -526,20 +527,38 @@ Expected: no output from either (syntax OK).
 
 - [ ] **Step 7: Verify the argument count now matches the indices read**
 
+The Step 1 grep heuristic no longer works once `printf '%q' "$VAR"` is in the
+line — its `[^"]*` stops at the first inner double quote and undercounts. Verify
+functionally instead, by replaying the exact local-expansion-then-remote-reparse
+semantics against a stub receiver:
+
 ```bash
-grep -o '\$GEN_FILE [^"]*' deploy_to_linode/launch.sh | sed 's/\$GEN_FILE //' | wc -w
+SB=$(mktemp -d)
+printf 'echo "argc=$#"\ni=1; for a in "$@"; do echo "  \\$$i = [$a]"; i=$((i+1)); done\n' > "$SB/gen.sh"
+IMAGE_NAME=lcf; GEN_FILE=gen.sh
+DB_NAME=db; DB_USER=u; DB_PWD=dbpw; PORT=4000; DOMAIN_NAME=ex.com
+DOCKER_HUB_USERNAME=hub; DOCKER_CONTAINER_NAME=cont
+MAIL_HOST=smtp.example.com; MAIL_PORT=587; MAIL_USERNAME=user@example.com
+MAIL_PASSWORD='p@ss w0rd!'; MAIL_FROM=from@example.com
+cmd="bash $SB/$GEN_FILE $DB_NAME $DB_USER $DB_PWD $PORT $DOMAIN_NAME $IMAGE_NAME $DOCKER_HUB_USERNAME $DOCKER_CONTAINER_NAME $(printf '%q' "$MAIL_HOST") $(printf '%q' "$MAIL_PORT") $(printf '%q' "$MAIL_USERNAME") $(printf '%q' "$MAIL_PASSWORD") $(printf '%q' "$MAIL_FROM")"
+bash -c "$cmd"; rm -rf "$SB"
 ```
 
-Expected: `13`.
+Expected: `argc=13`, with `$9`–`${13}` holding the five mail values in order and
+`$12` reading exactly `[p@ss w0rd!]` — space and metacharacters intact.
 
-- [ ] **Step 8: Verify the Mailjet secrets are gone**
+- [ ] **Step 8: Verify the Mailjet secrets are gone from the deploy scripts**
 
 ```bash
-grep -rn "MAILJET\|135721f0f369c66a2a181e096cd61505\|dd53cb5862212dcbe5610bc8aee8371f" . \
-  --exclude-dir=deps --exclude-dir=_build --exclude-dir=.git --exclude-dir=.claude
+grep -rn "MAILJET" deploy_to_linode/ config/ lib/ mix.exs
 ```
 
 Expected: no output.
+
+The literal key and secret values are not reproduced in this plan on purpose.
+To confirm they are absent from the working tree generally, grep for the values
+as they appear in `git show 471a2a6:deploy_to_linode/generate_files_at_server.sh`
+rather than pasting them into a tracked file.
 
 - [ ] **Step 9: Verify the generated compose block renders correctly**
 
