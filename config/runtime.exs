@@ -98,30 +98,34 @@ if config_env() == :prod do
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
   # Mailer — SMTP in production, provider-agnostic. The MAIL_* env vars must
-  # be present in the production environment. Boot crashes with a clear message
-  # if any are missing so misconfiguration is loud rather than silent (would-be
-  # password-reset emails getting dropped is worse than a failed deploy).
-  mail_host =
-    System.get_env("MAIL_HOST") ||
-      raise "environment variable MAIL_HOST is missing."
+  # be present and non-empty in the production environment. Boot crashes with a
+  # clear message otherwise, so misconfiguration is loud rather than silent
+  # (would-be password-reset emails getting dropped is worse than a failed
+  # deploy). An empty string is rejected as well as an absent variable: `""` is
+  # truthy in Elixir, so a bare `||` guard would let a blank value through.
+  fetch_mail_env! = fn name ->
+    case System.get_env(name) do
+      value when is_binary(value) and value != "" -> value
+      _ -> raise "environment variable #{name} is missing or empty."
+    end
+  end
 
-  mail_port =
-    System.get_env("MAIL_PORT") ||
-      raise "environment variable MAIL_PORT is missing."
-
-  mail_username =
-    System.get_env("MAIL_USERNAME") ||
-      raise "environment variable MAIL_USERNAME is missing."
-
-  mail_password =
-    System.get_env("MAIL_PASSWORD") ||
-      raise "environment variable MAIL_PASSWORD is missing."
-
-  mail_from =
-    System.get_env("MAIL_FROM") ||
-      raise "environment variable MAIL_FROM is missing."
+  mail_host = fetch_mail_env!.("MAIL_HOST")
+  mail_port = fetch_mail_env!.("MAIL_PORT")
+  mail_username = fetch_mail_env!.("MAIL_USERNAME")
+  mail_password = fetch_mail_env!.("MAIL_PASSWORD")
+  mail_from = fetch_mail_env!.("MAIL_FROM")
 
   mail_port = String.to_integer(mail_port)
+
+  mail_tls_opts = [
+    versions: [:"tlsv1.2", :"tlsv1.3"],
+    verify: :verify_peer,
+    cacerts: :public_key.cacerts_get(),
+    server_name_indication: String.to_charlist(mail_host),
+    depth: 99,
+    customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+  ]
 
   config :least_cost_feed, LeastCostFeed.Mailer,
     adapter: Swoosh.Adapters.SMTP,
@@ -129,17 +133,15 @@ if config_env() == :prod do
     port: mail_port,
     username: mail_username,
     password: mail_password,
+    # Port 465 is implicit TLS: gen_smtp connects with SSL up front and must not
+    # then negotiate STARTTLS. It reads its socket options from :sockopts in that
+    # mode, so the verification settings have to be passed there too.
     ssl: mail_port == 465,
-    tls: :always,
+    tls: if(mail_port == 465, do: :never, else: :always),
+    sockopts: if(mail_port == 465, do: mail_tls_opts, else: []),
     auth: :always,
     retries: 1,
-    tls_options: [
-      versions: [:"tlsv1.2", :"tlsv1.3"],
-      verify: :verify_peer,
-      cacerts: :public_key.cacerts_get(),
-      server_name_indication: String.to_charlist(mail_host),
-      depth: 99
-    ]
+    tls_options: mail_tls_opts
 
   config :least_cost_feed, :mail_from, {"LeastCostFeed", mail_from}
 end
@@ -153,23 +155,30 @@ if config_env() == :dev and System.get_env("MAIL_HOST") do
   dev_mail_host = System.get_env("MAIL_HOST")
   dev_mail_port = String.to_integer(System.get_env("MAIL_PORT") || "587")
 
+  dev_mail_tls_opts = [
+    versions: [:"tlsv1.2", :"tlsv1.3"],
+    verify: :verify_peer,
+    cacerts: :public_key.cacerts_get(),
+    server_name_indication: String.to_charlist(dev_mail_host),
+    depth: 99,
+    customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+  ]
+
   config :least_cost_feed, LeastCostFeed.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: dev_mail_host,
     port: dev_mail_port,
     username: System.get_env("MAIL_USERNAME"),
     password: System.get_env("MAIL_PASSWORD"),
+    # Port 465 is implicit TLS: gen_smtp connects with SSL up front and must not
+    # then negotiate STARTTLS. It reads its socket options from :sockopts in that
+    # mode, so the verification settings have to be passed there too.
     ssl: dev_mail_port == 465,
-    tls: :always,
+    tls: if(dev_mail_port == 465, do: :never, else: :always),
+    sockopts: if(dev_mail_port == 465, do: dev_mail_tls_opts, else: []),
     auth: :always,
     retries: 1,
-    tls_options: [
-      versions: [:"tlsv1.2", :"tlsv1.3"],
-      verify: :verify_peer,
-      cacerts: :public_key.cacerts_get(),
-      server_name_indication: String.to_charlist(dev_mail_host),
-      depth: 99
-    ]
+    tls_options: dev_mail_tls_opts
 
   # Only set :mail_from when MAIL_FROM is actually present — otherwise the
   # notifier's own default is better than {"LeastCostFeed", nil}.

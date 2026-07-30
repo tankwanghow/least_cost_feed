@@ -76,6 +76,7 @@ done < "$SETUP_FILE"
 : "${MAIL_PORT:?not set in deploy.conf}"
 : "${MAIL_USERNAME:?not set in deploy.conf}"
 : "${MAIL_FROM:?not set in deploy.conf}"
+: "${SECRET_KEY_BASE:?not set in deploy.conf}"
 
 stty -echo
 echo -n "Please enter password of the server: "
@@ -91,9 +92,13 @@ echo
 
 stty -echo
 echo -n "Please enter SMTP password for '$MAIL_USERNAME': "
-read MAIL_PASSWORD
+read -r MAIL_PASSWORD
 stty echo
 echo
+if [ -z "$MAIL_PASSWORD" ]; then
+    echo "Error: SMTP password must not be empty." >&2
+    exit 1
+fi
 
 # copy script to server
 sshpass -p $LINODE_PWD ssh root@$LINODE_IP << EOF
@@ -114,7 +119,7 @@ sshpass -p $LINODE_PWD ssh root@$LINODE_IP "bash /home/${IMAGE_NAME}/$SETUP_DB $
 
 sshpass -p $LINODE_PWD ssh root@$LINODE_IP "bash /home/${IMAGE_NAME}/$SETUP_CERTBOT $DOMAIN_NAME"
 
-sshpass -p $LINODE_PWD ssh root@$LINODE_IP "bash /home/${IMAGE_NAME}/$GEN_FILE $DB_NAME $DB_USER $DB_PWD $PORT $DOMAIN_NAME $IMAGE_NAME $DOCKER_HUB_USERNAME $DOCKER_CONTAINER_NAME $(printf '%q' "$MAIL_HOST") $(printf '%q' "$MAIL_PORT") $(printf '%q' "$MAIL_USERNAME") $(printf '%q' "$MAIL_PASSWORD") $(printf '%q' "$MAIL_FROM")"
+sshpass -p $LINODE_PWD ssh root@$LINODE_IP "bash /home/${IMAGE_NAME}/$GEN_FILE $DB_NAME $DB_USER $DB_PWD $PORT $DOMAIN_NAME $IMAGE_NAME $DOCKER_HUB_USERNAME $DOCKER_CONTAINER_NAME $(printf '%q' "$MAIL_HOST") $(printf '%q' "$MAIL_PORT") $(printf '%q' "$MAIL_USERNAME") $(printf '%q' "$MAIL_PASSWORD") $(printf '%q' "$MAIL_FROM") $(printf '%q' "$SECRET_KEY_BASE")"
 
 # shellcheck source=../../shared_config/docker_deploy.sh
 source "$umbrella_root/shared_config/docker_deploy.sh"

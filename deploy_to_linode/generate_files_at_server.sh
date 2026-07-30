@@ -14,6 +14,7 @@ MAIL_PORT=${10}
 MAIL_USERNAME=${11}
 MAIL_PASSWORD=${12}
 MAIL_FROM=${13}
+SECRET_KEY_BASE=${14}
 APP_COMPOSE="/home/$IMAGE_NAME/docker-compose-${IMAGE_NAME}.yml"
 NGINX_CONF="${IMAGE_NAME}-nginx.conf"
 
@@ -28,7 +29,7 @@ services:
     environment:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PWD}@localhost:5432/${DB_NAME}
       - DATABASE_QUERY_URL=postgres://${DB_USER}_query:${DB_PWD}@localhost:5432/${DB_NAME}
-      - SECRET_KEY_BASE=6jObIP3Cd47fkXDM3TF8nWDPL27ZhfvCVW4MZEK766Uxz8YRTI3JlRShjHcNzZoH
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=${DOMAIN_NAME}
       - MIX_ENV=prod
       - PORT=$PORT
