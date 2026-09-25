@@ -19,13 +19,5 @@ else
     sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN
 fi
 
-# Check if cron job for renewal exists
-CRON_JOB='0 */12 * * * root test -x /usr/bin/certbot -a \! -d /run/systemd/system && perl -e "sleep int(rand(3600))" && certbot -q renew'
-if sudo crontab -l | grep -qF "$CRON_JOB"; then
-    echo "The cron job for certificate renewal already exists."
-else
-    echo "Adding cron job for certificate renewal..."
-    # Append the cron job to the system crontab
-    (sudo crontab -l 2>/dev/null; echo "$CRON_JOB") | sudo crontab -
-    echo "Cron job added successfully."
-fi
+# Renewal is handled by the certbot.timer systemd unit the apt package installs;
+# no crontab entry is needed (check with: systemctl list-timers | grep certbot).
