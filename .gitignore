@@ -47,3 +47,6 @@ secret.txt
 !/docs/superpowers/
 
 deploy.conf
+
+# Claude Code worktrees
+/.claude/worktrees/
