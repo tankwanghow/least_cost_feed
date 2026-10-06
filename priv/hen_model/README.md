@@ -57,7 +57,7 @@ All added rows are in `parameters.csv` with their status:
 
 ## Validation status (see tests)
 
-- T1–T3, T5, T6, T8–T13, T15, T17 pass as specified (T3: L3 Trp is 190.9 vs 195 mg/d, i.e. 2.1 %;
+- T1–T3, T5, T6, T8–T13, T15, T16 (LiveView: `test/least_cost_feed_web/live/formula_live/efc_form_test.exs`), T17 pass as specified (T3: L3 Trp is 190.9 vs 195 mg/d, i.e. 2.1 %;
   accepted under the table's 5 mg/d rounding).
 - **T4**: lay and EW within ±3 % and BW within ±5 % for weeks 20–100 (default mode, 25 °C).
   Feed intake: guide-anchored within ±3 % for weeks 22–85 but only ±5 % to week 100 (late
@@ -67,3 +67,10 @@ All added rows are in `parameters.csv` with their status:
   response: on a non-limiting diet EW does not change; on a tight diet lay falls too. The
   `:explicit` option reproduces −1.6 % (23→27 °C) with no lay change.
 - **T14** (calibration recovery) deferred with the calibration module (v2).
+
+## UI (`/formulas/efc_optimizer`)
+
+- `?tab=spec`: existing spec generator; new "Basis" select (legacy `EfcPredict`, default; or "Hisex Brown model" via `HenModel.spec_for/3`; floor housing maps to barn).
+- `?tab=simulator`: pick one of your formulas or a phase programme (formula + from-week rows), week range or snapshot week, house mean/max temperature, feather score, egg price (per kg, or per egg with grade bands), feed price override, and the model options above. Shows summary stats, the diet panel with the digestibility-route badge, SVG charts, the weekly table (lay %, EW, egg mass, intake, FCR, BW, shell risk, margin, limiting nutrient) and an **Assumptions & limits** panel listing every ASSUMED/PLACEHOLDER parameter, any overrides and the known limits.
+- `?tab=compare`: tick 2–4 formulas; same scenario; comparison table with Δ vs the first formula and overlaid charts.
+- Formulas are always loaded scoped to the signed-in user.

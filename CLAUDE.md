@@ -68,6 +68,7 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 1. A user's formula → `HenModel.Diet` (nutrient aliases; ME kcal/g; SID AAs via `Digestibility` route A/B/C/D)
 2. Daily step: guide potential (`Genotype`) → ME (`Energy`) and SID AA (`AminoAcids`) requirements → intake (`Intake`, first-limiting, capped) → 200 virtual hens (`Population`, Liebig minimum) → lay/EW split and BW (`Partition`)
 3. Weekly aggregation → shell-risk index (`Minerals`) and margin (`Economics`)
+4. UI: `/formulas/efc_optimizer` (`formula_live/efc_form.ex`) has tabs via `?tab=spec|simulator|compare`: the spec generator (basis select: legacy `EfcPredict` default, or `HenModel.spec_for/3`), the Simulator (one formula or a phase programme of the user's formulas, scenario + model options, weekly table, SVG charts, assumptions & limits panel listing ASSUMED/PLACEHOLDER params and overrides) and Compare (2–4 formulas, Δ vs first)
 
 ### Key Patterns
 

@@ -50,7 +50,9 @@ and `CLAUDE.md` for review.
   `premix_print.ex`), comparison (`compare.ex`), infeasibility relaxation
   (`nutrient_relax.ex`, `multi_nutrient_relax.ex`), version history
   (`version_history.ex`), nutrition guide (`nutrition_guide.ex`), EFC
-  (`efc_form.ex`).
+  optimizer (`efc_form.ex`: `?tab=spec` spec generator with legacy/Hisex
+  basis, `?tab=simulator` HenModel simulator with assumptions & limits
+  panel, `?tab=compare` 2–4 formula comparison).
 - `live/ingredient_live/` — ingredient CRUD with composition editor
   (`form.ex`), listing (`index.ex`), cross-formula usage (`usage.ex`),
   comparison (`compare.ex`), nutrient picker (`select_component.ex`).
