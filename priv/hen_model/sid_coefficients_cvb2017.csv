@@ -1,0 +1,27 @@
+# SID coefficients (% units) for poultry from Blok & Dekker (2017), CVB Table 'Standardized ileal digestibility of amino acids in feedstuffs for poultry', Table 4 (source S16; doi:10.18174/426333; PDF https://edepot.wur.nl/426333). estimated_flag=yes: CVB marks the row with '*' = 'SIDC values are estimated and have to be considered as an educated guess'. Crystalline amino acids: SID = 100% (CVB section 7.2). Meat-and-bone, blood and feather meal are not in CVB Table 4 (see CVB Appendix 3-4). Met+Cys SID for a feedstuff = (Met*SID_Met + Cys*SID_Cys)/(Met+Cys), computed from total AA contents.
+feedstuff,estimated_flag,LYS,MET,CYS,THR,TRP,ILE,ARG,VAL
+Barley,no,81.0,91.0,76.0,75.0,79.0,82.0,78.0,80.0
+"Coconut expeller, both qualities",yes,60.0,68.0,62.0,62.0,67.0,69.0,71.0,69.0
+"Cottonseed, extracted",no,58.0,77.0,71.0,66.0,77.0,69.0,86.0,71.0
+DDGS maize,no,61.0,81.0,73.0,66.0,78.0,74.0,78.0,72.0
+Fish meal,no,85.0,83.0,71.0,81.0,79.0,83.0,85.0,83.0
+Maize,no,90.0,94.0,86.0,83.0,85.0,93.0,93.0,90.0
+Maize gluten meal,no,79.0,89.0,74.0,79.0,74.0,85.0,86.0,84.0
+"Molasses, sugarcane, both qualities",yes,93.0,98.0,92.0,91.0,95.0,94.0,83.0,95.0
+"Palm kernel, solvent extracted",no,63.0,75.0,74.0,71.0,74.0,78.0,83.0,82.0
+Peas,no,88.0,85.0,73.0,81.0,79.0,82.0,90.0,82.0
+"Rapeseed, solvent extracted, both quali-",no,78.0,88.0,75.0,73.0,80.0,78.0,85.0,77.0
+"Rice, without hulls",yes,91.0,90.0,84.0,93.0,89.0,95.0,93.0,93.0
+Rice feed meal,no,74.0,72.0,69.0,67.0,70.0,68.0,78.0,66.0
+"Rice feed meal, solvent extracted",yes,62.0,73.0,52.0,60.0,73.0,67.0,77.0,67.0
+"Sesameseed meal, solvent extracted",no,78.0,88.0,77.0,76.0,84.0,87.0,87.0,84.0
+"Soybeans, heat treated",no,85.0,84.0,68.0,77.0,75.0,83.0,87.0,82.0
+Soybean expeller,yes,88.0,90.0,75.0,83.0,89.0,87.0,90.0,86.0
+"Soybean meal, solvent extracted",no,88.0,90.0,75.0,83.0,89.0,87.0,90.0,86.0
+Soyprotein concentrate,no,89.0,90.0,88.0,85.0,88.0,86.0,88.0,90.0
+Sorghum,no,88.0,88.0,90.0,83.0,82.0,90.0,87.0,87.0
+"Sunflower seed meal, solv. extr., all qual.",no,82.0,92.0,73.0,76.0,84.0,85.0,91.0,83.0
+"Tapioca, all qualities",yes,53.0,56.0,50.0,50.0,55.0,53.0,51.0,53.0
+Wheat,no,82.0,89.0,85.0,82.0,87.0,89.0,83.0,87.0
+Wheat bran,no,75.0,78.0,73.0,70.0,74.0,78.0,79.0,74.0
+Wheat middling’s,no,77.0,82.0,76.0,71.0,77.0,78.0,78.0,75.0

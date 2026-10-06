@@ -1,0 +1,44 @@
+# Route C mapping: LCF ingredient name -> CVB 2017 feedstuff (sid_coefficients_cvb2017.csv) or synthetic AA.
+# Matching: case-insensitive substring of the ingredient name; rows are tried top to bottom, first match wins,
+# so put specific patterns before generic ones. kind = feedstuff | synthetic (SID 100%, CVB 7.2).
+# ALL ROWS ARE SUGGESTIONS (status ASSUMED) pending Tan's confirmation (open question 4).
+pattern,kind,cvb_feedstuff,note
+dl-methionine,synthetic,,crystalline AA (S16 7.2)
+l-lysine,synthetic,,crystalline AA (S16 7.2)
+l-threonine,synthetic,,crystalline AA (S16 7.2)
+l-tryptophan,synthetic,,crystalline AA (S16 7.2)
+l-valine,synthetic,,crystalline AA (S16 7.2)
+l-isoleucine,synthetic,,crystalline AA (S16 7.2)
+l-arginine,synthetic,,crystalline AA (S16 7.2)
+corn gluten,feedstuff,Maize gluten meal,
+maize gluten,feedstuff,Maize gluten meal,
+ddgs,feedstuff,DDGS maize,
+corn,feedstuff,Maize,
+maize,feedstuff,Maize,
+soy protein conc,feedstuff,Soyprotein concentrate,
+full fat soy,feedstuff,"Soybeans, heat treated",
+soyabean expeller,feedstuff,Soybean expeller,CVB row is an estimate
+soybean expeller,feedstuff,Soybean expeller,CVB row is an estimate
+soyabean meal,feedstuff,"Soybean meal, solvent extracted",
+soybean meal,feedstuff,"Soybean meal, solvent extracted",
+wheat bran,feedstuff,Wheat bran,
+wheat pollard,feedstuff,Wheat middling’s,pollard assumed equivalent to middlings
+wheat middling,feedstuff,Wheat middling’s,
+wheat,feedstuff,Wheat,
+rice bran,feedstuff,Rice feed meal,"CVB 'rice feed meal' assumed to match full-fat rice bran; confirm"
+broken rice,feedstuff,"Rice, without hulls",CVB row is an estimate
+palm kernel,feedstuff,"Palm kernel, solvent extracted",CVB value is for solvent-extracted; expeller PKC differs
+copra,feedstuff,"Coconut expeller, both qualities",CVB row is an estimate
+coconut,feedstuff,"Coconut expeller, both qualities",CVB row is an estimate
+fish meal,feedstuff,Fish meal,
+rapeseed,feedstuff,"Rapeseed, solvent extracted, both quali-",
+canola,feedstuff,"Rapeseed, solvent extracted, both quali-",
+sunflower,feedstuff,"Sunflower seed meal, solv. extr., all qual.",
+sorghum,feedstuff,Sorghum,
+barley,feedstuff,Barley,
+tapioca,feedstuff,"Tapioca, all qualities",CVB row is an estimate
+cassava,feedstuff,"Tapioca, all qualities",CVB row is an estimate
+molasses,feedstuff,"Molasses, sugarcane, both qualities",CVB row is an estimate
+sesame,feedstuff,"Sesameseed meal, solvent extracted",
+cottonseed,feedstuff,"Cottonseed, extracted",
+peas,feedstuff,Peas,

@@ -41,6 +41,8 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 
 - **`entities.ex`** — Core context module with all CRUD operations, queries, and cost-sync logic. All data is **user-scoped** (isolated per user).
 - **`entities/`** — Ecto schemas: `Formula`, `FormulaIngredient`, `FormulaNutrient`, `FormulaPremixIngredient`, `FormulaVersion`, `Ingredient`, `IngredientComposition`, `Nutrient`.
+- **`hen_model.ex` / `hen_model/`** — Mechanistic Hisex Brown laying-hen model (EFG / Reading model). Pure functions, no DB writes; public API `HenModel.load_diet/3`, `simulate/3` (cycle 18–100 wk or snapshot, phase programmes), `compare/3` (2–4 formulas), `spec_for/3`. Every coefficient comes from `priv/hen_model/parameters.csv` via `HenModel.Params` (status SOURCED/DERIVED/ASSUMED/PLACEHOLDER is carried to the UI); guide curves, Hendrix requirements, CVB SID table, nutrient aliases and the ingredient→CVB map are CSVs in `priv/hen_model/` loaded at compile time (`@external_resource`). See `priv/hen_model/README.md`.
+- **`efc_predict.ex`** — Legacy EFC predictor/spec generator. **Deprecated** (doc metadata only) in favour of `HenModel`; still used by the legacy spec generator.
 - **`glpsol_file_gen.ex`** — Generates MathProg `.mod` content and pipes it to `glpsol --math /dev/stdin`. Parses solver output to extract optimized ingredient proportions, actual nutrient values, and shadow prices. Returns `{:ok, ingredients, nutrients}` or `{:error, reason, output}`.
 - **`user_accounts.ex` / `user_accounts/`** — Authentication context (bcrypt, session tokens, email confirmation).
 
@@ -60,6 +62,12 @@ mix assets.deploy      # Build production assets (Tailwind + esbuild)
 2. "Try Optimize" generates a MathProg model: minimize Σ(cost × proportion) subject to ingredient and nutrient constraints
 3. Model is piped to `glpsol --math /dev/stdin`
 4. Results parsed and displayed in real-time via LiveView
+
+### Hen Model Flow (`HenModel.Simulator`)
+
+1. A user's formula → `HenModel.Diet` (nutrient aliases; ME kcal/g; SID AAs via `Digestibility` route A/B/C/D)
+2. Daily step: guide potential (`Genotype`) → ME (`Energy`) and SID AA (`AminoAcids`) requirements → intake (`Intake`, first-limiting, capped) → 200 virtual hens (`Population`, Liebig minimum) → lay/EW split and BW (`Partition`)
+3. Weekly aggregation → shell-risk index (`Minerals`) and margin (`Economics`)
 
 ### Key Patterns
 

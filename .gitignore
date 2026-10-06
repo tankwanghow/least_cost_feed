@@ -38,6 +38,8 @@ npm-debug.log
 *.mod
 
 *.csv
+# Hen model data files are source, not exports
+!/priv/hen_model/*.csv
 
 secret.txt
 

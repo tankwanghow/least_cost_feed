@@ -1,0 +1,146 @@
+param_id,group,description,value,unit,source_id,location_in_source,status,notes
+geno_targets_table,genotype,"Weekly potential curves (lay %, egg weight, egg mass, feed intake, BW, livability) used as the flock's genetic potential",see hisex_brown_targets.csv,-,S2;S3,"Production Tables 1-2, Rearing table",SOURCED,SE Asia edition (S2) is the default; global edition (S3) selectable
+geno_age_50pct_lay,genotype,Age at 50% hen-day production,143,d,S2,Production summary,SOURCED,Same in S3
+geno_peak_lay_sea,genotype,"Peak hen-day production, SE Asia edition",97.0,%,S2,Production summary,SOURCED,Global edition S3: 97.5%
+geno_peak_lay_global,genotype,"Peak hen-day production, global edition",97.5,%,S3,Production summary,SOURCED,
+geno_mean_egg_wt_100wk,genotype,"Average egg weight 18-100 wk, SE Asia edition",62.0,g,S2,Production summary,SOURCED,S3: 61.5 g
+geno_bw_100wk,genotype,"Body weight at 100 wk, SE Asia edition",1948,g,S2,Production table 2 (per hen housed),SOURCED,S3: 1900 g
+geno_avg_feed_100wk,genotype,"Average feed intake 18-100 wk, SE Asia edition",112,g/d,S2,Production summary,SOURCED,S3: 111 g/d
+geno_livability_100wk,genotype,Livability at 100 wk,92,%,S2,Production summary,SOURCED,
+geno_egg_mass_hh_100wk,genotype,Egg mass per hen housed to 100 wk,29.7,kg,S2,Production summary,SOURCED,
+geno_egg_wt_sd,genotype,Within-flock SD of individual egg weight (for grade split),5.02,g,S2,Egg grading table wk 30-90 (normal fit to %<53 g and %>73 g),DERIVED,range 4.88-5.09 g across weeks; scripts/derive.py step 6
+geno_bw_cv,population,Coefficient of variation of hen body weight,0.069,fraction,S4,Section 2.1 (uniformity >85% for brown layers),ASSUMED,"Derived assuming 'uniformity' = % of birds within +/-10% of mean BW (common industry definition, not stated in S4)"
+geno_sigma_emax,population,SD of individual potential egg output (Reading-model population term),1.0,g/d,S4,"Table 4 (quintile egg mass 56.5-59.4 g/d, 44-66 wk)",ASSUMED,"Back-calculated from spread of quintile means (~2.8 SD); quintile grouping criterion unclear in S4, likely an underestimate. Run sensitivity 1-4 g/d; calibrate on flock data"
+geno_corr_emax_bw,population,Correlation between individual Emax and BW,0.0,-,S7,Model structure lists it as a parameter,PLACEHOLDER,No Hisex value found; 0 until flock data allow estimation
+pop_n_hens,population,Number of virtual hens (or Gauss-Hermite nodes) for population integration,200,count,-,-,ASSUMED,"Numerical setting, not biological; test that results are stable at 100 vs 400"
+me_maint_a,energy,Laying-hen ME maintenance intercept: MEm = W^0.75 (a + b*T),165.74,kcal/kg^0.75/d,S6,Table 5 (laying hen model) and Table 2,SOURCED,"UNESP laying-hen data (Sakomura et al., cited in S6); W = body weight kg, T = ambient temp C"
+me_maint_b,energy,Temperature slope of laying-hen ME maintenance,-2.37,kcal/kg^0.75/d/C,S6,Table 5 and Table 2,SOURCED,Linear; S6 notes linearity applies near thermoneutrality
+me_maint_alt_a,energy,"Alternative laying-hen MEm intercept (Table 2, second equation)",163.67,kcal/kg^0.75/d,S6,Table 2,SOURCED,With slope -2.09
+me_maint_alt_b,energy,Alternative laying-hen MEm temperature slope,-2.09,kcal/kg^0.75/d/C,S6,Table 2,SOURCED,
+me_gain,energy,ME required per g of body-weight gain (laying hen 20-36 wk),6.68,kcal/g,S6,"Table 3 (NEg 4.340 kcal/g, efficiency 65%) and Table 5",SOURCED,
+ne_gain,energy,Net energy content of body-weight gain (laying hen 20-36 wk),4.34,kcal/g,S6,Table 3,SOURCED,
+me_egg,energy,ME required per g egg output,2.4,kcal/g,S6,"Text: egg energy 1.49 kcal/g, efficiency 62%; Table 5",SOURCED,
+me_bwloss_yield,energy,ME made available per g of body-weight loss,4.34,kcal/g,S6,Uses NEg of gain (Table 3),ASSUMED,Assumes mobilised tissue has the composition of laying-period gain and is used at efficiency 1.0; no hen-specific value found
+emmans_brown_a,energy,"Emmans (1974) alternative: ME = W(a + b*T) + 2E + 5dW, brown stock intercept",140,kcal/kg/d,S5,"Emmans 1974 equation (a,b = 170/-2.2 white, 155/-2.1 tinted, 140/-2.0 brown)",SOURCED,Verified via secondary source S5b (thesis table quoting Emmans 1974); primary chapter not accessed. NOTE scaling on W not W^0.75
+emmans_brown_b,energy,"Emmans (1974) temperature slope, brown stock",-2.0,kcal/kg/d/C,S5,as above,SOURCED,secondary verification S5b
+emmans_egg,energy,Emmans (1974) ME per g egg output,2.0,kcal/g,S5,as above,SOURCED,secondary verification S5b
+emmans_gain,energy,Emmans (1974) ME per g BW gain,5.0,kcal/g,S5,as above; also cited in S6 text,SOURCED,
+me_maint_scalar,energy,Multiplier on maintenance ME (calibration handle; 1.0 = Sakomura as published),1.0,-,S6;S2,Sakomura model under-predicts guide intake by ~3% (wk 30) to ~9% (wk 100) at 25 C and 2800 kcal/kg (scripts/derive.py energy_check),ASSUMED,"Neutral default; fit per flock via calibration hook, or use guide-anchored mode (SPEC 4.3)"
+housing_energy_barn_brown,energy,"Extra energy requirement vs cage, barn/aviary, brown layers",9,%,S4,Section 3.10.2,SOURCED,White: 7%
+housing_energy_free_range_brown,energy,"Extra energy requirement vs cage, free range/organic, brown layers",12,%,S4,Section 3.10.2,SOURCED,White: 10%
+feather_lct_a,energy,Lower critical temperature vs feathering: LCT = a + b*F (F = feather cover score 0-1),24.54,C,S6,"Table 2 footnote / Table 5 (Neme 2004, laying-type pullets)",SOURCED,Measured in laying-type pullets (LCT 19/22/24 C at 100/50/0% feathering)
+feather_lct_b,energy,Slope of LCT on feather score,-5.65,C per unit F,S6,Table 2 footnote,SOURCED,pullets
+feather_cold_slope,energy,Increase in MEm per C below LCT,6.73,kcal/kg^0.75/d/C,S6,Text and Table 2: MEm = W^0.75[92.40 + 6.73(LCT-T)],SOURCED,pullets
+feather_warm_slope,energy,Increase in MEm per C above LCT,0.88,kcal/kg^0.75/d/C,S6,Text and Table 2: MEm = W^0.75[92.40 + 0.88(T-LCT)],SOURCED,pullets
+feather_term_applies_to_hens,energy,Apply pullet feather/LCT term as an increment on top of the hen MEm equation (relative to F=1),true,flag,S6;S26,-,ASSUMED,No hen feather-cover coefficients accessed; Peguri & Coon 1993 (S26) is the hen study to obtain and replace this with
+heat_lay_threshold,heat,Temperature above which rate of lay is generally affected,30,C,S4,Section 4 (Tropical conditions),SOURCED,
+heat_lay_slope,heat,Direct reduction in potential lay per C above heat_lay_threshold,,%/C,-,-,PLACEHOLDER,S4 gives only the threshold. Candidate sources: Marsden & Morris 1987 (S32). Default 0 (only intake-mediated effects) until sourced/calibrated
+heat_egg_wt_23_27,heat,Egg weight reduction per C between 23 and 27 C,0.4,%/C,S4,Section 4,SOURCED,"Used as a VALIDATION target (model must reproduce via intake), not as a multiplier, to avoid double counting"
+heat_egg_wt_above_27,heat,Egg weight reduction per C above 27 C,0.8,%/C,S4,Section 4,SOURCED,validation target
+heat_growth_threshold,heat,Growth at point of lay reduced above / severely above,24 / 28,C,S4,Section 4,SOURCED,validation target
+heat_fcr_min_temp,heat,Temperature of minimum FCR,28,C,S4,Section 4,SOURCED,validation target
+intake_rule,intake,"Desired intake = max over ME and each digestible AA of requirement/concentration (EFG first-limiting rule), then capped",structural,-,S17;S18;S12,Emmans 1994; Emmans & Fisher 1986; Gous et al. 1987 (energy acts via intake; AA concentration also affects intake),SOURCED,"Structural rule, not a coefficient"
+intake_aa_drive_lambda,intake,"Fraction of the AA-driven extra intake actually realised (0 = energy-only, 1 = full EFG)",0.0,-,S12,Gous et al. 1987 abstract: AA concentration significantly influenced food intake (magnitude not extracted),PLACEHOLDER,v1 default 0 (energy-only intake: an AA shortfall does not drive extra intake) pending Tan's decision (open question 15). Full EFG theory is 1.0; magnitude must be calibrated on flock data or a dose-response trial
+intake_energy_elasticity,intake,Departure from full energy compensation (energy intake rises with diet ME),0.0,-,S12,Gous et al. 1987: energy intake lower at low and higher at high ME concentration,PLACEHOLDER,"Direction sourced, magnitude not; 0 = full compensation"
+intake_cap_headroom,intake,Max intake as fraction above guide feed intake for that week (gut capacity/onset limit),0.1,fraction,S4,Section 3.10.1 (intake is limiting at start of lay; can take weeks to develop),ASSUMED,Magnitude assumed; replace with Tan's observed maximum intakes
+intake_cap_heat,intake,Reduction of intake cap with heat,,g/d/C,-,-,PLACEHOLDER,Not sourced; Marsden & Morris 1987 (S32) is the candidate source
+egg_edible_lys,egg_composition,Lys in edible whole egg,9.12,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_met,egg_composition,Met in edible whole egg,3.8,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_cys,egg_composition,Cys in edible whole egg,2.72,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_thr,egg_composition,Thr in edible whole egg,5.56,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_trp,egg_composition,Trp in edible whole egg,1.67,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_val,egg_composition,Val in edible whole egg,8.58,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_ile,egg_composition,Ile in edible whole egg,6.71,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_arg,egg_composition,Arg in edible whole egg,8.2,mg/g edible egg,S10,"FDC 171287 (Egg, whole, raw, fresh), per 100 g x10",SOURCED,
+egg_edible_cp,egg_composition,Crude protein in edible whole egg,125.6,mg/g,S10,FDC 171287,SOURCED,
+egg_edible_ca,egg_composition,Calcium in edible egg (excl. shell),0.56,mg/g,S10,FDC 171287,SOURCED,
+egg_edible_p,egg_composition,Phosphorus in edible egg,1.98,mg/g,S10,FDC 171287,SOURCED,
+shell_ca_per_egg,egg_composition,Calcium in a good-quality commercial eggshell,2.2,g/egg,S11,"'Concepts of Eggshell Quality', section The Eggshell Itself",SOURCED,
+shell_caco3_g,egg_composition,CaCO3 in shell (~95% of dry shell),5.5,g/egg,S11,as above,SOURCED,
+shell_fraction_60g,egg_composition,Shell as fraction of a 60 g egg,0.096,fraction,S11,5.5/0.95 = 5.79 g shell,DERIVED,Johnston & Gous 2007 (S20): shell proportion falls with age; age-specific values not accessed
+egg_whole_lys,egg_composition,Lys per g whole (shell-on) egg,8.24,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+egg_whole_metcys,egg_composition,MetCys per g whole (shell-on) egg,5.89,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+egg_whole_thr,egg_composition,Thr per g whole (shell-on) egg,5.02,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+egg_whole_trp,egg_composition,Trp per g whole (shell-on) egg,1.51,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+egg_whole_val,egg_composition,Val per g whole (shell-on) egg,7.75,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+egg_whole_ile,egg_composition,Ile per g whole (shell-on) egg,6.06,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+egg_whole_arg,egg_composition,Arg per g whole (shell-on) egg,7.41,mg/g egg,S10;S11,edible content x (1 - shell fraction),DERIVED,scripts/derive.py step 3
+maint_lys,amino_acids,"Lys maintenance requirement (set A, default)",81,mg/kg^0.75/d,S14,Abstract: 174/94/81/60/133/155 mg/kg^0.75/d for Arg/Ile/Lys/Met/Thr/Val,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_met,amino_acids,"Met maintenance requirement (set A, default)",60,mg/kg^0.75/d,S14,Abstract: 174/94/81/60/133/155 mg/kg^0.75/d for Arg/Ile/Lys/Met/Thr/Val,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_metcys,amino_acids,"MetCys maintenance requirement (set A, default)",71.48,mg/kg^0.75/d,S15,Abstract: TSAA 71.48 mg/kgBW^0.75/d,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_thr,amino_acids,"Thr maintenance requirement (set A, default)",133,mg/kg^0.75/d,S14,Abstract: 174/94/81/60/133/155 mg/kg^0.75/d for Arg/Ile/Lys/Met/Thr/Val,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_trp,amino_acids,Trp maintenance (digestible),15.4,mg/kg^0.75/d,S8;S4,Hendrix L2 SID Trp 195 mg/d split by maintenance share of Reading coefficients 2.25E+10.25W (share 0.128),DERIVED,No Trp maintenance study found
+maint_val,amino_acids,"Val maintenance requirement (set A, default)",155,mg/kg^0.75/d,S14,Abstract: 174/94/81/60/133/155 mg/kg^0.75/d for Arg/Ile/Lys/Met/Thr/Val,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_ile,amino_acids,"Ile maintenance requirement (set A, default)",94,mg/kg^0.75/d,S14,Abstract: 174/94/81/60/133/155 mg/kg^0.75/d for Arg/Ile/Lys/Met/Thr/Val,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_arg,amino_acids,"Arg maintenance requirement (set A, default)",174,mg/kg^0.75/d,S14,Abstract: 174/94/81/60/133/155 mg/kg^0.75/d for Arg/Ile/Lys/Met/Thr/Val,SOURCED,Measured in immature broiler-breeder pullets (comparative slaughter); applicability to laying hens is an assumption
+maint_metcys_setB,amino_acids,Met+Cys maintenance (set B),26,mg/kg^0.75/d,S13,"Abstract/Conclusion (adult Bovans White and Cobb roosters, N balance)",SOURCED,Alternative; 3x lower than set A
+maint_thr_setB,amino_acids,Thr maintenance (set B),22,mg/kg^0.75/d,S13,Abstract/Conclusion,SOURCED,Alternative; 6x lower than set A
+egg_coef_lys,amino_acids,"SID Lys per g egg output (Reading 'a'), calibrated to Hendrix",11.76,mg/g egg,S4;S14,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.7
+egg_coef_met,amino_acids,"SID Met per g egg output (Reading 'a'), calibrated to Hendrix",6.07,mg/g egg,S4;S14,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.57
+egg_coef_metcys,amino_acids,"SID MetCys per g egg output (Reading 'a'), calibrated to Hendrix",10.58,mg/g egg,S4;S15,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.56
+egg_coef_thr,amino_acids,"SID Thr per g egg output (Reading 'a'), calibrated to Hendrix",5.59,mg/g egg,S4;S14,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.9
+egg_coef_trp,amino_acids,"SID Trp per g egg output (Reading 'a'), calibrated to Hendrix",2.88,mg/g egg,S4;S8;S4,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.52
+egg_coef_val,amino_acids,"SID Val per g egg output (Reading 'a'), calibrated to Hendrix",7.53,mg/g egg,S4;S14,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 1.03
+egg_coef_ile,amino_acids,"SID Ile per g egg output (Reading 'a'), calibrated to Hendrix",8.27,mg/g egg,S4;S14,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.73
+egg_coef_arg,amino_acids,"SID Arg per g egg output (Reading 'a'), calibrated to Hendrix",9.39,mg/g egg,S4;S14,"a = (Hendrix L2 SID mg/d - m*W^0.75)/E with E=59.0 g/d, W=1.896 kg (SEA guide 40-65 wk)",DERIVED,Check: predicts L3/L4 guide within 0-12 mg/d; implied efficiency vs egg content = 0.79
+egg_coef_metcys_setB,amino_acids,SID MetCys per g egg output when using maintenance set B,11.83,mg/g egg,S4;S13,as above with set-B maintenance,DERIVED,
+egg_coef_thr_setB,amino_acids,SID Thr per g egg output when using maintenance set B,8.63,mg/g egg,S4;S13,as above with set-B maintenance,DERIVED,
+reading_total_met_a,amino_acids_crosscheck,Reading model total Met per g egg output (individual hen),4,mg/g egg,S8,"Table 1 (laying hens); originals S22 (Met), S23 (Lys), S24 (Trp), Griessel 1981 (Ile)",SOURCED,"Total-AA basis, 1970s-80s hens; used only for cross-checks and Trp maintenance share"
+reading_total_met_b,amino_acids_crosscheck,Reading model total Met per kg body weight,25,mg/kg BW,S8,Table 1,SOURCED,
+reading_total_lys_a,amino_acids_crosscheck,Reading model total Lys per g egg output (individual hen),9.5,mg/g egg,S8,"Table 1 (laying hens); originals S22 (Met), S23 (Lys), S24 (Trp), Griessel 1981 (Ile)",SOURCED,"Total-AA basis, 1970s-80s hens; used only for cross-checks and Trp maintenance share"
+reading_total_lys_b,amino_acids_crosscheck,Reading model total Lys per kg body weight,90,mg/kg BW,S8,Table 1,SOURCED,
+reading_total_trp_a,amino_acids_crosscheck,Reading model total Trp per g egg output (individual hen),2.25,mg/g egg,S8,"Table 1 (laying hens); originals S22 (Met), S23 (Lys), S24 (Trp), Griessel 1981 (Ile)",SOURCED,"Total-AA basis, 1970s-80s hens; used only for cross-checks and Trp maintenance share"
+reading_total_trp_b,amino_acids_crosscheck,Reading model total Trp per kg body weight,10.25,mg/kg BW,S8,Table 1,SOURCED,
+reading_total_ile_a,amino_acids_crosscheck,Reading model total Ile per g egg output (individual hen),9.1,mg/g egg,S8,"Table 1 (laying hens); originals S22 (Met), S23 (Lys), S24 (Trp), Griessel 1981 (Ile)",SOURCED,"Total-AA basis, 1970s-80s hens; used only for cross-checks and Trp maintenance share"
+reading_total_ile_b,amino_acids_crosscheck,Reading model total Ile per kg body weight,48.7,mg/kg BW,S8,Table 1,SOURCED,
+reading_total_protein,amino_acids_crosscheck,Reading model balanced protein: g = 0.28E + 0.16W,0.28 / 0.16,g per g egg / g per kg BW,S8,Table 1,SOURCED,
+reading_net_efficiency,amino_acids_crosscheck,Approx. net efficiency implied by Reading coefficients vs egg and tissue AA,0.85,fraction,S8,Text beside Table 1 ('around 85 percent'),SOURCED,
+reading_population_eq,amino_acids,Population optimum: A = a*Emax + b*BW + x*sqrt(a^2 sdE^2 + b^2 sdBW^2),structural,-,S9;S7,S9 equation (Reading model),SOURCED,Used for the 'spec generator' inverse; simulator integrates over virtual hens instead
+aa_deficit_split_lay,partition,Share of an AA-imbalance egg-mass loss expressed as lower rate of lay (rest = lower egg weight),0.6667,fraction,S4,"Section 3.1 ('2/3 of this reduction is due to a reduced rate of lay, the remaining 1/3 ... egg weight')",SOURCED,"Implemented as lay factor r^(2/3), egg-weight factor r^(1/3), r = E/Emax"
+growth_aa_during_lay,partition,AA requirement for BW gain after onset of lay,0,mg/d,S8,Text: in young laying pullets BW changes are small and appear to be entirely fat,SOURCED,Simplification; AA for feather regrowth not modelled
+fallback_sid_ratio_lys,digestibility,Diet-level SID/total ratio for Lys implied by Hendrix specs (fallback only),0.886,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_met,digestibility,Diet-level SID/total ratio for Met implied by Hendrix specs (fallback only),0.94,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_metcys,digestibility,Diet-level SID/total ratio for MetCys implied by Hendrix specs (fallback only),0.887,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_thr,digestibility,Diet-level SID/total ratio for Thr implied by Hendrix specs (fallback only),0.815,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_trp,digestibility,Diet-level SID/total ratio for Trp implied by Hendrix specs (fallback only),0.88,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_val,digestibility,Diet-level SID/total ratio for Val implied by Hendrix specs (fallback only),0.851,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_ile,digestibility,Diet-level SID/total ratio for Ile implied by Hendrix specs (fallback only),0.87,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+fallback_sid_ratio_arg,digestibility,Diet-level SID/total ratio for Arg implied by Hendrix specs (fallback only),0.912,fraction,S4,"Table 3, mean of SID/total over Layer 1-4",DERIVED,Use only when per-ingredient SID is unavailable; replaces the flat 0.85 in EfcPredict
+sid_crystalline_aa,digestibility,SID of crystalline (feed-grade) amino acids,100,%,S16,Section 7.2,SOURCED,
+sid_ingredient_table,digestibility,Per-feedstuff SID coefficients,see sid_coefficients_cvb2017.csv,%,S16,Table 4,SOURCED,25 feedstuffs extracted; rows flagged estimated_flag=yes are CVB 'educated guesses'
+hendrix_daily_table,requirements,"Hendrix daily total/AFD/SID AA, avP, retP, Ca, Na, Cl and energy by phase",see hendrix_daily_nutrients.csv,mg/hen/d,S4,Table 3 (Layer 1-4),SOURCED,White and brown layers
+ca_feed_share,minerals,Share of shell Ca supplied from feed (rest from medullary bone),0.7,fraction,S4,"Section 7, end-of-chapter point 3 ('Around 30% of the calcium used to form the eggshell is mobilized from the medullary bones')",SOURCED,
+ca_absorption_range,minerals,Fractional Ca absorption between non-calcifying and calcifying periods,0.30-0.70,fraction,S4,Section 7.1,SOURCED,
+coarse_limestone_share_brown,minerals,"Recommended coarse (2-4 mm) share of limestone in production, brown layers",0.7,fraction,S4,Table 10,SOURCED,fine (<0.5 mm) 30%
+avp_adequate_min,minerals,Available P intake adequate for layers,250,mg/d,S8,"Text: 250-300 mg/hen/day adequate, shell quality improved at these levels",SOURCED,upper 300 mg/d
+shell_risk_ca_low,minerals,Ca intake below which shell-risk flag = HIGH (fraction of Hendrix lower band),0.95,fraction,-,-,ASSUMED,Thresholds anchored on S4 bands but cut-points are a design choice
+shell_risk_ca_moderate,minerals,Ca intake below which shell-risk flag = MODERATE (fraction of Hendrix lower band),1.0,fraction,-,-,ASSUMED,
+shell_risk_avp_high,minerals,avP intake above which a 'P excess' shell flag is raised (fraction of Hendrix upper band),1.15,fraction,S11;S8,"Direction: high P negative for shell (S11), lower P improved shell (S8)",ASSUMED,cut-point assumed
+shell_risk_heat,minerals,House temperature above which heat adds a shell-risk point,27,C,S4,Section 4 / 4.3 (heat stress -> poorer shell via alkalosis and lower intake); 27 C is where S4 egg-weight effect doubles,ASSUMED,threshold choice assumed
+shell_risk_age,minerals,Age above which an 'ageing Ca absorption' risk point is added,65,wk,S4,Section 7.6 (absorption declines with age); 65 wk = start of Layer 3,ASSUMED,
+shell_risk_ca_absorption,minerals,Ca absorption used in the Ca-balance check of the shell-risk index,0.5,fraction,S4,Section 7.1 (absorption ~30% to >70%),ASSUMED,Midpoint of the sourced range
+shell_risk_score_bins,minerals,"Shell-risk points to class: 0-1 Low, 2-3 Moderate, >=4 High",0-1/2-3/4+,points,-,-,ASSUMED,"Rule-based screen, design choice"
+linoleic_min,minerals,Linoleic acid requirement (approx.),1.2,% of diet,S4,Section 3.11,SOURCED,Up to 2.9% used for larger eggs
+linoleic_effect,minerals,Egg-weight response to linoleic acid / fat,,g per %,-,S4 gives direction only (fat 2-6% linear effect),PLACEHOLDER,Report as warning only
+egg_grade_bands,economics,Egg weight bands for price grades,,g,-,-,PLACEHOLDER,Need Tan's grade bands/prices (Malaysian grades commonly AA..F; not verified from an official FAMA standard)
+housing_energy_cage,energy,"Extra energy requirement vs cage, cage housing (baseline)",0,%,S4,Section 3.10.2 (barn/free-range extras are expressed relative to cage),DERIVED,"Cage is the reference system, so its increment is 0 by definition"
+guide_anchor_ref_temp,energy,Reference house temperature for guide-anchored energy mode (k_m solved so predicted intake = guide intake at this temperature),25,C,-,-,PLACEHOLDER,The Hisex guide does not state its temperature (SPEC 4.4). 25 C is the temperature used in the spec's energy check; replace with Tan's value (open question 13)
+guide_anchor_window,energy,Weeks over which mean predicted energy-driven intake is matched to mean guide intake in guide-anchored mode,40-65,wk,S4,Table 3 (Layer 2 = 40-65 wk),ASSUMED,Using the Hendrix Layer-2 window is a design choice (SPEC 4.4)
+guide_anchor_diet_me,energy,Diet ME used to solve k_m in guide-anchored mode,2800,kcal/kg,S4,"Table 3 (Layer 2 energy 2775-2875 kcal/kg, cage)",ASSUMED,"Value inside the sourced Layer-2 range, as in SPEC 4.4 and derive.py energy_check"
+heat_egg_wt_ref_temp,heat,Zero point of the optional explicit egg-weight heat multiplier,23,C,S4,Section 4 (EW falls 0.4%/C between 23 and 27 C),ASSUMED,Lower end of the sourced range taken as 'no effect below'; only used when the explicit EW heat option is on
+afd_to_sid_ratio_lys,digestibility,"Diet-level SID/AFD ratio for Lys implied by Hendrix specs (route B, AFD 'Dig.' values)",1.042,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,Used only when 'Dig.' nutrients are declared AFD
+afd_to_sid_ratio_met,digestibility,Diet-level SID/AFD ratio for Met implied by Hendrix specs (route B),1.023,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+afd_to_sid_ratio_metcys,digestibility,Diet-level SID/AFD ratio for MetCys implied by Hendrix specs (route B),1.017,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+afd_to_sid_ratio_thr,digestibility,Diet-level SID/AFD ratio for Thr implied by Hendrix specs (route B),1.002,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+afd_to_sid_ratio_trp,digestibility,Diet-level SID/AFD ratio for Trp implied by Hendrix specs (route B),1.0,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+afd_to_sid_ratio_val,digestibility,Diet-level SID/AFD ratio for Val implied by Hendrix specs (route B),1.002,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+afd_to_sid_ratio_ile,digestibility,Diet-level SID/AFD ratio for Ile implied by Hendrix specs (route B),1.0,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+afd_to_sid_ratio_arg,digestibility,Diet-level SID/AFD ratio for Arg implied by Hendrix specs (route B),1.018,fraction,S4,"Table 3, mean of SID/AFD over Layer 1-4",DERIVED,
+ingredient_cvb_map,digestibility,Mapping of LCF ingredient names to CVB feedstuffs / synthetic AAs (route C),see ingredient_cvb_map.csv,-,-,-,ASSUMED,Suggested name patterns only; every row must be confirmed by Tan (open question 4)
+cal_onset_shift_d,calibration,Onset-of-lay shift delta_on (P_lay(t - delta_on)),0,d,-,SPEC 7,PLACEHOLDER,Neutral until fitted to flock records (bounds -21..+21)
+cal_persistency_scale,calibration,Persistency scale rho (post-peak decline multiplier),1,-,-,SPEC 7,PLACEHOLDER,Neutral until fitted (bounds 0.5..2)
+cal_egg_wt_offset_g,calibration,Egg-weight offset delta_EW,0,g,-,SPEC 7,PLACEHOLDER,Neutral until fitted (bounds -4..+4)
+cal_aa_a_scalar,calibration,Multiplier on all per-g-egg AA coefficients a_i,1,-,-,SPEC 7,PLACEHOLDER,Neutral until fitted; only identifiable when records include >= 2 formulas
+scenario_temp_mean_c,scenario,Default house mean temperature shown in the simulator form (user input),25,C,-,-,PLACEHOLDER,Awaiting Tan's house temperatures (open question 5); same as guide_anchor_ref_temp so default runs are guide-like
+scenario_feather_score,scenario,Default feather cover score (1 = fully feathered),1.0,0-1,-,-,ASSUMED,Open question 10; fully feathered default
+egg_price_per_kg,economics,Egg price per kg (user input),,currency/kg,-,-,PLACEHOLDER,No default price; margin is not computed until entered (open question 6)

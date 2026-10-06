@@ -21,7 +21,21 @@ and `CLAUDE.md` for review.
   `{:error, reason, output}`.
 - `nutrient_relaxer.ex` — elastic-slack relaxation to diagnose infeasible
   formulas (which constraints to loosen and by how much).
-- `efc_predict.ex` — egg/feed prediction support.
+- `efc_predict.ex` — legacy egg/feed prediction + EFC spec generator support;
+  **deprecated** (doc metadata, no compile warning) in favour of `hen_model`.
+- `hen_model.ex` — public API of the Hisex Brown hen model: `load_diet/3`
+  (user-scoped formula → diet), `simulate/3`, `compare/3`, `compare_rows/1`,
+  `spec_for/3`, `nutrients_by_id/1`.
+- `hen_model/` — pure model modules: `params.ex` (parameters.csv, statuses),
+  `csv.ex`, `stats.ex` (normal CDF/inverse, population design),
+  `genotype.ex` (Hisex SEA/global curves, calibration offsets),
+  `hendrix.ex` (Hendrix Table 3 phases), `energy.ex` (Sakomura/Emmans,
+  feather, housing, guide-anchored k_m), `amino_acids.ex` (a·E + m·W^0.75),
+  `diet.ex` (formula → per-g concentrations, aliases), `digestibility.ex`
+  (routes A/B/C/D, CVB map), `intake.ex`, `population.ex`, `partition.ex`,
+  `minerals.ex` (shell risk), `economics.ex`, `scenario.ex`, `simulator.ex`
+  (daily loop, weekly rows, summary). Data in `priv/hen_model/*.csv`
+  (see its README); tests in `test/least_cost_feed/hen_model/`.
 - `user_accounts.ex` / `user_accounts/` — auth (bcrypt, session tokens, email
   confirmation): `user.ex`, `user_token.ex`, `user_notifier.ex`.
 - `helpers.ex`, `mailer.ex`, `repo.ex`, `release.ex`, `application.ex` —
@@ -59,6 +73,14 @@ and `CLAUDE.md` for review.
 4. Output parsed; proportions / actual nutrients / shadow prices shown live via
    LiveView. If infeasible, `nutrient_relaxer.ex` diagnoses which constraints to
    relax.
+
+## Hen model flow
+
+Formula → `Diet` (SID AAs by digestibility route) → daily: `Genotype`
+potential → `Energy` + `AminoAcids` requirements → `Intake` → `Population`
+(N virtual hens, Liebig minimum, flock energy cap) → `Partition` (2/3 lay,
+1/3 EW; BW from energy balance) → weekly rows with `Minerals` shell risk
+and `Economics` margin. Coefficients only via `Params.value/2`.
 
 ## Drift-tracked content (keep current with code)
 

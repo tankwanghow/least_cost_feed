@@ -1,0 +1,42 @@
+key,basis,alias
+me,energy,Metab. Energy Poultry
+me,energy,Metab. Energy
+me,energy,ME
+me,energy,ME Poultry
+cp,total,Crude Protein
+lys,total,Lysine
+met,total,Methionine
+metcys,total,Met + Cys
+metcys,total,Met+Cys
+metcys,total,Methionine + Cystine
+thr,total,Threonine
+trp,total,Tryptophan
+val,total,Valine
+ile,total,Isoleucine
+arg,total,Arginine
+lys,sid,SID Lysine
+met,sid,SID Methionine
+metcys,sid,SID Met + Cys
+metcys,sid,SID Met+Cys
+thr,sid,SID Threonine
+trp,sid,SID Tryptophan
+val,sid,SID Valine
+ile,sid,SID Isoleucine
+arg,sid,SID Arginine
+lys,dig,Dig. Lysine
+met,dig,Dig. Methionine
+metcys,dig,Dig. Met + Cys
+metcys,dig,Dig. Met+Cys
+thr,dig,Dig. Threonine
+trp,dig,Dig. Tryptophan
+val,dig,Dig. Valine
+ile,dig,Dig. Isoleucine
+arg,dig,Dig. Arginine
+ca,total,Calcium
+avp,total,Avail. Phos
+avp,total,Available Phosphorus
+avp,total,Av. Phosphorus
+na,total,Sodium
+cl,total,Chlorine
+cl,total,Chloride
+linoleic,total,Linoleic Acid

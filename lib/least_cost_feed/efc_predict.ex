@@ -1,5 +1,12 @@
 defmodule LeastCostFeed.EfcPredict do
   @moduledoc """
+  **DEPRECATED** — superseded by `LeastCostFeed.HenModel` (mechanistic Hisex
+  Brown model, Hendrix/Reading-based, per-ingredient SID). Kept compiling in
+  v1 so the legacy "EFC Nutrient Spec Generator" keeps working; to be removed
+  in v2 once the new outputs are confirmed (see `priv/hen_model/README.md`).
+  Marked with `@doc deprecated:` metadata (not `@deprecated`, which would turn
+  the remaining caller into a compile warning under `--warnings-as-errors`).
+
   EFC Prediction Model — predicts laying hen egg output from dietary nutrient profiles.
 
   All amino acid values are on a TOTAL basis (matching the ingredient database).
@@ -74,6 +81,7 @@ defmodule LeastCostFeed.EfcPredict do
 
   Returns an `%EfcPredict{}` struct with all predictions.
   """
+  @doc deprecated: "Use LeastCostFeed.HenModel.simulate/3 (snapshot mode) instead"
   def predict(nutrient_map, bird_params \\ %{}) do
     bird = Map.merge(@default_bird, bird_params)
     diet = extract_diet(nutrient_map)
@@ -122,6 +130,7 @@ defmodule LeastCostFeed.EfcPredict do
   All amino acid specs are on TOTAL basis (matching the ingredient database).
   Values are derived from breed supplier guides.
   """
+  @doc deprecated: "Use LeastCostFeed.HenModel.spec_for/3 instead"
   def compute_nutrient_specs(targets, user_nutrients) do
     age = div(targets.age_weeks_min + targets.age_weeks_max, 2)
     target_fi = (targets.consumption_min + targets.consumption_max) / 2.0
