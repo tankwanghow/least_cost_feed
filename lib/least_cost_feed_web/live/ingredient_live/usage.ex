@@ -2,7 +2,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
   use LeastCostFeedWeb, :live_view
 
   alias LeastCostFeed.Entities.{Ingredient, Formula, FormulaIngredient}
-  alias Number.Delimit
+  alias LeastCostFeedWeb.Helpers
   import Ecto.Query, warn: false
 
   @empty_sort_directions %{
@@ -54,25 +54,25 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
             <% end %>
           </div>
           <div class="w-[6%]">
-            <%= Delimit.number_to_delimited(i.ingredient_cost, precision: 4) %>
+            <%= Helpers.number_delimited(i.ingredient_cost, precision: 4) %>
           </div>
           <div class="w-[5%]">
-            <%= Delimit.number_to_delimited(i.use_perc) %>%
+            <%= Helpers.number_delimited(i.use_perc) %>%
           </div>
           <div class="w-[8%]">
-            <%= Delimit.number_to_delimited(i.day_use_7) %>
+            <%= Helpers.number_delimited(i.day_use_7) %>
           </div>
           <div class="w-[8%]">
-            <%= Delimit.number_to_delimited(i.day_cost_7) %>
+            <%= Helpers.number_delimited(i.day_cost_7) %>
           </div>
           <div class="w-[9%]">
-            <%= Delimit.number_to_delimited(i.day_use_30) %>
+            <%= Helpers.number_delimited(i.day_use_30) %>
           </div>
           <div class="w-[9%]">
-            <%= Delimit.number_to_delimited(i.day_cost_30) %>
+            <%= Helpers.number_delimited(i.day_cost_30) %>
           </div>
           <div class="w-[6%]">
-            <%= Delimit.number_to_delimited(i.cost_perc) %>%
+            <%= Helpers.number_delimited(i.cost_perc) %>%
           </div>
         </div>
       <% end %>
@@ -81,10 +81,10 @@ defmodule LeastCostFeedWeb.IngredientLive.Usage do
         <div class="w-[25%]"></div>
         <div class="w-[6%]"></div>
         <div class="w-[5%]"></div>
-        <div class="w-[8%]"><%= Delimit.number_to_delimited(@total_usage_7 * 7) %></div>
-        <div class="w-[8%]"><%= Delimit.number_to_delimited(@total_cost_7) %></div>
-        <div class="w-[9%]"><%= Delimit.number_to_delimited(@total_usage_30 * 30) %></div>
-        <div class="w-[9%]"><%= Delimit.number_to_delimited(@total_cost_30) %></div>
+        <div class="w-[8%]"><%= Helpers.number_delimited(@total_usage_7 * 7) %></div>
+        <div class="w-[8%]"><%= Helpers.number_delimited(@total_cost_7) %></div>
+        <div class="w-[9%]"><%= Helpers.number_delimited(@total_usage_30 * 30) %></div>
+        <div class="w-[9%]"><%= Helpers.number_delimited(@total_cost_30) %></div>
         <div class="w-[6%]"></div>
       </div>
     </div>

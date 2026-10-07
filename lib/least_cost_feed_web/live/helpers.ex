@@ -68,6 +68,45 @@ defmodule LeastCostFeedWeb.Helpers do
     :erlang.float_to_binary(float, [:compact, decimals: decimal])
   end
 
+  # Thousands-delimited display string, e.g. 1234567.891 -> "1,234,567.89".
+  def number_delimited(value, opts \\ [])
+  def number_delimited(nil, _), do: nil
+
+  def number_delimited(value, opts) do
+    precision = Keyword.get(opts, :precision, 2)
+
+    [int, frac] =
+      value
+      |> to_decimal()
+      |> Decimal.round(precision, :half_up)
+      |> Decimal.to_string(:normal)
+      |> String.split(".")
+      |> then(fn
+        [int] -> [int, nil]
+        parts -> parts
+      end)
+
+    {sign, digits} =
+      case int do
+        "-" <> d -> {"-", d}
+        d -> {"", d}
+      end
+
+    delimited =
+      digits
+      |> String.reverse()
+      |> String.graphemes()
+      |> Enum.chunk_every(3)
+      |> Enum.join(",")
+      |> String.reverse()
+
+    if frac, do: "#{sign}#{delimited}.#{frac}", else: sign <> delimited
+  end
+
+  defp to_decimal(%Decimal{} = d), do: d
+  defp to_decimal(f) when is_float(f), do: Decimal.from_float(f)
+  defp to_decimal(v), do: Decimal.new(v)
+
   def signed_float(nil), do: nil
   def signed_float(""), do: nil
 

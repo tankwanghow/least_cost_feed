@@ -2,6 +2,7 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
   use LeastCostFeedWeb, :live_view
 
   alias LeastCostFeed.Entities
+  alias LeastCostFeedWeb.Helpers
 
   @impl true
   def mount(%{"ids" => ids}, _, socket) do
@@ -82,16 +83,16 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
     ~H"""
     <div class="w-[40%] text-nowrap overflow-hidden"><%= @i.ingredient_name %></div>
     <div class="w-[15%] text-right">
-      <%= Number.Delimit.number_to_delimited(@i.cost, precision: 4) %>
+      <%= Helpers.number_delimited(@i.cost, precision: 4) %>
     </div>
     <div class="w-[15%] text-right">
-      <%= Number.Delimit.number_to_delimited(@i.actual * 100, precision: 2) %>%
+      <%= Helpers.number_delimited(@i.actual * 100, precision: 2) %>%
     </div>
     <div class="w-[15%] text-right">
-      <%= Number.Delimit.number_to_delimited(@i.actual * @f.batch_size, precision: 2) %>
+      <%= Helpers.number_delimited(@i.actual * @f.batch_size, precision: 2) %>
     </div>
     <div class="w-[15%] text-right">
-      <%= Number.Delimit.number_to_delimited(@i.actual * @f.batch_size * @i.cost, precision: 2) %>
+      <%= Helpers.number_delimited(@i.actual * @f.batch_size * @i.cost, precision: 2) %>
     </div>
     """
   end
@@ -102,7 +103,7 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
     ~H"""
     <div class="w-[50%] text-center"><%= @n.nutrient_name %></div>
     <div class="w-[50%] text-center">
-      <%= Number.Delimit.number_to_delimited(@n.actual) %> <%= @n.nutrient_unit %>
+      <%= Helpers.number_delimited(@n.actual) %> <%= @n.nutrient_unit %>
     </div>
     """
   end
@@ -135,12 +136,12 @@ defmodule LeastCostFeedWeb.FormulaLive.FormulaPrint do
     <div class="flex gap-6">
       <div class="font-bold text-xl">
         <span class="text-xl font-normal">Batch Size:</span>
-        <%= "#{Number.Delimit.number_to_delimited(@formula.batch_size)}#{@formula.weight_unit}" %>
+        <%= "#{Helpers.number_delimited(@formula.batch_size)}#{@formula.weight_unit}" %>
       </div>
 
       <div class="font-bold text-xl">
         <span class="text-xl font-normal">Cost:</span>
-        <%= "#{Number.Delimit.number_to_delimited(@formula.cost)}/1000#{@formula.weight_unit}" %>
+        <%= "#{Helpers.number_delimited(@formula.cost)}/1000#{@formula.weight_unit}" %>
       </div>
     </div>
     """

@@ -2,6 +2,7 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
   use LeastCostFeedWeb, :live_view
 
   alias LeastCostFeed.Entities
+  alias LeastCostFeedWeb.Helpers
 
   @impl true
   def mount(%{"ids" => ids}, _, socket) do
@@ -87,10 +88,10 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     <div :if={@precentage > 0} class="flex">
       <div class="w-[50%] text-nowrap overflow-hidden"><%= @i.ingredient_name %></div>
       <div class="w-[25%] text-right">
-        <%= Number.Delimit.number_to_delimited(@precentage * 100, precision: 2) %>%
+        <%= Helpers.number_delimited(@precentage * 100, precision: 2) %>%
       </div>
       <div class="w-[25%] text-right">
-        <%= Number.Delimit.number_to_delimited(@precentage * @f.premix_batch_weight, precision: 2) %>
+        <%= Helpers.number_delimited(@precentage * @f.premix_batch_weight, precision: 2) %>
       </div>
     </div>
     """
@@ -103,14 +104,14 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     <div class="flex">
       <div class="w-[50%] text-nowrap overflow-hidden"><%= @f.name %>**PREMIX**</div>
       <div class="w-[25%] text-right">
-        <%= Number.Delimit.number_to_delimited(
+        <%= Helpers.number_delimited(
           @f.premix_batch_weight / @f.premix_bag_make_qty * @f.premix_bag_usage_qty / @f.batch_size *
             100,
           precision: 2
         ) %>%
       </div>
       <div class="w-[25%] text-right">
-        <%= Number.Delimit.number_to_delimited(
+        <%= Helpers.number_delimited(
           @f.premix_batch_weight /
             @f.premix_bag_make_qty * @f.premix_bag_usage_qty,
           precision: 2
@@ -127,13 +128,13 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     <div :if={@i.formula_quantity - @i.premix_quantity > 0.0} class="flex">
       <div class="w-[50%] text-nowrap overflow-hidden"><%= @i.ingredient_name %></div>
       <div class="w-[25%] text-right">
-        <%= Number.Delimit.number_to_delimited(
+        <%= Helpers.number_delimited(
           (@i.formula_quantity - @i.premix_quantity) / @f.batch_size * 100,
           precision: 2
         ) %>%
       </div>
       <div class="w-[25%] text-right">
-        <%= Number.Delimit.number_to_delimited(@i.formula_quantity - @i.premix_quantity, precision: 2) %>
+        <%= Helpers.number_delimited(@i.formula_quantity - @i.premix_quantity, precision: 2) %>
       </div>
     </div>
     """
@@ -145,7 +146,7 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     ~H"""
     <div class="w-[50%] text-center"><%= @n.nutrient_name %></div>
     <div class="w-[50%] text-center">
-      <%= Number.Delimit.number_to_delimited(@n.actual) %> <%= @n.nutrient_unit %>
+      <%= Helpers.number_delimited(@n.actual) %> <%= @n.nutrient_unit %>
     </div>
     """
   end
@@ -178,7 +179,7 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     <div class="flex gap-6">
       <div class="font-bold text-2xl">
         <span class="text-xl font-normal">Batch Size:</span>
-        <%= "#{Number.Delimit.number_to_delimited(@formula.batch_size)}#{@formula.weight_unit}" %>
+        <%= "#{Helpers.number_delimited(@formula.batch_size)}#{@formula.weight_unit}" %>
       </div>
     </div>
     """
@@ -192,7 +193,7 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
     <div class="flex gap-6">
       <div class="font-bold text-2xl">
         <span class="text-xl font-normal">Bag Weight:</span>
-        <%= "#{Number.Delimit.number_to_delimited(@f.premix_batch_weight / @f.premix_bag_make_qty)}#{@f.weight_unit}" %>
+        <%= "#{Helpers.number_delimited(@f.premix_batch_weight / @f.premix_bag_make_qty)}#{@f.weight_unit}" %>
       </div>
 
       <div class="font-bold text-2xl">
@@ -202,7 +203,7 @@ defmodule LeastCostFeedWeb.FormulaLive.PremixPrint do
 
       <div class="font-bold text-2xl">
         <span class="text-xl font-normal">Batch Size:</span>
-        <%= "#{Number.Delimit.number_to_delimited(@f.premix_batch_weight)}#{@f.weight_unit}" %>
+        <%= "#{Helpers.number_delimited(@f.premix_batch_weight)}#{@f.weight_unit}" %>
       </div>
     </div>
     """
