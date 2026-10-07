@@ -179,8 +179,8 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
           premix_batch_weight:
             LeastCostFeedWeb.Helpers.float_parse(a.premix_bag_weight) *
               LeastCostFeedWeb.Helpers.float_parse(a.premix_bags_qty),
-          inserted_at: string_to_datetime(a.inserted_at),
-          updated_at: string_to_datetime(a.updated_at)
+          inserted_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.inserted_at),
+          updated_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.updated_at)
         })
       end)
     end)
@@ -220,8 +220,8 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
           category: a.category,
           dry_matter: LeastCostFeedWeb.Helpers.float_parse(a.dry_matter),
           description: a.description,
-          inserted_at: string_to_datetime(a.inserted_at),
-          updated_at: string_to_datetime(a.updated_at)
+          inserted_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.inserted_at),
+          updated_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.updated_at)
         })
       end)
     end)
@@ -239,8 +239,8 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
           user_id: u.id,
           name: a.nutrient_name,
           unit: a.unit,
-          inserted_at: string_to_datetime(a.inserted_at),
-          updated_at: string_to_datetime(a.updated_at)
+          inserted_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.inserted_at),
+          updated_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.updated_at)
         })
       end)
     end)
@@ -255,9 +255,9 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
         r.insert!(%User{
           email: a.email,
           hashed_password: a.hashed_password,
-          confirmed_at: string_to_datetime(a.confirmed_at),
-          inserted_at: string_to_datetime(a.inserted_at),
-          updated_at: string_to_datetime(a.updated_at)
+          confirmed_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.confirmed_at),
+          inserted_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.inserted_at),
+          updated_at: LeastCostFeedWeb.Helpers.parse_csv_datetime(a.updated_at)
         })
       end)
     end)
@@ -294,12 +294,6 @@ defmodule LeastCostFeedWeb.TransferLive.Form do
       select: i
     )
     |> Repo.one!()
-  end
-
-  defp string_to_datetime(value) do
-    Timex.parse!(value, "%Y-%m-%d %H:%M:%S.%f", :strftime)
-    |> DateTime.from_naive!("Etc/UTC")
-    |> DateTime.truncate(:second)
   end
 
   defp csv_to_attrs(path) do

@@ -34,7 +34,7 @@ defmodule LeastCostFeedWeb.NutrientLive.Index do
           <%= nutrient.unit %>
         </:col>
         <:col :let={{_id, nutrient}} label="Updated" class="w-[30%]" sort="updated_at">
-          <%= Timex.from_now(nutrient.updated_at) %>
+          <%= LeastCostFeedWeb.Helpers.relative_time(nutrient.updated_at) %>
         </:col>
 
         <:action :let={{_id, nutrient}} class="w-[10%] text-error">

@@ -107,7 +107,7 @@ defmodule LeastCostFeedWeb.FormulaLive.Index do
           /><%= formula.weight_unit %>
         </:col>
         <:col :let={{_id, formula}} label="Updated" class="w-[15%]" sort="updated_at">
-          <%= Timex.from_now(formula.updated_at) %>
+          <%= Helpers.relative_time(formula.updated_at) %>
         </:col>
 
         <:col :let={{_id, formula}} class="w-[3%] text-secondary">

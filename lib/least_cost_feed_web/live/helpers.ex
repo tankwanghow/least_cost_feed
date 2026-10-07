@@ -103,6 +103,57 @@ defmodule LeastCostFeedWeb.Helpers do
     if frac, do: "#{sign}#{delimited}.#{frac}", else: sign <> delimited
   end
 
+  # "3 minutes ago" / "yesterday" / "in 2 days" — same bands as Timex.from_now/1
+  # (30-day months, 360-day years), which this replaced.
+  def relative_time(datetime, now \\ DateTime.utc_now())
+
+  def relative_time(%NaiveDateTime{} = naive, now),
+    do: naive |> DateTime.from_naive!("Etc/UTC") |> relative_time(now)
+
+  def relative_time(%DateTime{} = datetime, now) do
+    case DateTime.diff(now, datetime) do
+      0 -> "now"
+      diff when diff > 0 -> relative_phrase(diff) |> past()
+      diff -> relative_phrase(-diff) |> future()
+    end
+  end
+
+  @minute 60
+  @hour 60 * @minute
+  @day 24 * @hour
+  @month 30 * @day
+  @year 12 * @month
+
+  defp relative_phrase(s) when s <= 45, do: {s, "second"}
+  defp relative_phrase(s) when s < 2 * @minute, do: {1, "minute"}
+  defp relative_phrase(s) when s < @hour, do: {div(s, @minute), "minute"}
+  defp relative_phrase(s) when s < 2 * @hour, do: {1, "hour"}
+  defp relative_phrase(s) when s < @day, do: {div(s, @hour), "hour"}
+  defp relative_phrase(s) when s < 2 * @day, do: :one_day
+  defp relative_phrase(s) when s < @month, do: {div(s, @day), "day"}
+  defp relative_phrase(s) when s < 2 * @month, do: {1, "month"}
+  defp relative_phrase(s) when s < @year, do: {div(s, @month), "month"}
+  defp relative_phrase(s) when s < 2 * @year, do: {1, "year"}
+  defp relative_phrase(s), do: {div(s, @year), "year"}
+
+  defp past(:one_day), do: "yesterday"
+  defp past(count_unit), do: count_with_unit(count_unit) <> " ago"
+
+  defp future(:one_day), do: "tomorrow"
+  defp future(count_unit), do: "in " <> count_with_unit(count_unit)
+
+  defp count_with_unit({1, unit}), do: "1 #{unit}"
+  defp count_with_unit({n, unit}), do: "#{n} #{unit}s"
+
+  # Postgres text timestamp from a CSV export ("2024-05-01 12:34:56.123456")
+  # -> whole-second UTC DateTime.
+  def parse_csv_datetime(value) do
+    value
+    |> NaiveDateTime.from_iso8601!()
+    |> DateTime.from_naive!("Etc/UTC")
+    |> DateTime.truncate(:second)
+  end
+
   defp to_decimal(%Decimal{} = d), do: d
   defp to_decimal(f) when is_float(f), do: Decimal.from_float(f)
   defp to_decimal(v), do: Decimal.new(v)

@@ -76,7 +76,7 @@ defmodule LeastCostFeedWeb.IngredientLive.Index do
           <%= ingredient.dry_matter %>
         </:col>
         <:col :let={{_id, ingredient}} label="Updated" class="w-[15%]" sort="updated_at">
-          <%= Timex.from_now(ingredient.updated_at) %>
+          <%= LeastCostFeedWeb.Helpers.relative_time(ingredient.updated_at) %>
         </:col>
 
         <:action :let={{_id, ingredient}} class="w-[5%] text-error">

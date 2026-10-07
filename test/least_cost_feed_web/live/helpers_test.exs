@@ -42,4 +42,68 @@ defmodule LeastCostFeedWeb.HelpersTest do
       assert Helpers.number_delimited(nil) == nil
     end
   end
+
+  # Expected strings follow Timex.from_now/1 (timex 3.7.13), which this replaced:
+  # 30-day months, 360-day years, "yesterday"/"tomorrow" for the 1-2 day band.
+  describe "relative_time/2" do
+    @now ~U[2026-10-07 12:00:00Z]
+
+    defp ago(seconds), do: Helpers.relative_time(DateTime.add(@now, -seconds), @now)
+
+    test "seconds" do
+      assert ago(0) == "now"
+      assert ago(1) == "1 second ago"
+      assert ago(30) == "30 seconds ago"
+      assert ago(45) == "45 seconds ago"
+    end
+
+    test "minutes" do
+      assert ago(46) == "1 minute ago"
+      assert ago(119) == "1 minute ago"
+      assert ago(120) == "2 minutes ago"
+      assert ago(44 * 60) == "44 minutes ago"
+      assert ago(3599) == "59 minutes ago"
+    end
+
+    test "hours and yesterday" do
+      assert ago(3600) == "1 hour ago"
+      assert ago(89 * 60) == "1 hour ago"
+      assert ago(7200) == "2 hours ago"
+      assert ago(22 * 3600) == "22 hours ago"
+      assert ago(86_400) == "yesterday"
+      assert ago(36 * 3600) == "yesterday"
+    end
+
+    test "days, months, years" do
+      day = 86_400
+      assert ago(2 * day) == "2 days ago"
+      assert ago(26 * day) == "26 days ago"
+      assert ago(30 * day) == "1 month ago"
+      assert ago(45 * day) == "1 month ago"
+      assert ago(60 * day) == "2 months ago"
+      assert ago(320 * day) == "10 months ago"
+      assert ago(360 * day) == "1 year ago"
+      assert ago(548 * day) == "1 year ago"
+      assert ago(800 * day) == "2 years ago"
+    end
+
+    test "future times" do
+      assert ago(-30) == "in 30 seconds"
+      assert ago(-60) == "in 1 minute"
+      assert ago(-3600) == "in 1 hour"
+      assert ago(-86_400) == "tomorrow"
+      assert ago(-5 * 86_400) == "in 5 days"
+    end
+
+    test "accepts NaiveDateTime as UTC" do
+      assert Helpers.relative_time(~N[2026-10-07 11:58:00], @now) == "2 minutes ago"
+    end
+  end
+
+  describe "parse_csv_datetime/1" do
+    test "parses Postgres text timestamps to a whole-second UTC DateTime" do
+      assert Helpers.parse_csv_datetime("2024-05-01 12:34:56.123456") == ~U[2024-05-01 12:34:56Z]
+      assert Helpers.parse_csv_datetime("2024-05-01 12:34:56.5") == ~U[2024-05-01 12:34:56Z]
+    end
+  end
 end
