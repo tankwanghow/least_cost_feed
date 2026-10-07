@@ -42,16 +42,15 @@ RUN mix release
 
 FROM ${RUNNER_IMAGE}
 
+# Runtime only: beam.smp links libstdc++ and libtinfo (already in the base
+# image); glpsol comes from glpk-utils. No -dev/-doc packages or recommends.
 RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-  glpk-utils libglpk-dev glpk-doc \
-  && apt-get clean && rm -f /var/lib/apt/lists/*_*
+  apt-get install -y --no-install-recommends libstdc++6 openssl ca-certificates glpk-utils \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
+# C.UTF-8 ships with Debian's libc, so no locales package or locale-gen.
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 WORKDIR "/app"
 RUN chown nobody /app
