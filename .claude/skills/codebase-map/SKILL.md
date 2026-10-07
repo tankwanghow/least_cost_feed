@@ -1,6 +1,6 @@
 ---
 name: codebase-map
-description: Use when navigating or modifying the LeastCostFeed codebase - maps module layout, the optimization flow, and key-file responsibilities. Kept in sync with lib/ via the doc-drift hook.
+description: Use when navigating or modifying the LeastCostFeed codebase, or writing tests that log users in or create entities - maps module layout, the optimization flow, key-file responsibilities, and auth/fixture gotchas. Kept in sync with lib/ via the doc-drift hook.
 ---
 
 # LeastCostFeed Codebase Map
@@ -83,6 +83,23 @@ potential → `Energy` + `AminoAcids` requirements → `Intake` → `Population`
 (N virtual hens, Liebig minimum, flock energy cap) → `Partition` (2/3 lay,
 1/3 EW; BW from energy balance) → weekly rows with `Minerals` shell risk
 and `Economics` margin. Coefficients only via `Params.value/2`.
+
+## Auth & test fixtures
+
+- Password login (`UserSessionController.create/3`) requires `user.confirmed_at`;
+  an unconfirmed user is redirected to `/users/log_in` with the flash
+  "Please Confirm your Account." Registration therefore never logs the user in.
+- `user_fixture/1` returns an **unconfirmed** user (many confirmation tests rely
+  on that). Tests that log in with email/password must use
+  `confirmed_user_fixture/1`. `log_in_user/2` (ConnCase) puts a session token
+  directly and works with either.
+- Don't confirm via `UserAccounts.confirm_user/1` in tests unless you're testing
+  confirmation itself: its multi also inserts the user's sample nutrients and
+  ingredients from `priv/static/sample_data/*.csv`.
+- `user_type` is not cast from params; `register_user/1` sets `"admin"` on the
+  first user only (via `put_change`, since form params have string keys).
+- `EntitiesFixtures` create a user when `user_id` is not given; entities are
+  user-scoped and require `user_id`.
 
 ## Drift-tracked content (keep current with code)
 
