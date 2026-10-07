@@ -59,17 +59,24 @@ defmodule LeastCostFeed.Entities do
   def update_ingredient(%Ingredient{} = ingredient, attrs) do
     Repo.transaction(fn r ->
       cs = ingredient |> Ingredient.changeset(attrs)
-      r.update(cs)
 
-      if Ecto.Changeset.changed?(cs, :cost) do
-        from(fi in FormulaIngredient,
-          join: f in Formula,
-          on: f.id == fi.formula_id,
-          where: f.user_id == ^ingredient.user_id,
-          where: fi.ingredient_id == ^ingredient.id,
-          select: fi
-        )
-        |> r.update_all(set: [cost: Ecto.Changeset.fetch_field!(cs, :cost)])
+      case r.update(cs) do
+        {:ok, updated} ->
+          if Ecto.Changeset.changed?(cs, :cost) do
+            from(fi in FormulaIngredient,
+              join: f in Formula,
+              on: f.id == fi.formula_id,
+              where: f.user_id == ^ingredient.user_id,
+              where: fi.ingredient_id == ^ingredient.id,
+              select: fi
+            )
+            |> r.update_all(set: [cost: updated.cost])
+          end
+
+          updated
+
+        {:error, cs} ->
+          r.rollback(cs)
       end
     end)
   end
