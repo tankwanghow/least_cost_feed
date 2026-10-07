@@ -93,6 +93,30 @@ defmodule LeastCostFeed.UserAccountsTest do
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
     end
+
+    test "makes the first user an admin when params have string keys (form submit)" do
+      params = %{"email" => unique_user_email(), "password" => valid_user_password()}
+
+      assert {:ok, first} = UserAccounts.register_user(params)
+      assert first.user_type == "admin"
+
+      params = %{"email" => unique_user_email(), "password" => valid_user_password()}
+      assert {:ok, second} = UserAccounts.register_user(params)
+      assert second.user_type == "user"
+    end
+
+    test "ignores a user_type submitted in the registration params" do
+      user_fixture()
+
+      params = %{
+        "email" => unique_user_email(),
+        "password" => valid_user_password(),
+        "user_type" => "admin"
+      }
+
+      assert {:ok, user} = UserAccounts.register_user(params)
+      assert user.user_type == "user"
+    end
   end
 
   describe "change_user_registration/2" do

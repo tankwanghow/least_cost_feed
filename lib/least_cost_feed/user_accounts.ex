@@ -81,16 +81,18 @@ defmodule LeastCostFeed.UserAccounts do
 
   """
   def register_user(attrs) do
-    attrs =
-      if from(u in User) |> Repo.all() |> Enum.count() == 0 do
-        attrs |> Map.merge(%{user_type: "admin"})
+    changeset = User.registration_changeset(%User{}, attrs)
+
+    # Set on the changeset, not merged into attrs: form params have string
+    # keys and Ecto rejects a map mixing atom and string keys.
+    changeset =
+      if Repo.exists?(User) do
+        changeset
       else
-        attrs
+        Ecto.Changeset.put_change(changeset, :user_type, "admin")
       end
 
-    %User{}
-    |> User.registration_changeset(attrs)
-    |> Repo.insert()
+    Repo.insert(changeset)
   end
 
   @doc """

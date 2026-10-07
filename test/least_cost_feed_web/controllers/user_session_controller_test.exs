@@ -4,7 +4,7 @@ defmodule LeastCostFeedWeb.UserSessionControllerTest do
   import LeastCostFeed.UserAccountsFixtures
 
   setup do
-    %{user: user_fixture()}
+    %{user: confirmed_user_fixture()}
   end
 
   describe "POST /users/log_in" do
@@ -82,6 +82,19 @@ defmodule LeastCostFeedWeb.UserSessionControllerTest do
 
       assert redirected_to(conn) == ~p"/users/settings"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Password updated successfully"
+    end
+
+    test "refuses to log in an unconfirmed user", %{conn: conn} do
+      user = user_fixture()
+
+      conn =
+        post(conn, ~p"/users/log_in", %{
+          "user" => %{"email" => user.email, "password" => valid_user_password()}
+        })
+
+      refute get_session(conn, :user_token)
+      assert Phoenix.Flash.get(conn.assigns.flash, :warn) == "Please Confirm your Account."
+      assert redirected_to(conn) == ~p"/users/log_in"
     end
 
     test "redirects to login page with invalid credentials", %{conn: conn} do

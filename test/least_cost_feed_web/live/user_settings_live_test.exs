@@ -85,7 +85,7 @@ defmodule LeastCostFeedWeb.UserSettingsLiveTest do
   describe "update password form" do
     setup %{conn: conn} do
       password = valid_user_password()
-      user = user_fixture(%{password: password})
+      user = confirmed_user_fixture(%{password: password})
       %{conn: log_in_user(conn, user), user: user, password: password}
     end
 

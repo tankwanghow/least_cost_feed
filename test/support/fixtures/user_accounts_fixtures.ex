@@ -23,6 +23,19 @@ defmodule LeastCostFeed.UserAccountsFixtures do
     user
   end
 
+  @doc """
+  A user who can log in with email and password (login requires `confirmed_at`).
+
+  Sets `confirmed_at` directly instead of going through `UserAccounts.confirm_user/1`,
+  which also seeds the user's sample nutrients and ingredients.
+  """
+  def confirmed_user_fixture(attrs \\ %{}) do
+    attrs
+    |> user_fixture()
+    |> LeastCostFeed.UserAccounts.User.confirm_changeset()
+    |> LeastCostFeed.Repo.update!()
+  end
+
   def extract_user_token(fun) do
     {:ok, captured_email} = fun.(&"[TOKEN]#{&1}[TOKEN]")
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")

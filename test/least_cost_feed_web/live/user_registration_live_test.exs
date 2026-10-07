@@ -37,7 +37,7 @@ defmodule LeastCostFeedWeb.UserRegistrationLiveTest do
   end
 
   describe "register user" do
-    test "creates account and logs the user in", %{conn: conn} do
+    test "creates account and asks the user to confirm it before logging in", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/users/register")
 
       email = unique_user_email()
@@ -45,14 +45,10 @@ defmodule LeastCostFeedWeb.UserRegistrationLiveTest do
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
-
-      # Now do a logged in request and assert on the menu
-      conn = get(conn, "/")
-      response = html_response(conn, 200)
-      assert response =~ email
-      assert response =~ "Settings"
-      assert response =~ "Log out"
+      assert redirected_to(conn) == ~p"/users/log_in"
+      assert Phoenix.Flash.get(conn.assigns.flash, :warn) =~ "Please Confirm your Account."
+      refute get_session(conn, :user_token)
+      assert LeastCostFeed.UserAccounts.get_user_by_email(email)
     end
 
     test "renders errors for duplicated email", %{conn: conn} do
